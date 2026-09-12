@@ -1,11 +1,21 @@
 import type { CSSProperties, KeyboardEventHandler, PointerEventHandler, ReactNode } from "react";
 import { t } from "../core/i18n";
+import type { TargetUnit } from "../core/types";
+
+export interface SortHandleHandlers {
+  onPointerDown: PointerEventHandler<HTMLButtonElement>;
+  onPointerMove: PointerEventHandler<HTMLButtonElement>;
+  onPointerUp: PointerEventHandler<HTMLButtonElement>;
+  onPointerCancel: PointerEventHandler<HTMLButtonElement>;
+  onKeyDown: KeyboardEventHandler<HTMLButtonElement>;
+}
 
 export function TrackableCardShell({
   id,
   complete,
   expanded,
   dragging,
+  dragOffsetY,
   summary,
   dragHandle,
   completion,
@@ -15,6 +25,7 @@ export function TrackableCardShell({
   complete: boolean;
   expanded: boolean;
   dragging: boolean;
+  dragOffsetY: number;
   summary: ReactNode;
   dragHandle: ReactNode;
   completion: ReactNode;
@@ -24,6 +35,7 @@ export function TrackableCardShell({
     <article
       className={`dhikr-card${complete ? " is-complete" : ""}${expanded ? " is-expanded" : ""}${dragging ? " is-dragging" : ""}`}
       data-card-id={id}
+      style={{ "--drag-offset-y": `${dragOffsetY}px` } as CSSProperties}
     >
       <div className="card-collapsed-row">
         {dragHandle}
@@ -39,12 +51,14 @@ export function CollapsedCardSummary({
   title,
   arabic,
   targetCount,
+  targetUnit,
   expanded,
   onToggle,
 }: {
   title: string;
   arabic: boolean;
   targetCount: number | null;
+  targetUnit: TargetUnit;
   expanded: boolean;
   onToggle: () => void;
 }) {
@@ -59,12 +73,12 @@ export function CollapsedCardSummary({
       <span className={arabic ? "arabic-preview" : "name-preview"} lang={arabic ? "ar" : "tr"} dir={arabic ? "rtl" : "ltr"}>
         {title}
       </span>
-      <TargetBadge count={targetCount} />
+      <TargetBadge count={targetCount} unit={targetUnit} />
     </button>
   );
 }
 
-export function TargetBadge({ count }: { count: number | null }) {
+export function TargetBadge({ count, unit }: { count: number | null; unit: TargetUnit }) {
   if (count === null) {
     return (
       <span className="target-preview infinity-target" aria-label={t("card.infinityLabel")} title={t("card.infinityLabel")}>
@@ -72,7 +86,14 @@ export function TargetBadge({ count }: { count: number | null }) {
       </span>
     );
   }
-  return <span className="target-preview">{t("card.target", { count })}</span>;
+  const key = unit === "page"
+    ? "card.targetPage"
+    : unit === "minute"
+      ? "card.targetMinute"
+      : unit === "hour"
+        ? "card.targetHour"
+        : "card.target";
+  return <span className="target-preview">{t(key, { count })}</span>;
 }
 
 export function CompletionLight({
@@ -100,27 +121,32 @@ export function CompletionLight({
 }
 
 export function SortHandle({
+  sortId,
   label,
   onPointerDown,
   onPointerMove,
   onPointerUp,
+  onPointerCancel,
   onKeyDown,
 }: {
+  sortId: string;
   label: string;
   onPointerDown: PointerEventHandler<HTMLButtonElement>;
   onPointerMove: PointerEventHandler<HTMLButtonElement>;
   onPointerUp: PointerEventHandler<HTMLButtonElement>;
+  onPointerCancel: PointerEventHandler<HTMLButtonElement>;
   onKeyDown: KeyboardEventHandler<HTMLButtonElement>;
 }) {
   return (
     <button
       className="drag-handle"
       type="button"
+      data-sort-id={sortId}
       aria-label={label}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
-      onPointerCancel={onPointerUp}
+      onPointerCancel={onPointerCancel}
       onKeyDown={onKeyDown}
     >
       <i />

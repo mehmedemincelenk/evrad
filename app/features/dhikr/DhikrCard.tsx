@@ -1,6 +1,5 @@
 "use client";
 
-import type { KeyboardEventHandler, PointerEventHandler } from "react";
 import {
   CollapsedCardSummary,
   CompletionLight,
@@ -8,6 +7,7 @@ import {
   ExpandableCardContent,
   SortHandle,
   TrackableCardShell,
+  type SortHandleHandlers,
 } from "../../components/TrackerPrimitives";
 import { t } from "../../core/i18n";
 import type { Dhikr } from "../../core/types";
@@ -25,31 +25,27 @@ export function DhikrCard({
   complete,
   expanded,
   dragging,
+  dragOffsetY,
   position,
   onToggleExpanded,
   onToggleComplete,
   onChangeFont,
   onEdit,
   onDelete,
-  onPointerDown,
-  onPointerMove,
-  onPointerUp,
-  onSortKeyDown,
+  sortHandleProps,
 }: {
   dhikr: Dhikr;
   complete: boolean;
   expanded: boolean;
   dragging: boolean;
+  dragOffsetY: number;
   position: number;
   onToggleExpanded: () => void;
   onToggleComplete: () => void;
   onChangeFont: (direction: -1 | 1) => void;
   onEdit: () => void;
   onDelete: () => void;
-  onPointerDown: PointerEventHandler<HTMLButtonElement>;
-  onPointerMove: PointerEventHandler<HTMLButtonElement>;
-  onPointerUp: PointerEventHandler<HTMLButtonElement>;
-  onSortKeyDown: KeyboardEventHandler<HTMLButtonElement>;
+  sortHandleProps: SortHandleHandlers;
 }) {
   const display = getDisplayTitle(dhikr);
 
@@ -59,13 +55,12 @@ export function DhikrCard({
       complete={complete}
       expanded={expanded}
       dragging={dragging}
+      dragOffsetY={dragOffsetY}
       dragHandle={(
         <SortHandle
+          sortId={dhikr.id}
           label={t("card.reorder", { position })}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={onPointerUp}
-          onKeyDown={onSortKeyDown}
+          {...sortHandleProps}
         />
       )}
       summary={(
@@ -73,6 +68,7 @@ export function DhikrCard({
           title={display.text}
           arabic={display.arabic}
           targetCount={dhikr.targetCount}
+          targetUnit={dhikr.targetUnit}
           expanded={expanded}
           onToggle={onToggleExpanded}
         />

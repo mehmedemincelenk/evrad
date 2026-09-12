@@ -156,7 +156,7 @@ h1 {
 .progress-orb.is-complete { color: #111318; border-color: var(--light); background: var(--light); box-shadow: 0 0 1rem rgba(255, 253, 240, 0.62), 0 0 2.8rem rgba(255, 250, 220, 0.2); }
 .progress-orb.is-complete small { color: #5e5a50; }
 
-.dhikr-list { display: grid; gap: 0.72rem; }
+.dhikr-list { display: grid; gap: 0.55rem; }
 
 .dhikr-card {
   position: relative;
@@ -186,13 +186,26 @@ h1 {
 
 .dhikr-card.is-complete::before { opacity: 1; }
 .dhikr-card.is-expanded { border-color: rgba(255, 255, 255, 0.14); }
-.dhikr-card.is-dragging { z-index: 5; transform: scale(1.018); border-color: rgba(255, 253, 239, 0.32); box-shadow: 0 1.5rem 4rem -1.3rem #000; }
+.dhikr-card.is-dragging {
+  z-index: 5;
+  transform: translateY(var(--drag-offset-y, 0)) scale(1.025);
+  border-color: rgba(255, 253, 239, 0.38);
+  box-shadow: 0 1.5rem 4rem -1.3rem #000, 0 0 2rem -0.8rem rgba(255, 252, 232, 0.22);
+  will-change: transform;
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 55ms linear;
+  animation: sortLift 180ms ease-out;
+}
+
+@keyframes sortLift {
+  from { transform: translateY(var(--drag-offset-y, 0)) scale(0.985); }
+  to { transform: translateY(var(--drag-offset-y, 0)) scale(1.025); }
+}
 
 .card-collapsed-row {
   display: grid;
-  grid-template-columns: 2.55rem minmax(0, 1fr) 3.45rem;
+  grid-template-columns: 2.1rem minmax(0, 1fr) 2.75rem;
   align-items: stretch;
-  min-height: 7.1rem;
+  min-height: 4.7rem;
 }
 
 .drag-handle,
@@ -214,46 +227,58 @@ h1 {
   gap: 0.25rem;
   align-content: center;
   justify-content: center;
-  min-width: 2.55rem;
+  min-width: 2.1rem;
   min-height: 3rem;
   opacity: 0.42;
   cursor: grab;
   touch-action: none;
 }
 
-.drag-handle:active { cursor: grabbing; }
+.is-sorting .drag-handle { cursor: grabbing; opacity: 0.7; }
 .drag-handle i { display: block; width: 0.85rem; height: 1px; background: var(--muted); pointer-events: none; }
 
 .card-main {
-  display: grid;
-  gap: 0.48rem;
-  align-content: center;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
   width: 100%;
   min-width: 0;
-  padding: 1.05rem 0.65rem;
+  padding: 0.65rem 0.45rem 0.65rem 0.25rem;
   text-align: right;
 }
 
 .arabic-preview {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
   font-family: "Noto Naskh Arabic", "Geeza Pro", "Traditional Arabic", serif;
-  font-size: clamp(1.8rem, 8vw, 2.4rem);
-  line-height: 1.52;
+  font-size: clamp(1.55rem, 6.5vw, 1.95rem);
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .name-preview {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
   color: var(--text);
   font-family: Iowan Old Style, Baskerville, Georgia, serif;
-  font-size: clamp(1.25rem, 6vw, 1.7rem);
+  font-size: clamp(1.05rem, 4.8vw, 1.35rem);
   line-height: 1.25;
   text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .target-preview {
   color: var(--muted);
+  flex: 0 0 auto;
   font-size: 0.68rem;
   font-weight: 650;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .infinity-target { font-family: Georgia, serif; font-size: 1.12rem; font-weight: 400; letter-spacing: 0; line-height: 0.7; }
@@ -262,8 +287,8 @@ h1 {
   position: relative;
   display: grid;
   place-items: center;
-  min-width: 3.45rem;
-  min-height: 3.45rem;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
   align-self: stretch;
   padding: 0;
 }
@@ -272,7 +297,7 @@ h1 {
   position: relative;
   display: grid;
   place-items: center;
-  width: 2.65rem;
+  width: 2.05rem;
   aspect-ratio: 1;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 50%;
@@ -391,7 +416,7 @@ h1 {
 .edge-launcher.is-open span:first-child { transform: translateY(0.41rem); }
 .edge-launcher.is-open span:last-child { transform: translateY(-0.41rem); }
 
-.menu-scrim { position: fixed; inset: 0; z-index: 30; width: 100%; border: 0; background: rgba(2, 3, 5, 0.38); backdrop-filter: blur(1.5px); }
+.menu-scrim { position: fixed; inset: 0; z-index: 30; width: 100%; border: 0; background: rgba(2, 3, 5, 0.38); }
 
 .transient-bottom-bar {
   position: fixed;
@@ -407,7 +432,6 @@ h1 {
   border-radius: 1.35rem;
   background: rgba(18, 20, 25, 0.96);
   box-shadow: 0 1.4rem 4rem rgba(0, 0, 0, 0.55), 0 0 2.5rem rgba(255, 250, 220, 0.04);
-  backdrop-filter: blur(20px);
   opacity: 0;
   transform: translate(-50%, calc(100% + 2rem));
   visibility: hidden;
@@ -468,6 +492,36 @@ h1 {
 .target-field > span { grid-column: 1 / -1; }
 .target-field input { font-family: Georgia, serif; font-size: 1.2rem; }
 .target-field small { color: var(--muted); font-size: 0.72rem; }
+
+.target-unit-toggle {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.32rem;
+  padding: 0.3rem;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.018);
+}
+
+.target-unit-toggle button {
+  min-width: 0;
+  min-height: 2.65rem;
+  padding: 0 0.35rem;
+  border: 0;
+  border-radius: 0.72rem;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.72rem;
+  font-weight: 700;
+  transition: color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+
+.target-unit-toggle button.is-selected {
+  background: var(--light);
+  color: #111318;
+  box-shadow: 0 0 1rem rgba(255, 253, 240, 0.16);
+}
 
 .choice-row { display: grid; grid-template-columns: 2.6rem 1fr; align-items: center; gap: 0.75rem; min-height: 3.5rem; cursor: pointer; }
 .choice-row input { position: absolute; opacity: 0; pointer-events: none; }
@@ -546,9 +600,9 @@ button:focus-visible { outline: 2px solid var(--light); outline-offset: 3px; }
 @media (max-width: 360px) {
   .dhikr-screen { padding-inline: 0.72rem; }
   .screen-heading { margin-top: 0.35rem; }
-  .card-collapsed-row { grid-template-columns: 2.25rem minmax(0, 1fr) 3.25rem; }
-  .drag-handle { min-width: 2.25rem; }
-  .completion-light { min-width: 3.25rem; }
+  .card-collapsed-row { grid-template-columns: 1.9rem minmax(0, 1fr) 2.55rem; }
+  .drag-handle { min-width: 1.9rem; }
+  .completion-light { min-width: 2.55rem; }
   .transient-bottom-bar { gap: 0; padding-inline: 0.35rem; }
   .module-button { min-width: 2.55rem; }
 }

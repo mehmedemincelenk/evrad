@@ -47,3 +47,17 @@ test("PWA manifest and architecture declarations stay aligned", async () => {
   assert.match(registryText, /id: "games"[\s\S]*enabled: false/);
   assert.match(typesText, /"prayers"[\s\S]*"books"[\s\S]*"memorization"[\s\S]*"dhikr"[\s\S]*"games"/);
 });
+
+test("target units and long-press sorting remain modular", async () => {
+  const [typesText, toggleText, hookText, cssText] = await Promise.all([
+    readFile(new URL("../app/core/types.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/TargetUnitToggle.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/hooks/useLongPressSort.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+  ]);
+  assert.match(typesText, /"count"\s*\|\s*"page"\s*\|\s*"minute"\s*\|\s*"hour"/);
+  assert.match(toggleText, /aria-pressed/);
+  assert.match(hookText, /HOLD_DELAY_MS\s*=\s*280/);
+  assert.match(cssText, /text-overflow:\s*ellipsis/);
+  assert.doesNotMatch(cssText.match(/\.menu-scrim\s*\{[^}]+\}/)?.[0] ?? "", /backdrop-filter/);
+});

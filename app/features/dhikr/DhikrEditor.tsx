@@ -2,6 +2,7 @@
 
 import { useMemo, useState, type FormEvent } from "react";
 import { EntityEditorShell } from "../../components/EntityEditorShell";
+import { TargetUnitToggle } from "../../components/TargetUnitToggle";
 import { t } from "../../core/i18n";
 import type { Dhikr, DhikrDraft } from "../../core/types";
 
@@ -11,6 +12,7 @@ const emptyDraft: DhikrDraft = {
   translation: "",
   details: "",
   targetCount: "",
+  targetUnit: "count",
   listDisplay: "arabic",
 };
 
@@ -22,6 +24,7 @@ function draftFromDhikr(dhikr: Dhikr | null): DhikrDraft {
     translation: dhikr.translation ?? "",
     details: dhikr.details ?? "",
     targetCount: dhikr.targetCount?.toString() ?? "",
+    targetUnit: dhikr.targetUnit,
     listDisplay: dhikr.listDisplay,
   };
 }
@@ -130,6 +133,8 @@ export function DhikrEditor({
           />
           <small>{t("editor.targetHint")}</small>
         </label>
+
+        <TargetUnitToggle value={draft.targetUnit} onChange={(unit) => update("targetUnit", unit)} />
 
         {canChooseName ? (
           <label className="choice-row">

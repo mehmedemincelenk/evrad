@@ -5,13 +5,12 @@ import {
   useEffect,
   useRef,
   useState,
-  type KeyboardEvent,
-  type PointerEvent,
 } from "react";
 import { AppShell } from "../../AppShell";
 import { DeleteConfirmation } from "../../components/DeleteConfirmation";
 import { formatLongDate, getLocalDateKey } from "../../core/date";
 import { t } from "../../core/i18n";
+import { normalizeOrder } from "../../core/sort";
 import type { Dhikr, DhikrDraft, ModuleId } from "../../core/types";
 import {
   deleteDhikr,
@@ -22,26 +21,13 @@ import {
   seedDhikrs,
   setCompletion,
 } from "../../data/db";
+import { useLongPressSort } from "../../hooks/useLongPressSort";
 import { DhikrCard, getDisplayTitle } from "./DhikrCard";
 import { DhikrEditor } from "./DhikrEditor";
 
 function createId(): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID();
   return `dhikr-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-}
-
-function normalizeOrder(items: Dhikr[]): Dhikr[] {
-  return items.map((item, sortOrder) => ({ ...item, sortOrder }));
-}
-
-function moveItem(items: Dhikr[], id: string, targetId: string): Dhikr[] {
-  const from = items.findIndex((item) => item.id === id);
-  const to = items.findIndex((item) => item.id === targetId);
-  if (from < 0 || to < 0 || from === to) return items;
-  const next = [...items];
-  const [moved] = next.splice(from, 1);
-  next.splice(to, 0, moved);
-  return normalizeOrder(next);
 }
 
 export function DhikrApp() {
@@ -55,11 +41,8 @@ export function DhikrApp() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuActivity, setMenuActivity] = useState(0);
   const [toast, setToast] = useState<string | null>(null);
-  const [draggingId, setDraggingId] = useState<string | null>(null);
-  const [reorderAnnouncement, setReorderAnnouncement] = useState("");
   const [updateReady, setUpdateReady] = useState(false);
   const itemsRef = useRef(dhikrs);
-  const dragIdRef = useRef<string | null>(null);
   const serviceWorkerRef = useRef<ServiceWorkerRegistration | null>(null);
 
   const showStorageError = useCallback(() => setToast(t("toast.storageError")), []);
@@ -68,6 +51,19 @@ export function DhikrApp() {
     itemsRef.current = items;
     setDhikrs(items);
   }, []);
+
+  const {
+    draggingId,
+    dragOffsetY,
+    announcement: reorderAnnouncement,
+    handleProps: sortHandleProps,
+  } = useLongPressSort({
+    items: dhikrs,
+    onChange: replaceItems,
+    onPersist: saveDhikrOrder,
+    getAnnouncement: (item, position) => t("card.reordered", { title: getDisplayTitle(item).text, position }),
+    onError: showStorageError,
+  });
 
   useEffect(() => {
     let active = true;
@@ -193,6 +189,7 @@ export function DhikrApp() {
       translation: draft.translation || null,
       details: draft.details || null,
       targetCount: draft.targetCount ? Number(draft.targetCount) : null,
+      targetUnit: draft.targetUnit,
       listDisplay: draft.listDisplay,
       expandedArabicSize: existing?.expandedArabicSize ?? 1,
       sortOrder: existing?.sortOrder ?? itemsRef.current.length,
@@ -226,64 +223,6 @@ export function DhikrApp() {
     deleteDhikr(id).then(() => saveDhikrOrder(itemsRef.current)).catch(showStorageError);
     setDeleteTarget(null);
     setToast(t("toast.deleted"));
-  };
-
-  const reorderTo = (id: string, targetId: string) => {
-    const next = moveItem(itemsRef.current, id, targetId);
-    if (next !== itemsRef.current) replaceItems(next);
-  };
-
-  const startPointerSort = (event: PointerEvent<HTMLButtonElement>, id: string) => {
-    if (event.button !== 0) return;
-    event.preventDefault();
-    event.currentTarget.setPointerCapture(event.pointerId);
-    dragIdRef.current = id;
-    setDraggingId(id);
-  };
-
-  const movePointerSort = (event: PointerEvent<HTMLButtonElement>, id: string) => {
-    if (dragIdRef.current !== id) return;
-    event.preventDefault();
-    const cards = Array.from(document.querySelectorAll<HTMLElement>("[data-card-id]"));
-    let closest: { id: string; distance: number } | null = null;
-    for (const card of cards) {
-      const cardId = card.dataset.cardId;
-      if (!cardId || cardId === id) continue;
-      const rect = card.getBoundingClientRect();
-      const distance = Math.abs(event.clientY - (rect.top + rect.height / 2));
-      if (!closest || distance < closest.distance) closest = { id: cardId, distance };
-    }
-    if (closest) reorderTo(id, closest.id);
-  };
-
-  const finishPointerSort = (event: PointerEvent<HTMLButtonElement>, id: string) => {
-    if (dragIdRef.current !== id) return;
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
-    dragIdRef.current = null;
-    setDraggingId(null);
-    const position = itemsRef.current.findIndex((item) => item.id === id) + 1;
-    const item = itemsRef.current.find((candidate) => candidate.id === id);
-    if (item) setReorderAnnouncement(t("card.reordered", { title: getDisplayTitle(item).text, position }));
-    saveDhikrOrder(itemsRef.current).catch(showStorageError);
-  };
-
-  const keyboardSort = (event: KeyboardEvent<HTMLButtonElement>, id: string) => {
-    if (!["ArrowUp", "ArrowDown", "Home", "End"].includes(event.key)) return;
-    event.preventDefault();
-    const currentIndex = itemsRef.current.findIndex((item) => item.id === id);
-    if (currentIndex < 0) return;
-    const targetIndex = event.key === "Home"
-      ? 0
-      : event.key === "End"
-        ? itemsRef.current.length - 1
-        : Math.max(0, Math.min(itemsRef.current.length - 1, currentIndex + (event.key === "ArrowUp" ? -1 : 1)));
-    const target = itemsRef.current[targetIndex];
-    if (!target || target.id === id) return;
-    reorderTo(id, target.id);
-    const item = itemsRef.current.find((candidate) => candidate.id === id);
-    const position = itemsRef.current.findIndex((candidate) => candidate.id === id) + 1;
-    if (item) setReorderAnnouncement(t("card.reordered", { title: getDisplayTitle(item).text, position }));
-    saveDhikrOrder(itemsRef.current).catch(showStorageError);
   };
 
   const handleModule = (id: ModuleId, enabled: boolean) => {
@@ -335,16 +274,14 @@ export function DhikrApp() {
                 complete={completeIds.has(dhikr.id)}
                 expanded={expandedIds.has(dhikr.id)}
                 dragging={draggingId === dhikr.id}
+                dragOffsetY={draggingId === dhikr.id ? dragOffsetY : 0}
                 position={index + 1}
                 onToggleExpanded={() => toggleExpanded(dhikr.id)}
                 onToggleComplete={() => toggleComplete(dhikr.id)}
                 onChangeFont={(direction) => changeFont(dhikr, direction)}
                 onEdit={() => setEditor(dhikr)}
                 onDelete={() => setDeleteTarget(dhikr)}
-                onPointerDown={(event) => startPointerSort(event, dhikr.id)}
-                onPointerMove={(event) => movePointerSort(event, dhikr.id)}
-                onPointerUp={(event) => finishPointerSort(event, dhikr.id)}
-                onSortKeyDown={(event) => keyboardSort(event, dhikr.id)}
+                sortHandleProps={sortHandleProps}
               />
             ))}
           </div>
