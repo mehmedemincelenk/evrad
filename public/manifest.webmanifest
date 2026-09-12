@@ -1,0 +1,18 @@
+{
+  "name": "Zikirlerim",
+  "short_name": "Zikirlerim",
+  "description": "Günlük zikirlerini kendi sıranla, sakin ve aydınlık bir deneyimle takip et.",
+  "lang": "tr",
+  "dir": "ltr",
+  "start_url": "/zikirler",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#07080b",
+  "theme_color": "#07080b",
+  "categories": ["lifestyle", "productivity"],
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
