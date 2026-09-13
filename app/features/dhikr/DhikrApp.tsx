@@ -6,46 +6,64 @@ import {
   useRef,
   useState,
 } from "react";
+import { useRouter } from "next/navigation";
 import { AppShell } from "../../AppShell";
+import { ConfirmationModal } from "../../components/ConfirmationModal";
 import { DeleteConfirmation } from "../../components/DeleteConfirmation";
+import { StorageLoading } from "../../components/StorageLoading";
+import { useAppRuntime } from "../../core/AppRuntimeContext";
 import { formatLongDate, getLocalDateKey } from "../../core/date";
 import { t } from "../../core/i18n";
 import { normalizeOrder } from "../../core/sort";
-import type { Dhikr, DhikrDraft, ModuleId } from "../../core/types";
+import type { Dhikr, DhikrDraft } from "../../core/types";
 import {
   deleteDhikr,
   loadCompletionIds,
   loadDhikrs,
   saveDhikr,
   saveDhikrOrder,
-  seedDhikrs,
   setCompletion,
 } from "../../data/db";
 import { useLongPressSort } from "../../hooks/useLongPressSort";
 import { DhikrCard, getDisplayTitle } from "./DhikrCard";
 import { DhikrEditor } from "./DhikrEditor";
+import { getMissingRecommendedDhikrs } from "./recommended-dhikrs";
+
+export type DhikrEditorMode = { type: "new" } | { type: "edit"; id: string } | null;
 
 function createId(): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID();
   return `dhikr-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
-export function DhikrApp() {
-  const [dhikrs, setDhikrs] = useState<Dhikr[]>(() => seedDhikrs.map((item) => ({ ...item })));
+export function DhikrApp({ editorMode = null }: { editorMode?: DhikrEditorMode }) {
+  const router = useRouter();
+  return (
+    <AppShell activeModule="dhikr" onAdd={() => router.push("/zikirler/yeni")}>
+      <DhikrScreen editorMode={editorMode} />
+    </AppShell>
+  );
+}
+
+function DhikrScreen({ editorMode }: { editorMode: DhikrEditorMode }) {
+  const router = useRouter();
+  const { showToast } = useAppRuntime();
+  const [dhikrs, setDhikrs] = useState<Dhikr[]>([]);
   const [completeIds, setCompleteIds] = useState<Set<string>>(() => new Set());
   const [expandedIds, setExpandedIds] = useState<Set<string>>(() => new Set());
   const [currentDate, setCurrentDate] = useState(() => getLocalDateKey());
   const [today, setToday] = useState<Date | null>(null);
-  const [editor, setEditor] = useState<"new" | Dhikr | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Dhikr | null>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [menuActivity, setMenuActivity] = useState(0);
-  const [toast, setToast] = useState<string | null>(null);
-  const [updateReady, setUpdateReady] = useState(false);
+  const [recommendedConfirmOpen, setRecommendedConfirmOpen] = useState(false);
+  const [storageReady, setStorageReady] = useState(false);
   const itemsRef = useRef(dhikrs);
-  const serviceWorkerRef = useRef<ServiceWorkerRegistration | null>(null);
+  const editor = editorMode?.type === "new"
+    ? "new"
+    : editorMode?.type === "edit"
+      ? dhikrs.find((item) => item.id === editorMode.id) ?? null
+      : null;
 
-  const showStorageError = useCallback(() => setToast(t("toast.storageError")), []);
+  const showStorageError = useCallback(() => showToast(t("toast.storageError")), [showToast]);
 
   const replaceItems = useCallback((items: Dhikr[]) => {
     itemsRef.current = items;
@@ -72,8 +90,12 @@ export function DhikrApp() {
         if (!active) return;
         replaceItems(storedDhikrs);
         setCompleteIds(storedCompletions);
+        setStorageReady(true);
       })
-      .catch(showStorageError);
+      .catch(() => {
+        setStorageReady(true);
+        showStorageError();
+      });
     return () => { active = false; };
   }, [currentDate, replaceItems, showStorageError]);
 
@@ -97,57 +119,10 @@ export function DhikrApp() {
   }, [currentDate]);
 
   useEffect(() => {
-    if (!toast) return;
-    const timeout = window.setTimeout(() => setToast(null), 2600);
-    return () => window.clearTimeout(timeout);
-  }, [toast]);
-
-  useEffect(() => {
-    if (!("serviceWorker" in navigator) || !window.isSecureContext) return;
-    if (process.env.NODE_ENV !== "production") {
-      navigator.serviceWorker.getRegistrations().then((registrations) => registrations.forEach((registration) => registration.unregister()));
-      return;
-    }
-    let disposed = false;
-
-    navigator.serviceWorker.register("/sw.js").then(async (registration) => {
-      if (disposed) return;
-      serviceWorkerRef.current = registration;
-      if (registration.waiting) setUpdateReady(true);
-      registration.addEventListener("updatefound", () => {
-        const worker = registration.installing;
-        worker?.addEventListener("statechange", () => {
-          if (worker.state === "installed" && navigator.serviceWorker.controller) setUpdateReady(true);
-        });
-      });
-
-      const ready = await navigator.serviceWorker.ready;
-      const resourceUrls = performance
-        .getEntriesByType("resource")
-        .map((entry) => entry.name)
-        .filter((url) => url.startsWith(window.location.origin));
-      ready.active?.postMessage({
-        type: "CACHE_URLS",
-        urls: [
-          "/",
-          "/zikirler",
-          "/manifest.webmanifest",
-          "/icon-192.png",
-          "/icon-512.png",
-          "/fonts/NotoNaskhArabic-Regular.ttf",
-          "/fonts/NotoNaskhArabic-Bold.ttf",
-          ...resourceUrls,
-        ],
-      });
-    }).catch(() => undefined);
-
-    const onControllerChange = () => window.location.reload();
-    navigator.serviceWorker.addEventListener("controllerchange", onControllerChange);
-    return () => {
-      disposed = true;
-      navigator.serviceWorker.removeEventListener("controllerchange", onControllerChange);
-    };
-  }, []);
+    if (!storageReady || editorMode?.type !== "edit" || editor) return;
+    showToast(t("editor.notFound"));
+    router.replace("/zikirler");
+  }, [editor, editorMode, router, showToast, storageReady]);
 
   const toggleExpanded = (id: string) => {
     setExpandedIds((current) => {
@@ -201,8 +176,8 @@ export function DhikrApp() {
       : [...itemsRef.current, dhikr];
     replaceItems(normalizeOrder(next));
     saveDhikr(dhikr).catch(showStorageError);
-    setEditor(null);
-    setToast(t("toast.saved"));
+    router.replace("/zikirler");
+    showToast(t("toast.saved"));
   };
 
   const confirmDelete = () => {
@@ -221,32 +196,31 @@ export function DhikrApp() {
     });
     deleteDhikr(id).then(() => saveDhikrOrder(itemsRef.current)).catch(showStorageError);
     setDeleteTarget(null);
-    setToast(t("toast.deleted"));
+    showToast(t("toast.deleted"));
   };
 
-  const handleModule = (id: ModuleId, enabled: boolean) => {
-    setMenuActivity((value) => value + 1);
-    if (!enabled) {
-      const key = `menu.${id}` as "menu.prayers" | "menu.books" | "menu.memorization" | "menu.games";
-      setToast(t("toast.comingSoon", { module: t(key) }));
+  const addRecommended = () => {
+    const missing = getMissingRecommendedDhikrs(itemsRef.current);
+    setRecommendedConfirmOpen(false);
+    if (!missing.length) {
+      showToast(t("recommended.alreadyAdded"));
       return;
     }
-    if (id === "dhikr") setMenuOpen(false);
+    const now = new Date().toISOString();
+    const additions = missing.map((item, index): Dhikr => ({
+      ...item,
+      sortOrder: itemsRef.current.length + index,
+      createdAt: now,
+      updatedAt: now,
+    }));
+    const next = normalizeOrder([...itemsRef.current, ...additions]);
+    replaceItems(next);
+    saveDhikrOrder(next).catch(showStorageError);
+    showToast(t("recommended.added", { count: additions.length }));
   };
 
-  const activateUpdate = () => serviceWorkerRef.current?.waiting?.postMessage({ type: "SKIP_WAITING" });
-
   return (
-    <AppShell
-      menuOpen={menuOpen}
-      menuActivity={menuActivity}
-      activeModule="dhikr"
-      onOpenMenu={() => { setMenuOpen(true); setMenuActivity((value) => value + 1); }}
-      onCloseMenu={() => setMenuOpen(false)}
-      onMenuActivity={() => setMenuActivity((value) => value + 1)}
-      onModule={handleModule}
-      onAdd={() => { setMenuOpen(false); setEditor("new"); }}
-    >
+    <>
       <section className="dhikr-screen" aria-labelledby="page-title">
         <header className="screen-heading">
           <p className="eyebrow">{t("app.eyebrow")}</p>
@@ -257,7 +231,7 @@ export function DhikrApp() {
           </div>
         </header>
 
-        {dhikrs.length ? (
+        {!storageReady ? <StorageLoading /> : dhikrs.length ? (
           <div className="dhikr-list">
             {dhikrs.map((dhikr, index) => (
               <DhikrCard
@@ -271,7 +245,7 @@ export function DhikrApp() {
                 onToggleExpanded={() => toggleExpanded(dhikr.id)}
                 onToggleComplete={() => toggleComplete(dhikr.id)}
                 onChangeFont={(direction) => changeFont(dhikr, direction)}
-                onEdit={() => setEditor(dhikr)}
+                onEdit={() => router.push(`/zikirler/${encodeURIComponent(dhikr.id)}/duzenle`)}
                 onDelete={() => setDeleteTarget(dhikr)}
                 sortHandleProps={sortHandleProps}
               />
@@ -282,28 +256,27 @@ export function DhikrApp() {
             <div className="empty-light" aria-hidden="true" />
             <h2>{t("empty.title")}</h2>
             <p>{t("empty.body")}</p>
-            <button className="primary-button" type="button" onClick={() => setEditor("new")}>{t("action.addFirst")}</button>
+            <button className="primary-button" type="button" onClick={() => router.push("/zikirler/yeni")}>{t("action.addFirst")}</button>
           </div>
         )}
 
         <p className="quiet-note">{t("app.lightNote")}</p>
+        {storageReady ? (
+          <button className="recommended-trigger" type="button" onClick={() => setRecommendedConfirmOpen(true)}>
+            <span aria-hidden="true">✦</span>
+            {t("recommended.trigger")}
+          </button>
+        ) : null}
       </section>
 
       <p className="sr-only" aria-live="polite">{reorderAnnouncement}</p>
-
-      {toast ? <div className="toast" role="status">{toast}</div> : null}
-      {updateReady ? (
-        <div className="update-banner" role="status">
-          <span>{t("toast.updateReady")}</span>
-          <button type="button" onClick={activateUpdate}>{t("toast.reload")}</button>
-        </div>
-      ) : null}
+      {draggingId ? <div className="sort-status" role="status">{t("card.sorting")}</div> : null}
 
       {editor ? (
         <DhikrEditor
           key={editor === "new" ? "new" : editor.id}
           dhikr={editor === "new" ? null : editor}
-          onClose={() => setEditor(null)}
+          onClose={() => router.replace("/zikirler")}
           onSave={saveDraft}
         />
       ) : null}
@@ -315,6 +288,17 @@ export function DhikrApp() {
           onConfirm={confirmDelete}
         />
       ) : null}
-    </AppShell>
+
+      {recommendedConfirmOpen ? (
+        <ConfirmationModal
+          title={t("recommended.confirmTitle")}
+          body={<p>{t("recommended.confirmBody")}</p>}
+          cancelLabel={t("action.cancel")}
+          confirmLabel={t("recommended.confirm")}
+          onCancel={() => setRecommendedConfirmOpen(false)}
+          onConfirm={addRecommended}
+        />
+      ) : null}
+    </>
   );
 }

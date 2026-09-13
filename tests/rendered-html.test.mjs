@@ -22,9 +22,18 @@ test("server-renders the Zikirlerim application", async () => {
   const html = await response.text();
   assert.match(html, /<title>Zikirlerim<\/title>/i);
   assert.match(html, /BUGÜNÜN RİTMİ/);
-  assert.match(html, /سُبْحَانَ اللّٰهِ/);
+  assert.match(html, /Zikirlerin yükleniyor/);
   assert.match(html, /Bölüm menüsünü aç/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton|Your site is taking shape/i);
+});
+
+test("new dhikr has its own full-page route", async () => {
+  const response = await render("/zikirler/yeni");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /Yeni zikir/);
+  assert.match(html, /Günlük hedef/);
+  assert.match(html, /Örn\. sayfa/);
 });
 
 test("root route forwards to the active module", async () => {
@@ -60,6 +69,16 @@ test("target units and long-press sorting remain modular", async () => {
   assert.match(hookText, /HOLD_DELAY_MS\s*=\s*240/);
   assert.match(hookText, /window\.addEventListener\("pointermove"/);
   assert.match(hookText, /document\.elementsFromPoint/);
+  assert.match(hookText, /requestAnimationFrame\(autoScroll\)/);
   assert.match(cssText, /text-overflow:\s*ellipsis/);
   assert.doesNotMatch(cssText.match(/\.menu-scrim\s*\{[^}]+\}/)?.[0] ?? "", /backdrop-filter/);
+});
+
+test("recommended collection is deduplicated and long entries use names", async () => {
+  const recommendedText = await readFile(new URL("../app/features/dhikr/recommended-dhikrs.ts", import.meta.url), "utf8");
+  assert.match(recommendedText, /recommendedDhikrs/);
+  assert.match(recommendedText, /recommended-esmaul-husna[\s\S]*listDisplay: "name"/);
+  assert.match(recommendedText, /recommended-distress-dhikr[\s\S]*listDisplay: "name"/);
+  assert.match(recommendedText, /getMissingRecommendedDhikrs/);
+  assert.match(recommendedText, /normalizeIdentity/);
 });

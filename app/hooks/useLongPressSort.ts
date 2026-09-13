@@ -23,8 +23,11 @@ interface ActivePress {
   pointerId: number;
   originX: number;
   originY: number;
+  currentX: number;
+  currentY: number;
   active: boolean;
   timer: number;
+  autoScrollFrame: number | null;
   onMove: (event: PointerEvent) => void;
   onEnd: (event: PointerEvent) => void;
 }
@@ -52,6 +55,7 @@ export function useLongPressSort<T extends SortableItem>({
 
   const finish = useCallback((press: ActivePress, persist: boolean) => {
     window.clearTimeout(press.timer);
+    if (press.autoScrollFrame !== null) cancelAnimationFrame(press.autoScrollFrame);
     window.removeEventListener("pointermove", press.onMove, true);
     window.removeEventListener("pointerup", press.onEnd, true);
     window.removeEventListener("pointercancel", press.onEnd, true);
@@ -73,6 +77,7 @@ export function useLongPressSort<T extends SortableItem>({
     const press = pressRef.current;
     if (press) {
       window.clearTimeout(press.timer);
+      if (press.autoScrollFrame !== null) cancelAnimationFrame(press.autoScrollFrame);
       window.removeEventListener("pointermove", press.onMove, true);
       window.removeEventListener("pointerup", press.onEnd, true);
       window.removeEventListener("pointercancel", press.onEnd, true);
@@ -91,7 +96,40 @@ export function useLongPressSort<T extends SortableItem>({
     press.pointerId = event.pointerId;
     press.originX = event.clientX;
     press.originY = event.clientY;
+    press.currentX = event.clientX;
+    press.currentY = event.clientY;
     press.active = false;
+    press.autoScrollFrame = null;
+    const moveOverTarget = () => {
+      const targetCard = document.elementsFromPoint(press.currentX, press.currentY)
+        .map((element) => element.closest<HTMLElement>("[data-card-id]"))
+        .find((element) => element?.dataset.cardId && element.dataset.cardId !== press.id);
+      const targetId = targetCard?.dataset.cardId;
+      if (!targetId) return;
+      const next = moveItem(itemsRef.current, press.id, targetId);
+      if (next === itemsRef.current) return;
+      itemsRef.current = next;
+      onChange(next);
+      press.originY = press.currentY;
+      setDragOffsetY(0);
+      if ("vibrate" in navigator) navigator.vibrate(5);
+    };
+    const autoScroll = () => {
+      if (!press.active || pressRef.current !== press) return;
+      const edge = 88;
+      const bottomEdge = window.innerHeight - edge;
+      const distance = press.currentY < edge
+        ? press.currentY - edge
+        : press.currentY > bottomEdge
+          ? press.currentY - bottomEdge
+          : 0;
+      if (distance !== 0) {
+        const speed = Math.sign(distance) * Math.min(14, Math.max(3, Math.abs(distance) / 5));
+        window.scrollBy(0, speed);
+        moveOverTarget();
+      }
+      press.autoScrollFrame = requestAnimationFrame(autoScroll);
+    };
     press.onMove = (moveEvent) => {
       if (moveEvent.pointerId !== press.pointerId) return;
       const distance = Math.hypot(moveEvent.clientX - press.originX, moveEvent.clientY - press.originY);
@@ -101,19 +139,10 @@ export function useLongPressSort<T extends SortableItem>({
       }
 
       moveEvent.preventDefault();
-      setDragOffsetY(moveEvent.clientY - press.originY);
-      const targetCard = document.elementsFromPoint(moveEvent.clientX, moveEvent.clientY)
-        .map((element) => element.closest<HTMLElement>("[data-card-id]"))
-        .find((element) => element?.dataset.cardId && element.dataset.cardId !== press.id);
-      const targetId = targetCard?.dataset.cardId;
-      if (!targetId) return;
-
-      const next = moveItem(itemsRef.current, press.id, targetId);
-      if (next === itemsRef.current) return;
-      itemsRef.current = next;
-      onChange(next);
-      press.originY = moveEvent.clientY;
-      setDragOffsetY(0);
+      press.currentX = moveEvent.clientX;
+      press.currentY = moveEvent.clientY;
+      setDragOffsetY(press.currentY - press.originY);
+      moveOverTarget();
     };
     press.onEnd = (endEvent) => {
       if (endEvent.pointerId === press.pointerId) finish(press, true);
@@ -124,6 +153,7 @@ export function useLongPressSort<T extends SortableItem>({
       document.body.classList.add("is-sorting");
       setDraggingId(id);
       if ("vibrate" in navigator) navigator.vibrate(12);
+      press.autoScrollFrame = requestAnimationFrame(autoScroll);
     }, HOLD_DELAY_MS);
 
     pressRef.current = press;

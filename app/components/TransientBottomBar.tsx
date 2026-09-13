@@ -50,6 +50,8 @@ export function TransientBottomBar({
         className={`transient-bottom-bar${open ? " is-open" : ""}`}
         aria-label={t("menu.label")}
         aria-hidden={!open}
+        onPointerDown={onActivity}
+        onFocusCapture={onActivity}
       >
         {modules.map((module) => {
           const label = t(module.translationKey);

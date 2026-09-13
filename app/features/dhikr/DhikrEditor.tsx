@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, type FormEvent } from "react";
-import { EntityEditorShell } from "../../components/EntityEditorShell";
+import { EntityEditorPage } from "../../components/EntityEditorPage";
 import { TargetUnitToggle } from "../../components/TargetUnitToggle";
 import { t } from "../../core/i18n";
 import type { Dhikr, DhikrDraft } from "../../core/types";
@@ -79,7 +79,7 @@ export function DhikrEditor({
   };
 
   return (
-    <EntityEditorShell
+    <EntityEditorPage
       title={t(dhikr ? "editor.editTitle" : "editor.addTitle")}
       subtitle={t("editor.subtitle")}
       closeLabel={t("editor.close")}
@@ -170,6 +170,6 @@ export function DhikrEditor({
           <button className="primary-button" type="submit">{t("action.save")}</button>
         </footer>
       </form>
-    </EntityEditorShell>
+    </EntityEditorPage>
   );
 }
