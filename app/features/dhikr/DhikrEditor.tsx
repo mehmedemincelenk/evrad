@@ -85,7 +85,7 @@ export function DhikrEditor({
       closeLabel={t("editor.close")}
       onClose={onClose}
     >
-      <form className="dhikr-form" onSubmit={submit} noValidate>
+      <form className="entity-form" onSubmit={submit} noValidate>
         <label className="field-group">
           <span>{t("editor.name")}</span>
           <input

@@ -1,4 +1,5 @@
 import type { TranslationKey } from "./i18n";
+import type { TrackableEntity } from "./trackable";
 
 export type ModuleId =
   | "prayers"
@@ -6,6 +7,8 @@ export type ModuleId =
   | "memorization"
   | "dhikr"
   | "games";
+
+export type TrackableModuleId = Exclude<ModuleId, "games">;
 
 export type IconName = "prayer" | "book" | "memory" | "dhikr" | "game";
 
@@ -17,11 +20,12 @@ export interface ModuleDefinition {
   icon: IconName;
   enabled: boolean;
   supportsCreate: boolean;
+  createRoute: string | null;
+  createTranslationKey: TranslationKey | null;
   translationKey: TranslationKey;
 }
 
-export interface Dhikr {
-  id: string;
+export interface Dhikr extends TrackableEntity {
   name: string | null;
   arabic: string | null;
   translation: string | null;
@@ -31,9 +35,6 @@ export interface Dhikr {
   targetUnitLabel: string | null;
   listDisplay: "arabic" | "name";
   expandedArabicSize: 0 | 1 | 2 | 3 | 4;
-  sortOrder: number;
-  createdAt: string;
-  updatedAt: string;
 }
 
 export interface DhikrDraft {

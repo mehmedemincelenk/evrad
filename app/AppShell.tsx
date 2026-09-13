@@ -1,22 +1,24 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import type { ModuleId } from "./core/types";
 import { t } from "./core/i18n";
 import { TransientBottomBar } from "./components/TransientBottomBar";
 import { AppRuntimeContext } from "./core/AppRuntimeContext";
 import { usePwaUpdate } from "./hooks/usePwaUpdate";
 import { useTransientMenu } from "./hooks/useTransientMenu";
+import { getModule } from "./core/module-registry";
 
 export function AppShell({
   children,
   activeModule,
-  onAdd,
 }: {
   children: ReactNode;
   activeModule: ModuleId;
-  onAdd: () => void;
 }) {
+  const router = useRouter();
+  const activeDefinition = getModule(activeModule);
   const menu = useTransientMenu();
   const { updateReady, activateUpdate } = usePwaUpdate();
   const [toast, setToast] = useState<string | null>(null);
@@ -36,7 +38,14 @@ export function AppShell({
       showToast(t("toast.comingSoon", { module: t(key) }));
       return;
     }
-    if (id === activeModule) menu.closeMenu();
+    menu.closeMenu();
+    if (id !== activeModule) router.push(getModule(id).route);
+  };
+
+  const handleAdd = () => {
+    if (!activeDefinition.supportsCreate || !activeDefinition.createRoute) return;
+    menu.closeMenu();
+    router.push(activeDefinition.createRoute);
   };
 
   return (
@@ -63,7 +72,8 @@ export function AppShell({
           onClose={menu.closeMenu}
           onActivity={menu.registerActivity}
           onModule={handleModule}
-          onAdd={() => { menu.closeMenu(); onAdd(); }}
+          addLabel={activeDefinition.createTranslationKey ? t(activeDefinition.createTranslationKey) : null}
+          onAdd={handleAdd}
         />
         {toast ? <div className="toast" role="status">{toast}</div> : null}
         {updateReady ? (

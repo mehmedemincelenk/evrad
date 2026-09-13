@@ -20,6 +20,7 @@ export function TransientBottomBar({
   onClose,
   onActivity,
   onModule,
+  addLabel,
   onAdd,
 }: {
   open: boolean;
@@ -28,6 +29,7 @@ export function TransientBottomBar({
   onClose: () => void;
   onActivity: () => void;
   onModule: (id: ModuleId, enabled: boolean) => void;
+  addLabel: string | null;
   onAdd: () => void;
 }) {
   useEffect(() => {
@@ -70,9 +72,11 @@ export function TransientBottomBar({
             </button>
           );
         })}
-        <button className="module-button add-module-button" type="button" onClick={() => { onActivity(); onAdd(); }} aria-label={t("menu.add")} tabIndex={open ? 0 : -1} data-tooltip={t("menu.add")}>
-          <span aria-hidden="true">+</span>
-        </button>
+        {addLabel ? (
+          <button className="module-button add-module-button" type="button" onClick={() => { onActivity(); onAdd(); }} aria-label={addLabel} tabIndex={open ? 0 : -1} data-tooltip={addLabel}>
+            <span aria-hidden="true">+</span>
+          </button>
+        ) : null}
       </nav>
     </>
   );

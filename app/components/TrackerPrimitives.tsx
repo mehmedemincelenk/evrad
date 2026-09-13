@@ -30,7 +30,7 @@ export function TrackableCardShell({
 }) {
   return (
     <article
-      className={`dhikr-card${complete ? " is-complete" : ""}${expanded ? " is-expanded" : ""}${dragging ? " is-dragging" : ""}`}
+      className={`trackable-card${complete ? " is-complete" : ""}${expanded ? " is-expanded" : ""}${dragging ? " is-dragging" : ""}`}
       data-card-id={id}
       style={{ "--drag-offset-y": `${dragOffsetY}px` } as CSSProperties}
     >

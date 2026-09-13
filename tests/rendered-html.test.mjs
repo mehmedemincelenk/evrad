@@ -74,6 +74,27 @@ test("target units and long-press sorting remain modular", async () => {
   assert.doesNotMatch(cssText.match(/\.menu-scrim\s*\{[^}]+\}/)?.[0] ?? "", /backdrop-filter/);
 });
 
+test("new modules can reuse navigation, storage, and collection behavior", async () => {
+  const [registryText, shellText, homeText, repositoryText, completionText, collectionText, primitivesText, pwaText] = await Promise.all([
+    readFile(new URL("../app/core/module-registry.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/AppShell.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/features/home/HomeScreen.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/data/trackable-repository.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/data/completion-repository.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/hooks/useTrackableCollection.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/TrackerPrimitives.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/hooks/usePwaUpdate.ts", import.meta.url), "utf8"),
+  ]);
+  assert.match(registryText, /createRoute/);
+  assert.match(shellText, /router\.push\(getModule\(id\)\.route\)/);
+  assert.match(homeText, /<Link href=\{module\.route\}/);
+  assert.match(repositoryText, /createTrackableRepository/);
+  assert.match(completionText, /loadIds\(itemType: ModuleId/);
+  assert.match(collectionText, /completionRepository\.loadIds\(repository\.moduleId/);
+  assert.doesNotMatch(primitivesText, /dhikr-card/);
+  assert.match(pwaText, /enabledModules\.flatMap/);
+});
+
 test("recommended collection is deduplicated and long entries use names", async () => {
   const recommendedText = await readFile(new URL("../app/features/dhikr/recommended-dhikrs.ts", import.meta.url), "utf8");
   assert.match(recommendedText, /recommendedDhikrs/);

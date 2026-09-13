@@ -95,7 +95,7 @@ button, label, input, textarea { -webkit-tap-highlight-color: transparent; }
 .ambient-one { width: 15rem; height: 15rem; top: -8rem; right: -6rem; background: rgba(249, 239, 194, 0.06); }
 .ambient-two { width: 13rem; height: 13rem; bottom: 4rem; left: -9rem; background: rgba(167, 184, 255, 0.035); }
 
-.dhikr-screen {
+.module-screen {
   width: min(100%, 42rem);
   min-height: 100svh;
   margin: 0 auto;
@@ -141,9 +141,9 @@ h1 {
 
 .dayline { margin: 0.35rem 0 0; color: var(--muted); font-size: 0.85rem; }
 
-.dhikr-list { display: grid; gap: 0.55rem; }
+.trackable-list { display: grid; gap: 0.55rem; }
 
-.dhikr-card {
+.trackable-card {
   position: relative;
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -153,7 +153,7 @@ h1 {
   transition: border-color 200ms ease, box-shadow 200ms ease, transform 200ms ease;
 }
 
-.dhikr-card::before {
+.trackable-card::before {
   content: "";
   position: absolute;
   inset: -1px;
@@ -164,14 +164,14 @@ h1 {
   transition: opacity 220ms ease;
 }
 
-.dhikr-card.is-complete {
+.trackable-card.is-complete {
   border-color: var(--line-strong);
   box-shadow: 0 0 2.8rem -1.15rem rgba(255, 252, 232, 0.25), 0 1.1rem 2.8rem -2rem var(--shadow);
 }
 
-.dhikr-card.is-complete::before { opacity: 1; }
-.dhikr-card.is-expanded { border-color: rgba(255, 255, 255, 0.14); }
-.dhikr-card.is-dragging {
+.trackable-card.is-complete::before { opacity: 1; }
+.trackable-card.is-expanded { border-color: rgba(255, 255, 255, 0.14); }
+.trackable-card.is-dragging {
   z-index: 5;
   transform: translateY(var(--drag-offset-y, 0)) scale(1.025);
   border-color: rgba(255, 253, 239, 0.38);
@@ -451,7 +451,7 @@ h1 {
 .editor-subtitle { max-width: 27rem; margin: 0.35rem 0 0; color: var(--muted); font-size: 0.83rem; line-height: 1.55; }
 .round-icon-button { display: grid; flex: 0 0 auto; place-items: center; width: 2.85rem; min-height: 2.85rem; border: 1px solid var(--line); border-radius: 50%; color: var(--text-soft); font-size: 1.35rem; }
 
-.dhikr-form { display: grid; gap: 1rem; width: min(100%, 38rem); margin: 0 auto; }
+.entity-form { display: grid; gap: 1rem; width: min(100%, 38rem); margin: 0 auto; }
 .field-group { display: grid; gap: 0.5rem; }
 .field-group > span { color: var(--text-soft); font-size: 0.76rem; font-weight: 650; }
 .field-group input, .field-group textarea { width: 100%; border: 1px solid var(--line); border-radius: 0.95rem; outline: 0; background: rgba(255, 255, 255, 0.025); color: var(--text); transition: border-color 160ms ease, box-shadow 160ms ease; }
@@ -683,19 +683,19 @@ h1 {
 
 .future-home { width: min(100%, 42rem); margin: 0 auto; padding: 4rem 1rem; }
 .future-home > div { display: grid; gap: 0.75rem; margin-top: 2rem; }
-.future-home button { min-height: 4rem; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); color: var(--text-soft); }
+.future-home :is(button, a) { display: grid; place-items: center; min-height: 4rem; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); color: var(--text-soft); text-decoration: none; }
 
 button:focus-visible { outline: 2px solid var(--light); outline-offset: 3px; }
 .card-main:focus-visible { outline: 0; border-radius: 0.9rem; box-shadow: inset 0 0 0 1px rgba(255, 253, 242, 0.42); }
 .drag-handle:focus-visible, .completion-light:focus-visible { outline-offset: -5px; border-radius: 0.9rem; }
 
 @media (min-width: 640px) {
-  .dhikr-screen { padding-inline: 1.5rem; }
+  .module-screen { padding-inline: 1.5rem; }
   .editor-page { padding: 1.5rem; }
 }
 
 @media (max-width: 360px) {
-  .dhikr-screen { padding-inline: 0.72rem; }
+  .module-screen { padding-inline: 0.72rem; }
   .screen-heading { margin-top: 0.35rem; }
   .card-collapsed-row { grid-template-columns: 1.9rem minmax(0, 1fr) 2.55rem; }
   .drag-handle { min-width: 1.9rem; }
