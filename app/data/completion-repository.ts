@@ -4,9 +4,10 @@ import { COMPLETION_STORE, openDatabase, requestResult, transactionDone } from "
 async function loadIds(itemType: ModuleId, localDate: string): Promise<Set<string>> {
   const database = await openDatabase();
   const transaction = database.transaction(COMPLETION_STORE, "readonly");
+  const done = transactionDone(transaction);
   const request = transaction.objectStore(COMPLETION_STORE).index("localDate").getAll(localDate);
   const records = await requestResult(request as IDBRequest<DailyCompletion[]>);
-  await transactionDone(transaction);
+  await done;
   return new Set(records.filter((record) => record.itemType === itemType).map((record) => record.itemId));
 }
 
@@ -18,6 +19,7 @@ async function set(
 ): Promise<void> {
   const database = await openDatabase();
   const transaction = database.transaction(COMPLETION_STORE, "readwrite");
+  const done = transactionDone(transaction);
   const store = transaction.objectStore(COMPLETION_STORE);
   const key = `${itemType}:${itemId}:${localDate}`;
 
@@ -33,7 +35,7 @@ async function set(
   } else {
     store.delete(key);
   }
-  await transactionDone(transaction);
+  await done;
 }
 
 export const completionRepository = {

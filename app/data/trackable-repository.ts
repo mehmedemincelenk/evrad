@@ -12,8 +12,9 @@ export async function loadTrackableItems<T extends TrackableEntity>(moduleId: Tr
   const storeName = getEntityStore(moduleId);
   const database = await openDatabase();
   const transaction = database.transaction(storeName, "readonly");
+  const done = transactionDone(transaction);
   const records = await requestResult(transaction.objectStore(storeName).getAll() as IDBRequest<T[]>);
-  await transactionDone(transaction);
+  await done;
   return records.sort((a, b) => a.sortOrder - b.sortOrder);
 }
 
@@ -21,23 +22,26 @@ async function saveTrackableItem<T extends TrackableEntity>(moduleId: TrackableM
   const storeName = getEntityStore(moduleId);
   const database = await openDatabase();
   const transaction = database.transaction(storeName, "readwrite");
+  const done = transactionDone(transaction);
   transaction.objectStore(storeName).put(item);
-  await transactionDone(transaction);
+  await done;
 }
 
 async function saveTrackableOrder<T extends TrackableEntity>(moduleId: TrackableModuleId, items: T[]): Promise<void> {
   const storeName = getEntityStore(moduleId);
   const database = await openDatabase();
   const transaction = database.transaction(storeName, "readwrite");
+  const done = transactionDone(transaction);
   const store = transaction.objectStore(storeName);
   items.forEach((item, sortOrder) => store.put({ ...item, sortOrder }));
-  await transactionDone(transaction);
+  await done;
 }
 
 async function deleteTrackableItem(moduleId: TrackableModuleId, id: string): Promise<void> {
   const storeName = getEntityStore(moduleId);
   const database = await openDatabase();
   const transaction = database.transaction([storeName, COMPLETION_STORE], "readwrite");
+  const done = transactionDone(transaction);
   transaction.objectStore(storeName).delete(id);
 
   const cursorRequest = transaction.objectStore(COMPLETION_STORE).index("itemId").openCursor(IDBKeyRange.only(id));
@@ -47,7 +51,7 @@ async function deleteTrackableItem(moduleId: TrackableModuleId, id: string): Pro
     if (cursor.value.itemType === moduleId) cursor.delete();
     cursor.continue();
   };
-  await transactionDone(transaction);
+  await done;
 }
 
 interface RepositoryOptions<T> {

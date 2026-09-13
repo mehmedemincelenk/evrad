@@ -13,6 +13,7 @@ const defaultPreferences: Preferences = {
 async function loadDhikrs(): Promise<Dhikr[]> {
   const database = await openDatabase();
   const transaction = database.transaction([ENTITY_STORES.dhikr, PREFERENCES_STORE], "readwrite");
+  const done = transactionDone(transaction);
   const dhikrStore = transaction.objectStore(ENTITY_STORES.dhikr);
   const preferencesStore = transaction.objectStore(PREFERENCES_STORE);
   const [existing, preferences] = await Promise.all([
@@ -23,7 +24,7 @@ async function loadDhikrs(): Promise<Dhikr[]> {
   if (existing.length === 0 && !preferences) {
     seedDhikrs.forEach((dhikr) => dhikrStore.put(dhikr));
     preferencesStore.put(defaultPreferences);
-    await transactionDone(transaction);
+    await done;
     return seedDhikrs.map((dhikr) => ({ ...dhikr }));
   }
 
@@ -43,7 +44,7 @@ async function loadDhikrs(): Promise<Dhikr[]> {
       dhikrStore.put(normalized[index]);
     }
   });
-  await transactionDone(transaction);
+  await done;
   return normalized.sort((a, b) => a.sortOrder - b.sortOrder);
 }
 

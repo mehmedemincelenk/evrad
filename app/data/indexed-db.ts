@@ -13,6 +13,7 @@ export const COMPLETION_STORE = "completions";
 export const PREFERENCES_STORE = "preferences";
 
 let databasePromise: Promise<IDBDatabase> | null = null;
+const BLOCKED_TIMEOUT_MS = 2500;
 
 export function requestResult<T>(request: IDBRequest<T>): Promise<T> {
   return new Promise((resolve, reject) => {
@@ -41,6 +42,8 @@ export function openDatabase(): Promise<IDBDatabase> {
 
   databasePromise = new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
+    let settled = false;
+    let blockedTimeout: number | undefined;
     request.onupgradeneeded = () => {
       const database = request.result;
       Object.values(ENTITY_STORES).forEach((storeName) => {
@@ -57,8 +60,35 @@ export function openDatabase(): Promise<IDBDatabase> {
         database.createObjectStore(PREFERENCES_STORE, { keyPath: "id" });
       }
     };
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error ?? new Error("IndexedDB unavailable"));
+    request.onblocked = () => {
+      blockedTimeout = window.setTimeout(() => {
+        if (settled) return;
+        settled = true;
+        databasePromise = null;
+        reject(new Error("IndexedDB upgrade blocked by another open app window"));
+      }, BLOCKED_TIMEOUT_MS);
+    };
+    request.onsuccess = () => {
+      if (blockedTimeout !== undefined) window.clearTimeout(blockedTimeout);
+      const database = request.result;
+      if (settled) {
+        database.close();
+        return;
+      }
+      settled = true;
+      database.onversionchange = () => {
+        database.close();
+        databasePromise = null;
+      };
+      database.onclose = () => { databasePromise = null; };
+      resolve(database);
+    };
+    request.onerror = () => {
+      if (blockedTimeout !== undefined) window.clearTimeout(blockedTimeout);
+      settled = true;
+      databasePromise = null;
+      reject(request.error ?? new Error("IndexedDB unavailable"));
+    };
   });
 
   return databasePromise;

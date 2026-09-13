@@ -109,3 +109,17 @@ test("recommended collection is deduplicated and long entries use names", async 
   assert.match(recommendedText, /getMissingRecommendedDhikrs/);
   assert.match(recommendedText, /normalizeIdentity/);
 });
+
+test("IndexedDB transactions cannot finish before their completion listener is attached", async () => {
+  const [trackableText, completionText, dhikrRepositoryText, indexedDbText] = await Promise.all([
+    readFile(new URL("../app/data/trackable-repository.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/data/completion-repository.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/features/dhikr/dhikr-repository.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/data/indexed-db.ts", import.meta.url), "utf8"),
+  ]);
+  assert.doesNotMatch(trackableText, /await requestResult[\s\S]{0,300}await transactionDone\(transaction\)/);
+  assert.doesNotMatch(completionText, /await requestResult[\s\S]{0,300}await transactionDone\(transaction\)/);
+  assert.match(dhikrRepositoryText, /const done = transactionDone\(transaction\)/);
+  assert.match(indexedDbText, /request\.onblocked/);
+  assert.match(indexedDbText, /database\.onversionchange/);
+});
