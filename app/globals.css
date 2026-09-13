@@ -475,54 +475,19 @@ h1 {
 
 .target-config-row {
   display: grid;
-  grid-template-columns: 5.4rem minmax(0, 1fr);
+  grid-template-columns: minmax(5rem, 0.65fr) minmax(0, 2fr);
   gap: 0.55rem;
-  align-items: stretch;
+  align-items: center;
 }
 
-.number-wheel {
-  position: relative;
-  height: 7.125rem;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding-block: 2.375rem;
-  border: 1px solid var(--line);
-  border-radius: 1rem;
-  background:
-    linear-gradient(
-      to bottom,
-      transparent calc(50% - 1.2rem),
-      rgba(255, 255, 255, 0.1) calc(50% - 1.2rem),
-      rgba(255, 255, 255, 0.1) calc(50% - 1.14rem),
-      rgba(255, 253, 239, 0.035) calc(50% - 1.14rem),
-      rgba(255, 253, 239, 0.035) calc(50% + 1.14rem),
-      rgba(255, 255, 255, 0.1) calc(50% + 1.14rem),
-      rgba(255, 255, 255, 0.1) calc(50% + 1.2rem),
-      transparent calc(50% + 1.2rem)
-    ),
-    rgba(255, 255, 255, 0.018);
-  scroll-snap-type: y mandatory;
-  scrollbar-width: none;
-  touch-action: pan-y;
-}
-
-.number-wheel::-webkit-scrollbar { display: none; }
-.number-wheel button {
-  display: grid;
-  width: 100%;
-  height: 2.375rem;
-  padding: 0;
-  place-items: center;
-  border: 0;
-  background: transparent;
-  color: #656871;
-  cursor: pointer;
+.target-number-input {
+  min-width: 0;
+  min-height: 3.35rem !important;
+  padding-inline: 0.75rem !important;
   font-family: Georgia, serif;
-  font-size: 0.9rem;
-  scroll-snap-align: center;
+  font-size: 1.15rem !important;
+  text-align: center;
 }
-
-.number-wheel button.is-selected { color: var(--light); font-size: 1.35rem; }
 
 .target-unit-toggle {
   display: grid;
@@ -532,11 +497,12 @@ h1 {
   border: 1px solid var(--line);
   border-radius: 1rem;
   background: rgba(255, 255, 255, 0.018);
+  min-height: 3.35rem;
 }
 
 .target-unit-toggle button {
   min-width: 0;
-  min-height: 2.65rem;
+  min-height: 2.75rem;
   padding: 0 0.35rem;
   border: 0;
   border-radius: 0.72rem;
@@ -558,7 +524,7 @@ h1 {
   display: grid;
   align-items: center;
   min-width: 0;
-  padding: 0.3rem;
+  padding: 0.2rem;
   border-radius: 0.72rem;
   transition: background 160ms ease, box-shadow 160ms ease;
 }
@@ -570,12 +536,18 @@ h1 {
 
 .target-unit-toggle .custom-unit input {
   min-width: 0;
-  min-height: 2.65rem;
+  min-height: 2.75rem;
   padding: 0 0.65rem;
   border-radius: 0.6rem;
   font-family: Inter, sans-serif;
   font-size: 0.75rem;
   text-align: center;
+}
+
+@media (max-width: 350px) {
+  .target-config-row { grid-template-columns: 4.6rem minmax(0, 1fr); gap: 0.4rem; }
+  .target-unit-toggle { grid-template-columns: 0.72fr 1.28fr; }
+  .target-unit-toggle .custom-unit input { padding-inline: 0.35rem; }
 }
 
 .choice-row { display: grid; grid-template-columns: 2.6rem 1fr; align-items: center; gap: 0.75rem; min-height: 3.5rem; cursor: pointer; }

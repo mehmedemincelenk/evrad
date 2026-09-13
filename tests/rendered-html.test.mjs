@@ -49,16 +49,14 @@ test("PWA manifest and architecture declarations stay aligned", async () => {
 });
 
 test("target units and long-press sorting remain modular", async () => {
-  const [typesText, toggleText, wheelText, hookText, cssText] = await Promise.all([
+  const [typesText, toggleText, hookText, cssText] = await Promise.all([
     readFile(new URL("../app/core/types.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/components/TargetUnitToggle.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/components/NumberWheelPicker.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/hooks/useLongPressSort.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
   ]);
   assert.match(typesText, /"count"\s*\|\s*"custom"/);
   assert.match(toggleText, /aria-pressed/);
-  assert.match(wheelText, /scrollTop/);
   assert.match(hookText, /HOLD_DELAY_MS\s*=\s*240/);
   assert.match(hookText, /window\.addEventListener\("pointermove"/);
   assert.match(hookText, /document\.elementsFromPoint/);

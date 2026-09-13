@@ -2,7 +2,6 @@
 
 import { useMemo, useState, type FormEvent } from "react";
 import { EntityEditorShell } from "../../components/EntityEditorShell";
-import { NumberWheelPicker } from "../../components/NumberWheelPicker";
 import { TargetUnitToggle } from "../../components/TargetUnitToggle";
 import { t } from "../../core/i18n";
 import type { Dhikr, DhikrDraft } from "../../core/types";
@@ -133,7 +132,15 @@ export function DhikrEditor({
         <section className="field-group target-field">
           <span>{t("editor.target")}</span>
           <div className="target-config-row">
-            <NumberWheelPicker value={draft.targetCount} onChange={(value) => update("targetCount", value)} />
+            <input
+              className="target-number-input"
+              value={draft.targetCount}
+              onChange={(event) => update("targetCount", event.target.value)}
+              inputMode="numeric"
+              pattern="[0-9]*"
+              placeholder="∞"
+              aria-label={t("editor.target")}
+            />
             <TargetUnitToggle
               value={draft.targetUnit}
               customLabel={draft.targetUnitLabel}
