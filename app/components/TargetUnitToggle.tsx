@@ -1,28 +1,40 @@
 import { t } from "../core/i18n";
 import type { TargetUnit } from "../core/types";
 
-const units: TargetUnit[] = ["count", "page", "minute", "hour"];
-
 export function TargetUnitToggle({
   value,
+  customLabel,
   onChange,
+  onCustomLabelChange,
 }: {
   value: TargetUnit;
+  customLabel: string;
   onChange: (unit: TargetUnit) => void;
+  onCustomLabelChange: (label: string) => void;
 }) {
   return (
     <div className="target-unit-toggle" role="group" aria-label={t("editor.targetUnit")}>
-      {units.map((unit) => (
-        <button
-          key={unit}
-          type="button"
-          className={value === unit ? "is-selected" : ""}
-          aria-pressed={value === unit}
-          onClick={() => onChange(unit)}
-        >
-          {t(`targetUnit.${unit}`)}
-        </button>
-      ))}
+      <button
+        type="button"
+        className={value === "count" ? "is-selected" : ""}
+        aria-pressed={value === "count"}
+        onClick={() => onChange("count")}
+      >
+        {t("targetUnit.count")}
+      </button>
+      <label className={value === "custom" ? "custom-unit is-selected" : "custom-unit"}>
+        <span className="sr-only">{t("targetUnit.custom")}</span>
+        <input
+          value={customLabel}
+          onFocus={() => onChange("custom")}
+          onChange={(event) => {
+            onChange("custom");
+            onCustomLabelChange(event.target.value);
+          }}
+          placeholder={t("targetUnit.customPlaceholder")}
+          maxLength={18}
+        />
+      </label>
     </div>
   );
 }

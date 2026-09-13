@@ -1,7 +1,7 @@
 import type { DailyCompletion, Dhikr, ModuleId, Preferences } from "../core/types";
 
 const DB_NAME = "zikirlerim";
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 const DHIKR_STORE = "dhikrs";
 const COMPLETION_STORE = "completions";
 const PREFERENCES_STORE = "preferences";
@@ -22,6 +22,7 @@ export const seedDhikrs: Dhikr[] = [
     details: "Tesbih; kalbi gündelik telaştan uzaklaştırıp Allah’ın kusursuzluğunu hatırlamaya çağıran kısa ve derin bir zikirdir.",
     targetCount: 33,
     targetUnit: "count",
+    targetUnitLabel: null,
     listDisplay: "arabic",
     expandedArabicSize: 1,
     sortOrder: 0,
@@ -36,6 +37,7 @@ export const seedDhikrs: Dhikr[] = [
     details: "Şükür ve hamdi bir araya getiren bu ifade, görünen ve görünmeyen nimetleri fark etmeye vesile olur.",
     targetCount: 33,
     targetUnit: "count",
+    targetUnitLabel: null,
     listDisplay: "arabic",
     expandedArabicSize: 1,
     sortOrder: 1,
@@ -50,6 +52,7 @@ export const seedDhikrs: Dhikr[] = [
     details: null,
     targetCount: 33,
     targetUnit: "count",
+    targetUnitLabel: null,
     listDisplay: "arabic",
     expandedArabicSize: 1,
     sortOrder: 2,
@@ -64,6 +67,7 @@ export const seedDhikrs: Dhikr[] = [
     details: "Kaygı ve belirsizlik anlarında güveni tazelemeyi, sonucu Allah’a teslim ederken gereken gayreti sürdürmeyi hatırlatır.",
     targetCount: null,
     targetUnit: "count",
+    targetUnitLabel: null,
     listDisplay: "name",
     expandedArabicSize: 1,
     sortOrder: 3,
@@ -133,9 +137,21 @@ export async function loadDhikrs(): Promise<Dhikr[]> {
     return seedDhikrs.map((dhikr) => ({ ...dhikr }));
   }
 
-  const normalized = existing.map((dhikr) => ({ ...dhikr, targetUnit: dhikr.targetUnit ?? "count" }));
+  const normalized = existing.map((dhikr) => {
+    const legacyUnit = dhikr.targetUnit as string | undefined;
+    const legacyLabels: Record<string, string> = { page: "sayfa", minute: "dakika", hour: "saat" };
+    return {
+      ...dhikr,
+      targetUnit: legacyUnit && legacyUnit !== "count" ? "custom" as const : "count" as const,
+      targetUnitLabel: legacyUnit && legacyUnit !== "count"
+        ? dhikr.targetUnitLabel ?? legacyLabels[legacyUnit] ?? null
+        : null,
+    };
+  });
   existing.forEach((dhikr, index) => {
-    if (!dhikr.targetUnit) dhikrStore.put(normalized[index]);
+    if (dhikr.targetUnit !== normalized[index].targetUnit || dhikr.targetUnitLabel !== normalized[index].targetUnitLabel) {
+      dhikrStore.put(normalized[index]);
+    }
   });
   await transactionDone(transaction);
   return normalized.sort((a, b) => a.sortOrder - b.sortOrder);

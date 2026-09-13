@@ -69,6 +69,7 @@ export function DhikrCard({
           arabic={display.arabic}
           targetCount={dhikr.targetCount}
           targetUnit={dhikr.targetUnit}
+          targetUnitLabel={dhikr.targetUnitLabel}
           expanded={expanded}
           onToggle={onToggleExpanded}
         />

@@ -9,7 +9,7 @@ export type ModuleId =
 
 export type IconName = "prayer" | "book" | "memory" | "dhikr" | "game";
 
-export type TargetUnit = "count" | "page" | "minute" | "hour";
+export type TargetUnit = "count" | "custom";
 
 export interface ModuleDefinition {
   id: ModuleId;
@@ -28,6 +28,7 @@ export interface Dhikr {
   details: string | null;
   targetCount: number | null;
   targetUnit: TargetUnit;
+  targetUnitLabel: string | null;
   listDisplay: "arabic" | "name";
   expandedArabicSize: 0 | 1 | 2 | 3 | 4;
   sortOrder: number;
@@ -42,6 +43,7 @@ export interface DhikrDraft {
   details: string;
   targetCount: string;
   targetUnit: TargetUnit;
+  targetUnitLabel: string;
   listDisplay: "arabic" | "name";
 }
 

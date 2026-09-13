@@ -102,7 +102,7 @@ button, label, input, textarea { -webkit-tap-highlight-color: transparent; }
 
 .screen-heading {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
   gap: 0.75rem;
   align-items: end;
   margin: 0.7rem 0 2.15rem;
@@ -138,23 +138,6 @@ h1 {
 }
 
 .dayline { margin: 0.35rem 0 0; color: var(--muted); font-size: 0.85rem; }
-
-.progress-orb {
-  display: grid;
-  place-content: center;
-  width: 4rem;
-  aspect-ratio: 1;
-  border: 1px solid rgba(255, 255, 255, 0.11);
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.018);
-  text-align: center;
-  transition: border-color 220ms ease, box-shadow 220ms ease, background 220ms ease;
-}
-
-.progress-orb span { font-family: Iowan Old Style, Baskerville, Georgia, serif; font-size: 1.3rem; line-height: 1; }
-.progress-orb small { margin-top: 0.15rem; color: var(--muted); font-size: 0.62rem; }
-.progress-orb.is-complete { color: #111318; border-color: var(--light); background: var(--light); box-shadow: 0 0 1rem rgba(255, 253, 240, 0.62), 0 0 2.8rem rgba(255, 250, 220, 0.2); }
-.progress-orb.is-complete small { color: #5e5a50; }
 
 .dhikr-list { display: grid; gap: 0.55rem; }
 
@@ -452,8 +435,7 @@ h1 {
   z-index: 100;
   display: grid;
   align-items: end;
-  background: rgba(2, 3, 5, 0.78);
-  backdrop-filter: blur(10px);
+  background: #0c0e12;
   animation: fadeIn 160ms ease-out;
 }
 
@@ -464,8 +446,8 @@ h1 {
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: max(1.35rem, env(safe-area-inset-top)) 1rem calc(1rem + env(safe-area-inset-bottom));
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 1.7rem 1.7rem 0 0;
+  border: 0;
+  border-radius: 0;
   background: linear-gradient(145deg, #15171d, #0c0e12);
   box-shadow: 0 -1rem 4rem rgba(0, 0, 0, 0.45);
   animation: panelIn 220ms ease-out;
@@ -488,14 +470,63 @@ h1 {
 .field-group input::placeholder, .field-group textarea::placeholder { color: #60636b; }
 .field-group input:focus, .field-group textarea:focus { border-color: rgba(255, 253, 239, 0.34); box-shadow: 0 0 0 3px rgba(255, 253, 239, 0.055); }
 .field-group .arabic-field { min-height: 8rem; font-family: "Noto Naskh Arabic", "Geeza Pro", serif; font-size: 1.65rem; line-height: 1.8; text-align: right; }
-.target-field { grid-template-columns: minmax(0, 9rem) minmax(0, 1fr); align-items: center; }
-.target-field > span { grid-column: 1 / -1; }
-.target-field input { font-family: Georgia, serif; font-size: 1.2rem; }
+.target-field { display: grid; }
 .target-field small { color: var(--muted); font-size: 0.72rem; }
+
+.target-config-row {
+  display: grid;
+  grid-template-columns: 5.4rem minmax(0, 1fr);
+  gap: 0.55rem;
+  align-items: stretch;
+}
+
+.number-wheel {
+  position: relative;
+  height: 7.125rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-block: 2.375rem;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background:
+    linear-gradient(
+      to bottom,
+      transparent calc(50% - 1.2rem),
+      rgba(255, 255, 255, 0.1) calc(50% - 1.2rem),
+      rgba(255, 255, 255, 0.1) calc(50% - 1.14rem),
+      rgba(255, 253, 239, 0.035) calc(50% - 1.14rem),
+      rgba(255, 253, 239, 0.035) calc(50% + 1.14rem),
+      rgba(255, 255, 255, 0.1) calc(50% + 1.14rem),
+      rgba(255, 255, 255, 0.1) calc(50% + 1.2rem),
+      transparent calc(50% + 1.2rem)
+    ),
+    rgba(255, 255, 255, 0.018);
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+  touch-action: pan-y;
+}
+
+.number-wheel::-webkit-scrollbar { display: none; }
+.number-wheel button {
+  display: grid;
+  width: 100%;
+  height: 2.375rem;
+  padding: 0;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: #656871;
+  cursor: pointer;
+  font-family: Georgia, serif;
+  font-size: 0.9rem;
+  scroll-snap-align: center;
+}
+
+.number-wheel button.is-selected { color: var(--light); font-size: 1.35rem; }
 
 .target-unit-toggle {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: 0.8fr 1.2fr;
   gap: 0.32rem;
   padding: 0.3rem;
   border: 1px solid var(--line);
@@ -521,6 +552,30 @@ h1 {
   background: var(--light);
   color: #111318;
   box-shadow: 0 0 1rem rgba(255, 253, 240, 0.16);
+}
+
+.target-unit-toggle .custom-unit {
+  display: grid;
+  align-items: center;
+  min-width: 0;
+  padding: 0.3rem;
+  border-radius: 0.72rem;
+  transition: background 160ms ease, box-shadow 160ms ease;
+}
+
+.target-unit-toggle .custom-unit.is-selected {
+  background: rgba(255, 255, 255, 0.055);
+  box-shadow: inset 0 0 0 1px rgba(255, 253, 239, 0.2);
+}
+
+.target-unit-toggle .custom-unit input {
+  min-width: 0;
+  min-height: 2.65rem;
+  padding: 0 0.65rem;
+  border-radius: 0.6rem;
+  font-family: Inter, sans-serif;
+  font-size: 0.75rem;
+  text-align: center;
 }
 
 .choice-row { display: grid; grid-template-columns: 2.6rem 1fr; align-items: center; gap: 0.75rem; min-height: 3.5rem; cursor: pointer; }
@@ -593,7 +648,7 @@ button:focus-visible { outline: 2px solid var(--light); outline-offset: 3px; }
 @media (min-width: 640px) {
   .dhikr-screen { padding-inline: 1.5rem; }
   .modal-layer { align-items: center; padding: 1.5rem; }
-  .editor-panel { width: min(100%, 42rem); min-height: auto; max-height: calc(100svh - 3rem); border-radius: 1.7rem; padding: 1.5rem; }
+  .editor-panel { width: 100%; min-height: 100svh; max-height: 100svh; border-radius: 0; padding: 1.5rem; }
   .confirmation-content { min-height: 20rem; }
 }
 

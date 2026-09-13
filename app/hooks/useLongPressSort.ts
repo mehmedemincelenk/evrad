@@ -10,21 +10,23 @@ import {
 } from "react";
 import { moveItem } from "../core/sort";
 
-const HOLD_DELAY_MS = 280;
-const CANCEL_DISTANCE_PX = 10;
+const HOLD_DELAY_MS = 240;
+const CANCEL_DISTANCE_PX = 12;
 
 interface SortableItem {
   id: string;
   sortOrder: number;
 }
 
-interface PendingPress {
+interface ActivePress {
   id: string;
   pointerId: number;
-  startX: number;
-  startY: number;
+  originX: number;
+  originY: number;
   active: boolean;
-  handle: HTMLButtonElement;
+  timer: number;
+  onMove: (event: PointerEvent) => void;
+  onEnd: (event: PointerEvent) => void;
 }
 
 export function useLongPressSort<T extends SortableItem>({
@@ -41,24 +43,18 @@ export function useLongPressSort<T extends SortableItem>({
   onError: () => void;
 }) {
   const itemsRef = useRef(items);
-  const pendingRef = useRef<PendingPress | null>(null);
-  const holdTimerRef = useRef<number | null>(null);
+  const pressRef = useRef<ActivePress | null>(null);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragOffsetY, setDragOffsetY] = useState(0);
   const [announcement, setAnnouncement] = useState("");
 
   useEffect(() => { itemsRef.current = items; }, [items]);
 
-  const clearTimer = useCallback(() => {
-    if (holdTimerRef.current !== null) window.clearTimeout(holdTimerRef.current);
-    holdTimerRef.current = null;
-  }, []);
-
-  const finish = useCallback((persist: boolean) => {
-    const press = pendingRef.current;
-    clearTimer();
-    if (!press) return;
-    if (press.handle.hasPointerCapture(press.pointerId)) press.handle.releasePointerCapture(press.pointerId);
+  const finish = useCallback((press: ActivePress, persist: boolean) => {
+    window.clearTimeout(press.timer);
+    window.removeEventListener("pointermove", press.onMove, true);
+    window.removeEventListener("pointerup", press.onEnd, true);
+    window.removeEventListener("pointercancel", press.onEnd, true);
 
     if (press.active) {
       const item = itemsRef.current.find((candidate) => candidate.id === press.id);
@@ -67,74 +63,74 @@ export function useLongPressSort<T extends SortableItem>({
       if (persist) onPersist(itemsRef.current).catch(onError);
     }
 
+    if (pressRef.current === press) pressRef.current = null;
     document.body.classList.remove("is-sorting");
-    pendingRef.current = null;
     setDraggingId(null);
     setDragOffsetY(0);
-  }, [clearTimer, getAnnouncement, onError, onPersist]);
+  }, [getAnnouncement, onError, onPersist]);
 
   useEffect(() => () => {
-    clearTimer();
+    const press = pressRef.current;
+    if (press) {
+      window.clearTimeout(press.timer);
+      window.removeEventListener("pointermove", press.onMove, true);
+      window.removeEventListener("pointerup", press.onEnd, true);
+      window.removeEventListener("pointercancel", press.onEnd, true);
+    }
     document.body.classList.remove("is-sorting");
-  }, [clearTimer]);
+  }, []);
 
   const pointerDown = useCallback<PointerEventHandler<HTMLButtonElement>>((event) => {
-    if (event.button !== 0 || pendingRef.current) return;
+    if (event.button !== 0 || pressRef.current) return;
     const id = event.currentTarget.dataset.sortId;
     if (!id) return;
     event.preventDefault();
-    setDragOffsetY(event.clientY - press.startY);
-    event.currentTarget.setPointerCapture(event.pointerId);
-    pendingRef.current = {
-      id,
-      pointerId: event.pointerId,
-      startX: event.clientX,
-      startY: event.clientY,
-      active: false,
-      handle: event.currentTarget,
-    };
 
-    holdTimerRef.current = window.setTimeout(() => {
-      const press = pendingRef.current;
-      if (!press || press.id !== id) return;
+    const press = {} as ActivePress;
+    press.id = id;
+    press.pointerId = event.pointerId;
+    press.originX = event.clientX;
+    press.originY = event.clientY;
+    press.active = false;
+    press.onMove = (moveEvent) => {
+      if (moveEvent.pointerId !== press.pointerId) return;
+      const distance = Math.hypot(moveEvent.clientX - press.originX, moveEvent.clientY - press.originY);
+      if (!press.active) {
+        if (distance > CANCEL_DISTANCE_PX) finish(press, false);
+        return;
+      }
+
+      moveEvent.preventDefault();
+      setDragOffsetY(moveEvent.clientY - press.originY);
+      const targetCard = document.elementsFromPoint(moveEvent.clientX, moveEvent.clientY)
+        .map((element) => element.closest<HTMLElement>("[data-card-id]"))
+        .find((element) => element?.dataset.cardId && element.dataset.cardId !== press.id);
+      const targetId = targetCard?.dataset.cardId;
+      if (!targetId) return;
+
+      const next = moveItem(itemsRef.current, press.id, targetId);
+      if (next === itemsRef.current) return;
+      itemsRef.current = next;
+      onChange(next);
+      press.originY = moveEvent.clientY;
+      setDragOffsetY(0);
+    };
+    press.onEnd = (endEvent) => {
+      if (endEvent.pointerId === press.pointerId) finish(press, true);
+    };
+    press.timer = window.setTimeout(() => {
+      if (pressRef.current !== press) return;
       press.active = true;
       document.body.classList.add("is-sorting");
       setDraggingId(id);
       if ("vibrate" in navigator) navigator.vibrate(12);
     }, HOLD_DELAY_MS);
-  }, []);
 
-  const pointerMove = useCallback<PointerEventHandler<HTMLButtonElement>>((event) => {
-    const press = pendingRef.current;
-    if (!press || press.pointerId !== event.pointerId) return;
-    const distance = Math.hypot(event.clientX - press.startX, event.clientY - press.startY);
-    if (!press.active) {
-      if (distance > CANCEL_DISTANCE_PX) finish(false);
-      return;
-    }
-
-    event.preventDefault();
-    const currentIndex = itemsRef.current.findIndex((item) => item.id === press.id);
-    if (currentIndex < 0) return;
-    const direction = event.clientY >= press.startY ? 1 : -1;
-    const target = itemsRef.current[currentIndex + direction];
-    if (!target) return;
-    const targetElement = document.querySelector<HTMLElement>(`[data-card-id="${CSS.escape(target.id)}"]`);
-    if (!targetElement) return;
-    const bounds = targetElement.getBoundingClientRect();
-    const crossed = direction > 0
-      ? event.clientY > bounds.top + bounds.height / 2
-      : event.clientY < bounds.top + bounds.height / 2;
-    if (!crossed) return;
-
-    const next = moveItem(itemsRef.current, press.id, target.id);
-    itemsRef.current = next;
-    onChange(next);
-    press.startY = event.clientY;
-    setDragOffsetY(0);
+    pressRef.current = press;
+    window.addEventListener("pointermove", press.onMove, { capture: true, passive: false });
+    window.addEventListener("pointerup", press.onEnd, true);
+    window.addEventListener("pointercancel", press.onEnd, true);
   }, [finish, onChange]);
-
-  const pointerUp = useCallback<PointerEventHandler<HTMLButtonElement>>(() => finish(true), [finish]);
 
   const keyDown = useCallback<KeyboardEventHandler<HTMLButtonElement>>((event) => {
     if (!["ArrowUp", "ArrowDown", "Home", "End"].includes(event.key)) return;
@@ -163,12 +159,6 @@ export function useLongPressSort<T extends SortableItem>({
     draggingId,
     dragOffsetY,
     announcement,
-    handleProps: {
-      onPointerDown: pointerDown,
-      onPointerMove: pointerMove,
-      onPointerUp: pointerUp,
-      onPointerCancel: pointerUp,
-      onKeyDown: keyDown,
-    },
+    handleProps: { onPointerDown: pointerDown, onKeyDown: keyDown },
   };
 }

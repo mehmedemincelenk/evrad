@@ -2,6 +2,7 @@
 
 import { useMemo, useState, type FormEvent } from "react";
 import { EntityEditorShell } from "../../components/EntityEditorShell";
+import { NumberWheelPicker } from "../../components/NumberWheelPicker";
 import { TargetUnitToggle } from "../../components/TargetUnitToggle";
 import { t } from "../../core/i18n";
 import type { Dhikr, DhikrDraft } from "../../core/types";
@@ -13,6 +14,7 @@ const emptyDraft: DhikrDraft = {
   details: "",
   targetCount: "",
   targetUnit: "count",
+  targetUnitLabel: "",
   listDisplay: "arabic",
 };
 
@@ -25,6 +27,7 @@ function draftFromDhikr(dhikr: Dhikr | null): DhikrDraft {
     details: dhikr.details ?? "",
     targetCount: dhikr.targetCount?.toString() ?? "",
     targetUnit: dhikr.targetUnit,
+    targetUnitLabel: dhikr.targetUnitLabel ?? "",
     listDisplay: dhikr.listDisplay,
   };
 }
@@ -60,6 +63,10 @@ export function DhikrEditor({
       setError(t("editor.targetError"));
       return;
     }
+    if (draft.targetCount.trim() && draft.targetUnit === "custom" && !draft.targetUnitLabel.trim()) {
+      setError(t("editor.targetUnitError"));
+      return;
+    }
     onSave({
       ...draft,
       name: draft.name.trim(),
@@ -67,6 +74,7 @@ export function DhikrEditor({
       translation: draft.translation.trim(),
       details: draft.details.trim(),
       targetCount: draft.targetCount.trim(),
+      targetUnitLabel: draft.targetUnitLabel.trim(),
       listDisplay: !hasArabic ? "name" : !hasName ? "arabic" : draft.listDisplay,
     });
   };
@@ -122,19 +130,19 @@ export function DhikrEditor({
           />
         </label>
 
-        <label className="field-group target-field">
+        <section className="field-group target-field">
           <span>{t("editor.target")}</span>
-          <input
-            value={draft.targetCount}
-            onChange={(event) => update("targetCount", event.target.value)}
-            inputMode="numeric"
-            pattern="[0-9]*"
-            placeholder="∞"
-          />
+          <div className="target-config-row">
+            <NumberWheelPicker value={draft.targetCount} onChange={(value) => update("targetCount", value)} />
+            <TargetUnitToggle
+              value={draft.targetUnit}
+              customLabel={draft.targetUnitLabel}
+              onChange={(unit) => update("targetUnit", unit)}
+              onCustomLabelChange={(label) => update("targetUnitLabel", label)}
+            />
+          </div>
           <small>{t("editor.targetHint")}</small>
-        </label>
-
-        <TargetUnitToggle value={draft.targetUnit} onChange={(unit) => update("targetUnit", unit)} />
+        </section>
 
         {canChooseName ? (
           <label className="choice-row">

@@ -149,8 +149,6 @@ export function DhikrApp() {
     };
   }, []);
 
-  const completeCount = dhikrs.reduce((total, dhikr) => total + (completeIds.has(dhikr.id) ? 1 : 0), 0);
-
   const toggleExpanded = (id: string) => {
     setExpandedIds((current) => {
       const next = new Set(current);
@@ -190,6 +188,7 @@ export function DhikrApp() {
       details: draft.details || null,
       targetCount: draft.targetCount ? Number(draft.targetCount) : null,
       targetUnit: draft.targetUnit,
+      targetUnitLabel: draft.targetUnit === "custom" ? draft.targetUnitLabel : null,
       listDisplay: draft.listDisplay,
       expandedArabicSize: existing?.expandedArabicSize ?? 1,
       sortOrder: existing?.sortOrder ?? itemsRef.current.length,
@@ -255,13 +254,6 @@ export function DhikrApp() {
             <h1 id="page-title">{t("app.name")}</h1>
             <p className="date-line">{today ? formatLongDate(today) : "\u00a0"}</p>
             <p className="dayline">{t("app.tagline")}</p>
-          </div>
-          <div
-            className={`progress-orb${dhikrs.length > 0 && completeCount === dhikrs.length ? " is-complete" : ""}`}
-            aria-label={dhikrs.length ? t("progress.label", { total: dhikrs.length, complete: completeCount }) : t("progress.empty")}
-          >
-            <span>{completeCount}</span>
-            <small>/ {dhikrs.length}</small>
           </div>
         </header>
 

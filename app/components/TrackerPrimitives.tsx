@@ -4,9 +4,6 @@ import type { TargetUnit } from "../core/types";
 
 export interface SortHandleHandlers {
   onPointerDown: PointerEventHandler<HTMLButtonElement>;
-  onPointerMove: PointerEventHandler<HTMLButtonElement>;
-  onPointerUp: PointerEventHandler<HTMLButtonElement>;
-  onPointerCancel: PointerEventHandler<HTMLButtonElement>;
   onKeyDown: KeyboardEventHandler<HTMLButtonElement>;
 }
 
@@ -52,6 +49,7 @@ export function CollapsedCardSummary({
   arabic,
   targetCount,
   targetUnit,
+  targetUnitLabel,
   expanded,
   onToggle,
 }: {
@@ -59,6 +57,7 @@ export function CollapsedCardSummary({
   arabic: boolean;
   targetCount: number | null;
   targetUnit: TargetUnit;
+  targetUnitLabel: string | null;
   expanded: boolean;
   onToggle: () => void;
 }) {
@@ -70,15 +69,15 @@ export function CollapsedCardSummary({
       aria-expanded={expanded}
       aria-label={t(expanded ? "card.close" : "card.open", { title })}
     >
+      <TargetBadge count={targetCount} unit={targetUnit} unitLabel={targetUnitLabel} />
       <span className={arabic ? "arabic-preview" : "name-preview"} lang={arabic ? "ar" : "tr"} dir={arabic ? "rtl" : "ltr"}>
         {title}
       </span>
-      <TargetBadge count={targetCount} unit={targetUnit} />
     </button>
   );
 }
 
-export function TargetBadge({ count, unit }: { count: number | null; unit: TargetUnit }) {
+export function TargetBadge({ count, unit, unitLabel }: { count: number | null; unit: TargetUnit; unitLabel: string | null }) {
   if (count === null) {
     return (
       <span className="target-preview infinity-target" aria-label={t("card.infinityLabel")} title={t("card.infinityLabel")}>
@@ -86,14 +85,11 @@ export function TargetBadge({ count, unit }: { count: number | null; unit: Targe
       </span>
     );
   }
-  const key = unit === "page"
-    ? "card.targetPage"
-    : unit === "minute"
-      ? "card.targetMinute"
-      : unit === "hour"
-        ? "card.targetHour"
-        : "card.target";
-  return <span className="target-preview">{t(key, { count })}</span>;
+  return (
+    <span className="target-preview">
+      {unit === "custom" && unitLabel ? t("card.customTarget", { count, unit: unitLabel }) : t("card.target", { count })}
+    </span>
+  );
 }
 
 export function CompletionLight({
@@ -124,17 +120,11 @@ export function SortHandle({
   sortId,
   label,
   onPointerDown,
-  onPointerMove,
-  onPointerUp,
-  onPointerCancel,
   onKeyDown,
 }: {
   sortId: string;
   label: string;
   onPointerDown: PointerEventHandler<HTMLButtonElement>;
-  onPointerMove: PointerEventHandler<HTMLButtonElement>;
-  onPointerUp: PointerEventHandler<HTMLButtonElement>;
-  onPointerCancel: PointerEventHandler<HTMLButtonElement>;
   onKeyDown: KeyboardEventHandler<HTMLButtonElement>;
 }) {
   return (
@@ -144,9 +134,6 @@ export function SortHandle({
       data-sort-id={sortId}
       aria-label={label}
       onPointerDown={onPointerDown}
-      onPointerMove={onPointerMove}
-      onPointerUp={onPointerUp}
-      onPointerCancel={onPointerCancel}
       onKeyDown={onKeyDown}
     >
       <i />
