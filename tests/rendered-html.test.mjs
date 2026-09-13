@@ -79,6 +79,9 @@ test("recommended collection is deduplicated and long entries use names", async 
   assert.match(recommendedText, /recommendedDhikrs/);
   assert.match(recommendedText, /recommended-esmaul-husna[\s\S]*listDisplay: "name"/);
   assert.match(recommendedText, /recommended-distress-dhikr[\s\S]*listDisplay: "name"/);
+  assert.match(recommendedText, /recommended-la-ilaha-expanded[\s\S]*listDisplay: "name"/);
+  assert.match(recommendedText, /recommended-after-prayer-tahlil[\s\S]*targetCount: 1/);
+  assert.match(recommendedText, /لَا إِلٰهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ/);
   assert.match(recommendedText, /getMissingRecommendedDhikrs/);
   assert.match(recommendedText, /normalizeIdentity/);
 });
