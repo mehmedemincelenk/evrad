@@ -25,7 +25,7 @@ export function usePwaUpdate() {
     }
     let disposed = false;
 
-    navigator.serviceWorker.register("/sw.js").then(async (registration) => {
+    navigator.serviceWorker.register("/sw.js", { updateViaCache: "none" }).then(async (registration) => {
       if (disposed) return;
       registrationRef.current = registration;
       if (registration.waiting) setUpdateReady(true);
@@ -41,13 +41,19 @@ export function usePwaUpdate() {
         .map((entry) => entry.name)
         .filter((url) => url.startsWith(window.location.origin));
       ready.active?.postMessage({ type: "CACHE_URLS", urls: [...coreUrls, ...resourceUrls] });
+      registration.update().catch(() => undefined);
     }).catch(() => undefined);
 
     const onControllerChange = () => window.location.reload();
     navigator.serviceWorker.addEventListener("controllerchange", onControllerChange);
+    const checkForUpdate = () => {
+      if (document.visibilityState === "visible") registrationRef.current?.update().catch(() => undefined);
+    };
+    document.addEventListener("visibilitychange", checkForUpdate);
     return () => {
       disposed = true;
       navigator.serviceWorker.removeEventListener("controllerchange", onControllerChange);
+      document.removeEventListener("visibilitychange", checkForUpdate);
     };
   }, []);
 

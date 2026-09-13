@@ -123,3 +123,14 @@ test("IndexedDB transactions cannot finish before their completion listener is a
   assert.match(indexedDbText, /request\.onblocked/);
   assert.match(indexedDbText, /database\.onversionchange/);
 });
+
+test("PWA updates replace stale application shells instead of preserving a stuck client", async () => {
+  const [serviceWorkerText, updateHookText] = await Promise.all([
+    readFile(new URL("../public/sw.js", import.meta.url), "utf8"),
+    readFile(new URL("../app/hooks/usePwaUpdate.ts", import.meta.url), "utf8"),
+  ]);
+  assert.match(serviceWorkerText, /zikirlerim-shell-v3/);
+  assert.match(serviceWorkerText, /then\(\(\) => self\.skipWaiting\(\)\)/);
+  assert.match(updateHookText, /updateViaCache: "none"/);
+  assert.match(updateHookText, /visibilitychange/);
+});

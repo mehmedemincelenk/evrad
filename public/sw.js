@@ -1,4 +1,4 @@
-const CACHE_NAME = "zikirlerim-shell-v1";
+const CACHE_NAME = "zikirlerim-shell-v3";
 const CORE_URLS = [
   "/",
   "/zikirler",
@@ -10,7 +10,11 @@ const CORE_URLS = [
 ];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(CORE_URLS)));
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then((cache) => cache.addAll(CORE_URLS))
+      .then(() => self.skipWaiting()),
+  );
 });
 
 self.addEventListener("activate", (event) => {
