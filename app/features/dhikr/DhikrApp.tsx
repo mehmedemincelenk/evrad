@@ -12,6 +12,7 @@ import { ModuleScreenHeader } from "../../components/ModuleScreenHeader";
 import { SortStatus } from "../../components/SortStatus";
 import { StorageLoading } from "../../components/StorageLoading";
 import { TrackableEmptyState } from "../../components/TrackableEmptyState";
+import { TrackableModuleLayout } from "../../components/TrackableModuleLayout";
 import { useAppRuntime } from "../../core/AppRuntimeContext";
 import type { EntityEditorMode } from "../../core/editor";
 import { createEntityId } from "../../core/id";
@@ -139,43 +140,43 @@ function DhikrScreen({ editorMode }: { editorMode: DhikrEditorMode }) {
 
   return (
     <>
-      <section className="module-screen" aria-labelledby="page-title">
-        <ModuleScreenHeader eyebrow={t("app.eyebrow")} title={t("app.name")} tagline={t("app.tagline")} today={today} />
-
-        {!storageReady ? <StorageLoading /> : dhikrs.length ? (
-          <div className="trackable-list">
-            {dhikrs.map((dhikr, index) => (
-              <DhikrCard
-                key={dhikr.id}
-                dhikr={dhikr}
-                complete={completeIds.has(dhikr.id)}
-                expanded={expandedIds.has(dhikr.id)}
-                dragging={draggingId === dhikr.id}
-                dragOffsetY={draggingId === dhikr.id ? dragOffsetY : 0}
-                position={index + 1}
-                onToggleExpanded={() => toggleExpanded(dhikr.id)}
-                onToggleComplete={() => toggleComplete(dhikr.id)}
-                onChangeFont={(direction) => changeFont(dhikr, direction)}
-                onEdit={() => router.push(`/zikirler/${encodeURIComponent(dhikr.id)}/duzenle`)}
-                onDelete={() => setDeleteTarget(dhikr)}
-                sortHandleProps={sortHandleProps}
-              />
-            ))}
-          </div>
-        ) : (
-          <TrackableEmptyState title={t("empty.title")} body={t("empty.body")} actionLabel={t("action.addFirst")} onAction={() => router.push("/zikirler/yeni")} />
+      <TrackableModuleLayout
+        header={<ModuleScreenHeader eyebrow={t("app.eyebrow")} title={t("app.name")} tagline={t("app.tagline")} today={today} />}
+        loading={!storageReady}
+        hasItems={dhikrs.length > 0}
+        loadingState={<StorageLoading />}
+        emptyState={<TrackableEmptyState title={t("empty.title")} body={t("empty.body")} actionLabel={t("action.addFirst")} onAction={() => router.push("/zikirler/yeni")} />}
+        status={<SortStatus active={Boolean(draggingId)} announcement={reorderAnnouncement} activeLabel={t("card.sorting")} />}
+        footer={(
+          <>
+            <p className="quiet-note">{t("app.lightNote")}</p>
+            {storageReady ? (
+              <button className="recommended-trigger" type="button" onClick={() => setRecommendedConfirmOpen(true)}>
+                <span aria-hidden="true">✦</span>
+                {t("recommended.trigger")}
+              </button>
+            ) : null}
+          </>
         )}
-
-        <p className="quiet-note">{t("app.lightNote")}</p>
-        {storageReady ? (
-          <button className="recommended-trigger" type="button" onClick={() => setRecommendedConfirmOpen(true)}>
-            <span aria-hidden="true">✦</span>
-            {t("recommended.trigger")}
-          </button>
-        ) : null}
-      </section>
-
-      <SortStatus active={Boolean(draggingId)} announcement={reorderAnnouncement} activeLabel={t("card.sorting")} />
+      >
+        {dhikrs.map((dhikr, index) => (
+          <DhikrCard
+            key={dhikr.id}
+            dhikr={dhikr}
+            complete={completeIds.has(dhikr.id)}
+            expanded={expandedIds.has(dhikr.id)}
+            dragging={draggingId === dhikr.id}
+            dragOffsetY={draggingId === dhikr.id ? dragOffsetY : 0}
+            position={index + 1}
+            onToggleExpanded={() => toggleExpanded(dhikr.id)}
+            onToggleComplete={() => toggleComplete(dhikr.id)}
+            onChangeFont={(direction) => changeFont(dhikr, direction)}
+            onEdit={() => router.push(`/zikirler/${encodeURIComponent(dhikr.id)}/duzenle`)}
+            onDelete={() => setDeleteTarget(dhikr)}
+            sortHandleProps={sortHandleProps}
+          />
+        ))}
+      </TrackableModuleLayout>
 
       {editor ? (
         <DhikrEditor
