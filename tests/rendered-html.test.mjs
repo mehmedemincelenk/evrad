@@ -21,7 +21,7 @@ test("server-renders the Zikirlerim application", async () => {
 
   const html = await response.text();
   assert.match(html, /<title>Zikirlerim<\/title>/i);
-  assert.match(html, /BUGÜNÜN RİTMİ/);
+  assert.match(html, /GÜNÜN VİRDİ/);
   assert.match(html, /Zikirlerim yükleniyor/);
   assert.match(html, /Bölüm menüsünü aç/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton|Your site is taking shape/i);
@@ -112,6 +112,20 @@ test("the compact menu and completion symbols keep interaction work lightweight"
   assert.match(navigationCss, /\.transient-bottom-bar\s*\{[\s\S]*display:\s*flex/);
 });
 
+test("notifications stay viewport-pinned and routine success actions stay quiet", async () => {
+  const [notificationsText, overlaysCss, discoveryText, libraryText] = await Promise.all([
+    readFile(new URL("../app/components/AppNotifications.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/styles/overlays.css", import.meta.url), "utf8"),
+    readFile(new URL("../app/features/discovery/DiscoveryModuleApp.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/hooks/useLibraryModule.ts", import.meta.url), "utf8"),
+  ]);
+  assert.match(notificationsText, /className="notification-rail"/);
+  assert.match(notificationsText, /role="region"/);
+  assert.match(overlaysCss, /\.notification-rail\s*\{[\s\S]*position:\s*fixed;[\s\S]*top:/);
+  assert.doesNotMatch(discoveryText, /toast\.addedToLibrary|toast\.alreadyInLibrary/);
+  assert.doesNotMatch(libraryText, /toast\.savedGeneric|toast\.deletedGeneric/);
+});
+
 test("new modules can reuse navigation, storage, layout, and collection behavior", async () => {
   const [registryText, shellText, homeText, moduleTabsText, repositoryText, completionText, collectionText, layoutText, primitivesText, pwaText] = await Promise.all([
     readFile(new URL("../app/core/module-registry.ts", import.meta.url), "utf8"),
@@ -182,7 +196,7 @@ test("PWA updates replace stale application shells instead of preserving a stuck
     readFile(new URL("../public/sw.js", import.meta.url), "utf8"),
     readFile(new URL("../app/hooks/usePwaUpdate.ts", import.meta.url), "utf8"),
   ]);
-  assert.match(serviceWorkerText, /zikirlerim-shell-v6/);
+  assert.match(serviceWorkerText, /zikirlerim-shell-v7/);
   assert.match(serviceWorkerText, /caches\.match\(request\)[\s\S]*cached \?\? \(await networkResponse\)/);
   assert.match(serviceWorkerText, /self\.registration\.active \? undefined : self\.skipWaiting\(\)/);
   assert.match(serviceWorkerText, /type === "SKIP_WAITING"/);

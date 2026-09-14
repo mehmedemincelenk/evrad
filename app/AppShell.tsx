@@ -5,6 +5,7 @@ import type { ContentSpace, ModuleId } from "./core/types";
 import { t } from "./core/i18n";
 import { TransientBottomBar } from "./components/TransientBottomBar";
 import { ModuleTabs } from "./components/ModuleTabs";
+import { AppNotifications } from "./components/AppNotifications";
 import { AppRuntimeContext } from "./core/AppRuntimeContext";
 import { usePwaUpdate } from "./hooks/usePwaUpdate";
 import { useTransientMenu } from "./hooks/useTransientMenu";
@@ -71,13 +72,7 @@ export function AppShell({
           addLabel={activeDefinition.create ? t(activeDefinition.create.label) : null}
           onAdd={handleAdd}
         />
-        {toast ? <div className="toast" role="status">{toast}</div> : null}
-        {updateReady ? (
-          <div className="update-banner" role="status">
-            <span>{t("toast.updateReady")}</span>
-            <button type="button" onClick={activateUpdate}>{t("toast.reload")}</button>
-          </div>
-        ) : null}
+        <AppNotifications message={toast} updateReady={updateReady} onActivateUpdate={activateUpdate} />
       </main>
     </AppRuntimeContext.Provider>
   );

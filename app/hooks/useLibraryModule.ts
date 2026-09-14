@@ -72,8 +72,7 @@ export function useLibraryModule<T extends TrackableEntity, Draft>({
       : [...itemsRef.current, item];
     replaceItems(normalizeOrder(next));
     closeEditor();
-    showToast(t("toast.savedGeneric", { item: itemLabel }));
-  }, [closeEditor, editor, fromDraft, itemLabel, itemsRef, replaceItems, repository, showStorageError, showToast]);
+  }, [closeEditor, editor, fromDraft, itemsRef, replaceItems, repository, showStorageError]);
 
   const confirmDelete = useCallback(async () => {
     if (!deleteTarget) return;
@@ -87,8 +86,7 @@ export function useLibraryModule<T extends TrackableEntity, Draft>({
     replaceItems(next);
     forgetItemState(deleteTarget.id);
     setDeleteTarget(null);
-    showToast(t("toast.deletedGeneric", { item: itemLabel }));
-  }, [deleteTarget, forgetItemState, itemLabel, itemsRef, replaceItems, repository, showStorageError, showToast]);
+  }, [deleteTarget, forgetItemState, itemsRef, replaceItems, repository, showStorageError]);
 
   const addFirst = useCallback(() => router.push(definition.create.route), [definition.create.route, router]);
   const editItem = useCallback((id: string) => router.push(`${definition.route}/${encodeURIComponent(id)}/duzenle`), [definition.route, router]);

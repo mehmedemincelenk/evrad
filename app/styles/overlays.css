@@ -62,11 +62,21 @@
   pointer-events: none;
 }
 
-.toast {
+.notification-rail {
   position: fixed;
+  top: calc(max(0.65rem, env(safe-area-inset-top)) + 3.7rem);
   left: 50%;
-  bottom: calc(6.4rem + env(safe-area-inset-bottom));
   z-index: 150;
+  display: grid;
+  justify-items: center;
+  gap: 0.45rem;
+  width: min(calc(100% - 1.5rem), 28rem);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.toast {
+  width: fit-content;
   max-width: calc(100% - 2rem);
   padding: 0.75rem 1rem;
   border: 1px solid var(--line);
@@ -76,17 +86,13 @@
   box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.38);
   font-size: 0.76rem;
   text-align: center;
-  transform: translateX(-50%);
   animation: toastIn 180ms ease-out;
+  pointer-events: auto;
 }
 
-@keyframes toastIn { from { opacity: 0; transform: translate(-50%, 0.6rem); } }
+@keyframes toastIn { from { opacity: 0; transform: translateY(-0.45rem); } }
 
 .update-banner {
-  position: fixed;
-  top: calc(0.75rem + env(safe-area-inset-top));
-  left: 50%;
-  z-index: 90;
   display: flex;
   align-items: center;
   gap: 0.8rem;
@@ -97,7 +103,7 @@
   background: rgba(24, 26, 31, 0.96);
   color: var(--text-soft);
   font-size: 0.72rem;
-  transform: translateX(-50%);
+  pointer-events: auto;
 }
 
 .update-banner button { min-height: 2.25rem; padding: 0 0.75rem; border: 0; border-radius: 999px; background: var(--light); color: #111318; font-weight: 750; cursor: pointer; }
