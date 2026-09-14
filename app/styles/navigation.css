@@ -31,7 +31,7 @@
 .top-module-tabs {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  width: min(100%, 40rem);
+  width: min(100%, 20rem);
   margin: 0 auto;
   padding: 0.2rem;
   border: 1px solid var(--line);
@@ -42,17 +42,32 @@
 
 .top-module-tab {
   display: grid;
+  position: relative;
   min-width: 0;
   min-height: 2.55rem;
   padding: 0 0.25rem;
   place-items: center;
   border-radius: 0.78rem;
   color: var(--muted);
-  font-size: clamp(0.63rem, 2.8vw, 0.74rem);
-  font-weight: 700;
   text-decoration: none;
   touch-action: manipulation;
 }
+
+.module-glyph {
+  display: grid;
+  width: 1.35rem;
+  height: 1.35rem;
+  place-items: center;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.15rem;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.module-glyph.is-dhikr { font-size: 1.28rem; }
+.module-glyph.is-prayer { font-size: 1.32rem; transform: translateY(-0.03rem); }
+.module-glyph.is-memory { font-size: 1.05rem; }
+.module-glyph.is-book { font-family: Inter, system-ui, sans-serif; font-size: 1.05rem; }
 
 .top-module-tab.is-selected {
   background: var(--light);

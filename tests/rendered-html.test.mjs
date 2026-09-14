@@ -89,9 +89,10 @@ test("target units and long-press sorting remain modular", async () => {
 });
 
 test("the compact menu and completion symbols keep interaction work lightweight", async () => {
-  const [menuText, moduleTabsText, menuHookText, shellText, primitiveText, symbolText, navigationCss] = await Promise.all([
+  const [menuText, moduleTabsText, moduleGlyphText, menuHookText, shellText, primitiveText, symbolText, navigationCss] = await Promise.all([
     readFile(new URL("../app/components/TransientBottomBar.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/ModuleTabs.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/ModuleGlyph.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/hooks/useTransientMenu.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/AppShell.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/TrackerPrimitives.tsx", import.meta.url), "utf8"),
@@ -102,6 +103,9 @@ test("the compact menu and completion symbols keep interaction work lightweight"
   assert.doesNotMatch(menuText, /modules\.map/);
   assert.match(moduleTabsText, /\["dhikr", "prayers", "memorization", "books"\]/);
   assert.match(moduleTabsText, /aria-current/);
+  assert.match(moduleTabsText, /aria-label=\{label\}/);
+  assert.match(moduleTabsText, /<ModuleGlyph icon=\{definition\.icon\}/);
+  assert.match(moduleGlyphText, /Record<IconName, string>/);
   assert.match(menuHookText, /timeoutRef/);
   assert.doesNotMatch(menuHookText, /setActivityKey/);
   assert.match(shellText, /navigateTo\(getModuleRoute/);
@@ -196,7 +200,7 @@ test("PWA updates replace stale application shells instead of preserving a stuck
     readFile(new URL("../public/sw.js", import.meta.url), "utf8"),
     readFile(new URL("../app/hooks/usePwaUpdate.ts", import.meta.url), "utf8"),
   ]);
-  assert.match(serviceWorkerText, /zikirlerim-shell-v7/);
+  assert.match(serviceWorkerText, /zikirlerim-shell-v8/);
   assert.match(serviceWorkerText, /caches\.match\(request\)[\s\S]*cached \?\? \(await networkResponse\)/);
   assert.match(serviceWorkerText, /self\.registration\.active \? undefined : self\.skipWaiting\(\)/);
   assert.match(serviceWorkerText, /type === "SKIP_WAITING"/);
