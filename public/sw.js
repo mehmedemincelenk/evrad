@@ -1,4 +1,4 @@
-const CACHE_NAME = "zikirlerim-shell-v4";
+const CACHE_NAME = "zikirlerim-shell-v5";
 const CORE_URLS = [
   "/",
   "/zikirler",
@@ -49,14 +49,18 @@ self.addEventListener("fetch", (event) => {
   if (url.origin !== self.location.origin) return;
 
   if (request.mode === "navigate") {
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
+    const networkResponse = fetch(request)
+      .then((response) => {
+        if (response.ok) {
           const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
-          return response;
-        })
-        .catch(async () => (await caches.match(request)) ?? (await caches.match("/zikirler")) ?? Response.error()),
+          return caches.open(CACHE_NAME).then((cache) => cache.put(request, copy)).then(() => response);
+        }
+        return response;
+      })
+      .catch(() => null);
+    event.waitUntil(networkResponse.then(() => undefined));
+    event.respondWith(
+      caches.match(request).then(async (cached) => cached ?? (await networkResponse) ?? (await caches.match("/zikirler")) ?? Response.error()),
     );
     return;
   }

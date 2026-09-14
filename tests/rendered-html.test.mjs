@@ -88,6 +88,25 @@ test("target units and long-press sorting remain modular", async () => {
   assert.doesNotMatch(navigationCss.match(/\.menu-scrim\s*\{[^}]+\}/)?.[0] ?? "", /backdrop-filter/);
 });
 
+test("the compact menu and completion symbols keep interaction work lightweight", async () => {
+  const [menuText, menuHookText, shellText, primitiveText, symbolText, navigationCss] = await Promise.all([
+    readFile(new URL("../app/components/TransientBottomBar.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/hooks/useTransientMenu.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/AppShell.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/TrackerPrimitives.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/PlusMinusIcon.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/styles/navigation.css", import.meta.url), "utf8"),
+  ]);
+  assert.doesNotMatch(menuText, /activityKey/);
+  assert.match(menuHookText, /timeoutRef/);
+  assert.doesNotMatch(menuHookText, /setActivityKey/);
+  assert.match(shellText, /navigateTo\(getModuleRoute/);
+  assert.match(primitiveText, /<PlusMinusIcon minus=\{added\}/);
+  assert.match(primitiveText, /<span className="completion-core" aria-hidden="true" \/>/);
+  assert.match(symbolText, /is-minus/);
+  assert.match(navigationCss, /\.transient-bottom-bar\s*\{[\s\S]*display:\s*flex/);
+});
+
 test("new modules can reuse navigation, storage, layout, and collection behavior", async () => {
   const [registryText, shellText, homeText, repositoryText, completionText, collectionText, layoutText, primitivesText, pwaText] = await Promise.all([
     readFile(new URL("../app/core/module-registry.ts", import.meta.url), "utf8"),
@@ -101,8 +120,8 @@ test("new modules can reuse navigation, storage, layout, and collection behavior
     readFile(new URL("../app/hooks/usePwaUpdate.ts", import.meta.url), "utf8"),
   ]);
   assert.match(registryText, /discoverRoute/);
-  assert.match(shellText, /router\.push\(getModuleRoute\(id, activeSpace\)\)/);
-  assert.match(shellText, /router\.push\(getModuleRoute\(activeModule, space\)\)/);
+  assert.match(shellText, /navigateTo\(getModuleRoute\(id, activeSpace\)\)/);
+  assert.match(shellText, /navigateTo\(getModuleRoute\(activeModule, space\)\)/);
   assert.match(homeText, /getModuleRoute\(module\.id, space\)/);
   assert.doesNotMatch(homeText, /next\/link/);
   assert.match(repositoryText, /createTrackableRepository/);
@@ -157,7 +176,8 @@ test("PWA updates replace stale application shells instead of preserving a stuck
     readFile(new URL("../public/sw.js", import.meta.url), "utf8"),
     readFile(new URL("../app/hooks/usePwaUpdate.ts", import.meta.url), "utf8"),
   ]);
-  assert.match(serviceWorkerText, /zikirlerim-shell-v4/);
+  assert.match(serviceWorkerText, /zikirlerim-shell-v5/);
+  assert.match(serviceWorkerText, /caches\.match\(request\)[\s\S]*cached \?\? \(await networkResponse\)/);
   assert.match(serviceWorkerText, /self\.registration\.active \? undefined : self\.skipWaiting\(\)/);
   assert.match(serviceWorkerText, /type === "SKIP_WAITING"/);
   assert.match(updateHookText, /updateViaCache: "none"/);

@@ -1,6 +1,7 @@
 import type { CSSProperties, KeyboardEventHandler, PointerEventHandler, ReactNode } from "react";
 import { t } from "../core/i18n";
 import type { TargetUnit } from "../core/types";
+import { PlusMinusIcon } from "./PlusMinusIcon";
 
 export interface SortHandleHandlers {
   onPointerDown: PointerEventHandler<HTMLButtonElement>;
@@ -109,9 +110,7 @@ export function CompletionLight({
       aria-label={label}
       aria-pressed={complete}
     >
-      <span className="completion-core" aria-hidden="true">
-        <i />
-      </span>
+      <span className="completion-core" aria-hidden="true" />
     </button>
   );
 }
@@ -126,7 +125,7 @@ export function AddToLibraryButton({ title, added, onAdd }: { title: string; add
       aria-pressed={added}
       disabled={added}
     >
-      <span className="completion-core" aria-hidden="true"><i>{added ? "✓" : "+"}</i></span>
+      <span className="completion-core" aria-hidden="true"><PlusMinusIcon minus={added} /></span>
     </button>
   );
 }

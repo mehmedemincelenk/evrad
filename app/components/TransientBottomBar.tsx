@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { modules } from "../core/module-registry";
 import type { ContentSpace, IconName, ModuleId } from "../core/types";
 import { t } from "../core/i18n";
+import { PlusMinusIcon } from "./PlusMinusIcon";
 
 const glyphs: Record<IconName, string> = {
   prayer: "✦",
@@ -15,7 +16,6 @@ const glyphs: Record<IconName, string> = {
 
 export function TransientBottomBar({
   open,
-  activityKey,
   activeModule,
   activeSpace,
   onClose,
@@ -26,7 +26,6 @@ export function TransientBottomBar({
   onAdd,
 }: {
   open: boolean;
-  activityKey: number;
   activeModule: ModuleId;
   activeSpace: ContentSpace;
   onClose: () => void;
@@ -36,12 +35,6 @@ export function TransientBottomBar({
   addLabel: string | null;
   onAdd: () => void;
 }) {
-  useEffect(() => {
-    if (!open) return;
-    const timeout = window.setTimeout(onClose, 4000);
-    return () => window.clearTimeout(timeout);
-  }, [open, activityKey, onClose]);
-
   useEffect(() => {
     if (!open) return;
     const onKeyDown = (event: KeyboardEvent) => event.key === "Escape" && onClose();
@@ -66,11 +59,12 @@ export function TransientBottomBar({
               type="button"
               className={activeSpace === space ? "is-selected" : ""}
               aria-pressed={activeSpace === space}
-              onClick={() => { onActivity(); onSpace(space); }}
+              aria-label={t(space === "library" ? "menu.library" : "menu.discover")}
+              data-tooltip={t(space === "library" ? "menu.library" : "menu.discover")}
+              onClick={() => onSpace(space)}
               tabIndex={open ? 0 : -1}
             >
-              <span aria-hidden="true">{space === "library" ? "▦" : "✦"}</span>
-              {t(space === "library" ? "menu.library" : "menu.discover")}
+              <span className={`space-glyph is-${space}`} aria-hidden="true">{space === "library" ? "▦" : "✦"}</span>
             </button>
           ))}
         </div>
@@ -83,7 +77,7 @@ export function TransientBottomBar({
                 className={`module-button${active ? " is-active" : ""}`}
                 type="button"
                 key={module.id}
-                onClick={() => { onActivity(); onModule(module.id); }}
+                onClick={() => onModule(module.id)}
                 aria-label={`${label}${active ? `, ${t("menu.active")}` : ""}`}
                 tabIndex={open ? 0 : -1}
                 data-tooltip={label}
@@ -93,8 +87,8 @@ export function TransientBottomBar({
             );
           })}
           {addLabel ? (
-            <button className="module-button add-module-button" type="button" onClick={() => { onActivity(); onAdd(); }} aria-label={addLabel} tabIndex={open ? 0 : -1} data-tooltip={addLabel}>
-              <span aria-hidden="true">+</span>
+            <button className="module-button add-module-button" type="button" onClick={onAdd} aria-label={addLabel} tabIndex={open ? 0 : -1} data-tooltip={addLabel}>
+              <PlusMinusIcon />
             </button>
           ) : null}
         </div>

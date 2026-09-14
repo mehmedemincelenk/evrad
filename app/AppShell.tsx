@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
-import { useRouter } from "next/navigation";
 import type { ContentSpace, ModuleId } from "./core/types";
 import { t } from "./core/i18n";
 import { TransientBottomBar } from "./components/TransientBottomBar";
@@ -9,6 +8,7 @@ import { AppRuntimeContext } from "./core/AppRuntimeContext";
 import { usePwaUpdate } from "./hooks/usePwaUpdate";
 import { useTransientMenu } from "./hooks/useTransientMenu";
 import { getModule, getModuleRoute } from "./core/module-registry";
+import { navigateTo } from "./core/navigation";
 
 export function AppShell({
   children,
@@ -19,7 +19,6 @@ export function AppShell({
   activeModule: ModuleId;
   activeSpace?: ContentSpace;
 }) {
-  const router = useRouter();
   const activeDefinition = getModule(activeModule);
   const menu = useTransientMenu();
   const { updateReady, activateUpdate } = usePwaUpdate();
@@ -34,20 +33,19 @@ export function AppShell({
   }, [toast]);
 
   const handleModule = (id: ModuleId) => {
-    menu.registerActivity();
     menu.closeMenu();
-    if (id !== activeModule) router.push(getModuleRoute(id, activeSpace));
+    if (id !== activeModule) navigateTo(getModuleRoute(id, activeSpace));
   };
 
   const handleSpace = (space: ContentSpace) => {
     menu.closeMenu();
-    if (space !== activeSpace) router.push(getModuleRoute(activeModule, space));
+    if (space !== activeSpace) navigateTo(getModuleRoute(activeModule, space));
   };
 
   const handleAdd = () => {
     if (!activeDefinition.create) return;
     menu.closeMenu();
-    router.push(activeDefinition.create.route);
+    navigateTo(activeDefinition.create.route);
   };
 
   return (
@@ -69,7 +67,6 @@ export function AppShell({
         </button>
         <TransientBottomBar
           open={menu.open}
-          activityKey={menu.activityKey}
           activeModule={activeModule}
           activeSpace={activeSpace}
           onClose={menu.closeMenu}

@@ -161,20 +161,10 @@
   pointer-events: none;
 }
 
-.completion-core i {
-  width: 0.75rem;
-  height: 0.42rem;
-  border-left: 2px solid #121419;
-  border-bottom: 2px solid #121419;
-  opacity: 0;
-  transform: translateY(-0.08rem) rotate(-45deg) scale(0.6);
-  transition: opacity 150ms ease, transform 200ms ease;
-}
-
 .discovery-mark { display: grid; place-items: center; color: var(--muted-deep); font-size: 0.72rem; }
-.discovery-add .completion-core i { width: auto; height: auto; border: 0; color: var(--text-soft); font: 400 1.25rem/1 Inter, sans-serif; opacity: 1; transform: none; }
+.discovery-add .plus-minus-icon { color: var(--text-soft); }
 .discovery-add.is-added .completion-core { border-color: var(--light); background: var(--light); box-shadow: 0 0 0.75rem rgba(255, 253, 240, 0.42); }
-.discovery-add.is-added .completion-core i { color: #121419; font-size: 0.8rem; }
+.discovery-add.is-added .plus-minus-icon { color: #121419; }
 .discovery-add:disabled { cursor: default; }
 
 .is-complete .completion-core {
@@ -185,7 +175,6 @@
 }
 
 .is-complete .completion-core::after { animation: haloBloom 420ms ease-out; }
-.is-complete .completion-core i { opacity: 1; transform: translateY(-0.08rem) rotate(-45deg) scale(1); }
 
 @keyframes coreBloom {
   0% { transform: scale(0.82); box-shadow: 0 0 0 rgba(255, 253, 240, 0); }
@@ -243,4 +232,3 @@
 .empty-light { width: 3rem; aspect-ratio: 1; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.25); box-shadow: 0 0 2.5rem rgba(255, 250, 220, 0.12); }
 .empty-state h2 { margin: 0.2rem 0 0; font-family: Iowan Old Style, Baskerville, Georgia, serif; font-size: 1.6rem; font-weight: 450; }
 .empty-state p { max-width: 19rem; margin: -0.4rem 0 0; color: var(--muted); font-size: 0.9rem; line-height: 1.6; }
-
