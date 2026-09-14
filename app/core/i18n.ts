@@ -41,6 +41,7 @@ export const tr = {
   "menu.open": "Bölüm menüsünü aç",
   "menu.close": "Bölüm menüsünü kapat",
   "menu.label": "Bölümler",
+  "menu.modulesLabel": "İçerik bölümleri",
   "menu.prayers": "Dualar",
   "menu.books": "Kitaplar",
   "menu.memorization": "Ezberler",

@@ -89,8 +89,9 @@ test("target units and long-press sorting remain modular", async () => {
 });
 
 test("the compact menu and completion symbols keep interaction work lightweight", async () => {
-  const [menuText, menuHookText, shellText, primitiveText, symbolText, navigationCss] = await Promise.all([
+  const [menuText, moduleTabsText, menuHookText, shellText, primitiveText, symbolText, navigationCss] = await Promise.all([
     readFile(new URL("../app/components/TransientBottomBar.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/ModuleTabs.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/hooks/useTransientMenu.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/AppShell.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/TrackerPrimitives.tsx", import.meta.url), "utf8"),
@@ -98,20 +99,25 @@ test("the compact menu and completion symbols keep interaction work lightweight"
     readFile(new URL("../app/styles/navigation.css", import.meta.url), "utf8"),
   ]);
   assert.doesNotMatch(menuText, /activityKey/);
+  assert.doesNotMatch(menuText, /modules\.map/);
+  assert.match(moduleTabsText, /\["dhikr", "prayers", "memorization", "books"\]/);
+  assert.match(moduleTabsText, /aria-current/);
   assert.match(menuHookText, /timeoutRef/);
   assert.doesNotMatch(menuHookText, /setActivityKey/);
   assert.match(shellText, /navigateTo\(getModuleRoute/);
   assert.match(primitiveText, /<PlusMinusIcon minus=\{added\}/);
   assert.match(primitiveText, /<span className="completion-core" aria-hidden="true" \/>/);
   assert.match(symbolText, /is-minus/);
+  assert.match(navigationCss, /\.top-module-tabs\s*\{[\s\S]*grid-template-columns:\s*repeat\(4/);
   assert.match(navigationCss, /\.transient-bottom-bar\s*\{[\s\S]*display:\s*flex/);
 });
 
 test("new modules can reuse navigation, storage, layout, and collection behavior", async () => {
-  const [registryText, shellText, homeText, repositoryText, completionText, collectionText, layoutText, primitivesText, pwaText] = await Promise.all([
+  const [registryText, shellText, homeText, moduleTabsText, repositoryText, completionText, collectionText, layoutText, primitivesText, pwaText] = await Promise.all([
     readFile(new URL("../app/core/module-registry.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/AppShell.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/features/home/HomeScreen.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/ModuleTabs.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/data/trackable-repository.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/data/completion-repository.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/hooks/useTrackableCollection.ts", import.meta.url), "utf8"),
@@ -120,7 +126,7 @@ test("new modules can reuse navigation, storage, layout, and collection behavior
     readFile(new URL("../app/hooks/usePwaUpdate.ts", import.meta.url), "utf8"),
   ]);
   assert.match(registryText, /discoverRoute/);
-  assert.match(shellText, /navigateTo\(getModuleRoute\(id, activeSpace\)\)/);
+  assert.match(moduleTabsText, /getModuleRoute\(id, activeSpace\)/);
   assert.match(shellText, /navigateTo\(getModuleRoute\(activeModule, space\)\)/);
   assert.match(homeText, /getModuleRoute\(module\.id, space\)/);
   assert.doesNotMatch(homeText, /next\/link/);

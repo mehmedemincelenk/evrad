@@ -97,7 +97,7 @@ button, label, input, textarea { -webkit-tap-highlight-color: transparent; }
   width: min(100%, 42rem);
   min-height: 100svh;
   margin: 0 auto;
-  padding: max(2rem, env(safe-area-inset-top)) 1rem calc(7.25rem + env(safe-area-inset-bottom));
+  padding: 0.8rem 1rem calc(7.25rem + env(safe-area-inset-bottom));
 }
 
 .screen-heading {
@@ -138,4 +138,3 @@ h1 {
 }
 
 .dayline { margin: 0.35rem 0 0; color: var(--muted); font-size: 0.85rem; }
-
