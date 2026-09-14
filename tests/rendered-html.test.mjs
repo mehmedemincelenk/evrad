@@ -44,6 +44,7 @@ test("root route renders the library and discovery home", async () => {
   assert.match(html, /Keşfet/);
   assert.match(html, /Dualar/);
   assert.match(html, /Oyunlar/);
+  assert.match(html, /href="\/zikirler"/);
 });
 
 test("prayer, memorization, book, game, and discovery routes are active", async () => {
@@ -103,6 +104,7 @@ test("new modules can reuse navigation, storage, layout, and collection behavior
   assert.match(shellText, /router\.push\(getModuleRoute\(id, activeSpace\)\)/);
   assert.match(shellText, /router\.push\(getModuleRoute\(activeModule, space\)\)/);
   assert.match(homeText, /getModuleRoute\(module\.id, space\)/);
+  assert.doesNotMatch(homeText, /next\/link/);
   assert.match(repositoryText, /createTrackableRepository/);
   assert.match(completionText, /loadIds\(itemType: TrackableModuleId/);
   assert.match(collectionText, /completionRepository\.loadIds\(repository\.moduleId/);

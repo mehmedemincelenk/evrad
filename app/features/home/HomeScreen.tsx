@@ -4,7 +4,6 @@ import { useState } from "react";
 import { getModuleRoute, modules } from "../../core/module-registry";
 import { t } from "../../core/i18n";
 import type { ContentSpace } from "../../core/types";
-import Link from "next/link";
 
 export function HomeScreen() {
   const [space, setSpace] = useState<ContentSpace>("library");
@@ -24,7 +23,7 @@ export function HomeScreen() {
       </div>
       <div className="home-modules">
         {modules.map((module) => (
-          <Link href={getModuleRoute(module.id, space)} key={module.id}>{t(module.copy.menu)}<span aria-hidden="true">→</span></Link>
+          <a href={getModuleRoute(module.id, space)} key={module.id}>{t(module.copy.menu)}<span aria-hidden="true">→</span></a>
         ))}
       </div>
     </section>
