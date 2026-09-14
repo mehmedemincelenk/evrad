@@ -31,7 +31,7 @@ export function TransientBottomBar({
   activeSpace: ContentSpace;
   onClose: () => void;
   onActivity: () => void;
-  onModule: (id: ModuleId, enabled: boolean) => void;
+  onModule: (id: ModuleId) => void;
   onSpace: (space: ContentSpace) => void;
   addLabel: string | null;
   onAdd: () => void;
@@ -76,14 +76,14 @@ export function TransientBottomBar({
         </div>
         <div className={`module-actions${addLabel ? "" : " without-add"}`}>
           {modules.map((module) => {
-            const label = t(module.translationKey);
+            const label = t(module.copy.menu);
             const active = module.id === activeModule;
             return (
               <button
                 className={`module-button${active ? " is-active" : ""}`}
                 type="button"
                 key={module.id}
-                onClick={() => { onActivity(); onModule(module.id, module.enabled); }}
+                onClick={() => { onActivity(); onModule(module.id); }}
                 aria-label={`${label}${active ? `, ${t("menu.active")}` : ""}`}
                 tabIndex={open ? 0 : -1}
                 data-tooltip={label}

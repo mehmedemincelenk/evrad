@@ -1,5 +1,5 @@
-import { DhikrApp } from "../../features/dhikr/DhikrApp";
+import { DevotionalModuleApp } from "../../features/devotional/DevotionalModuleApp";
 
 export default function NewDhikrPage() {
-  return <DhikrApp editorMode={{ type: "new" }} />;
+  return <DevotionalModuleApp moduleId="dhikr" editorMode={{ type: "new" }} />;
 }

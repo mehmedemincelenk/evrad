@@ -1,6 +1,6 @@
-import { DhikrApp } from "../../../features/dhikr/DhikrApp";
+import { DevotionalModuleApp } from "../../../features/devotional/DevotionalModuleApp";
 
 export default async function EditDhikrPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  return <DhikrApp editorMode={{ type: "edit", id }} />;
+  return <DevotionalModuleApp moduleId="dhikr" editorMode={{ type: "edit", id }} />;
 }

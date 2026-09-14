@@ -33,13 +33,8 @@ export function AppShell({
     return () => window.clearTimeout(timeout);
   }, [toast]);
 
-  const handleModule = (id: ModuleId, enabled: boolean) => {
+  const handleModule = (id: ModuleId) => {
     menu.registerActivity();
-    if (!enabled) {
-      const key = `menu.${id}` as "menu.prayers" | "menu.books" | "menu.memorization" | "menu.games";
-      showToast(t("toast.comingSoon", { module: t(key) }));
-      return;
-    }
     menu.closeMenu();
     if (id !== activeModule) router.push(getModuleRoute(id, activeSpace));
   };
@@ -50,9 +45,9 @@ export function AppShell({
   };
 
   const handleAdd = () => {
-    if (!activeDefinition.supportsCreate || !activeDefinition.createRoute) return;
+    if (!activeDefinition.create) return;
     menu.closeMenu();
-    router.push(activeDefinition.createRoute);
+    router.push(activeDefinition.create.route);
   };
 
   return (
@@ -81,7 +76,7 @@ export function AppShell({
           onActivity={menu.registerActivity}
           onModule={handleModule}
           onSpace={handleSpace}
-          addLabel={activeSpace === "library" && activeDefinition.createTranslationKey ? t(activeDefinition.createTranslationKey) : null}
+          addLabel={activeSpace === "library" && activeDefinition.create ? t(activeDefinition.create.label) : null}
           onAdd={handleAdd}
         />
         {toast ? <div className="toast" role="status">{toast}</div> : null}

@@ -1,4 +1,4 @@
-import type { DevotionalTemplate } from "./dhikr";
+import type { DevotionalTemplate } from "../discovery-types";
 import { prayerCatalog } from "./prayers";
 
 export const memorizationCatalog: DevotionalTemplate[] = prayerCatalog.map((item) => ({

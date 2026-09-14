@@ -1,11 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { enabledModules } from "../core/module-registry";
+import { modules } from "../core/module-registry";
 
 const coreUrls = [
   "/",
-  ...enabledModules.flatMap((module) => [module.route, module.discoverRoute, module.createRoute].filter((route): route is string => Boolean(route))),
+  ...modules.flatMap((module) => [module.route, module.discoverRoute, module.create?.route].filter((route): route is string => Boolean(route))),
   "/manifest.webmanifest",
   "/icon-192.png",
   "/icon-512.png",

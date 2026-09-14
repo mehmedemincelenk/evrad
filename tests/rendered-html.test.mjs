@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import test from "node:test";
 
 async function render(pathname = "/zikirler") {
@@ -63,9 +63,9 @@ test("PWA manifest and architecture declarations stay aligned", async () => {
   assert.equal(manifest.name, "Zikirlerim");
   assert.equal(manifest.start_url, "/");
   assert.equal(manifest.display, "standalone");
-  assert.match(registryText, /id: "dhikr"[\s\S]*enabled: true/);
-  assert.match(registryText, /id: "games"[\s\S]*enabled: true/);
-  assert.equal((registryText.match(/enabled: true/g) ?? []).length, 5);
+  assert.equal((registryText.match(/createTrackableModule\(/g) ?? []).length, 5);
+  assert.match(registryText, /id: "games"[\s\S]*create: null/);
+  assert.doesNotMatch(registryText, /enabled:|supportsCreate|createRoute/);
   assert.match(typesText, /"prayers"[\s\S]*"books"[\s\S]*"memorization"[\s\S]*"dhikr"[\s\S]*"games"/);
 });
 
@@ -74,7 +74,7 @@ test("target units and long-press sorting remain modular", async () => {
     readFile(new URL("../app/core/types.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/components/TargetUnitToggle.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/hooks/useLongPressSort.ts", import.meta.url), "utf8"),
-    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    readFile(new URL("../app/styles/tracker.css", import.meta.url), "utf8"),
   ]);
   assert.match(typesText, /"count"\s*\|\s*"custom"/);
   assert.match(toggleText, /aria-pressed/);
@@ -83,7 +83,8 @@ test("target units and long-press sorting remain modular", async () => {
   assert.match(hookText, /document\.elementsFromPoint/);
   assert.match(hookText, /requestAnimationFrame\(autoScroll\)/);
   assert.match(cssText, /text-overflow:\s*ellipsis/);
-  assert.doesNotMatch(cssText.match(/\.menu-scrim\s*\{[^}]+\}/)?.[0] ?? "", /backdrop-filter/);
+  const navigationCss = await readFile(new URL("../app/styles/navigation.css", import.meta.url), "utf8");
+  assert.doesNotMatch(navigationCss.match(/\.menu-scrim\s*\{[^}]+\}/)?.[0] ?? "", /backdrop-filter/);
 });
 
 test("new modules can reuse navigation, storage, layout, and collection behavior", async () => {
@@ -103,12 +104,12 @@ test("new modules can reuse navigation, storage, layout, and collection behavior
   assert.match(shellText, /router\.push\(getModuleRoute\(activeModule, space\)\)/);
   assert.match(homeText, /getModuleRoute\(module\.id, space\)/);
   assert.match(repositoryText, /createTrackableRepository/);
-  assert.match(completionText, /loadIds\(itemType: ModuleId/);
+  assert.match(completionText, /loadIds\(itemType: TrackableModuleId/);
   assert.match(collectionText, /completionRepository\.loadIds\(repository\.moduleId/);
   assert.match(layoutText, /className="module-screen"/);
   assert.match(layoutText, /className="trackable-list"/);
   assert.doesNotMatch(primitivesText, /dhikr-card/);
-  assert.match(pwaText, /enabledModules\.flatMap/);
+  assert.match(pwaText, /modules\.flatMap/);
 });
 
 test("discovery cards add individual catalog items to the matching library", async () => {
@@ -127,14 +128,16 @@ test("discovery cards add individual catalog items to the matching library", asy
   assert.doesNotMatch(screenText, /tavsiye edilen tüm zikirler/i);
 });
 
-test("IndexedDB transactions cannot finish before their completion listener is attached", async () => {
+test("IndexedDB access is centralized and destructive updates stay atomic", async () => {
   const [trackableText, completionText, indexedDbText] = await Promise.all([
     readFile(new URL("../app/data/trackable-repository.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/data/completion-repository.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/data/indexed-db.ts", import.meta.url), "utf8"),
   ]);
-  assert.doesNotMatch(trackableText, /await requestResult[\s\S]{0,300}await transactionDone\(transaction\)/);
-  assert.doesNotMatch(completionText, /await requestResult[\s\S]{0,300}await transactionDone\(transaction\)/);
+  assert.match(trackableText, /runTransaction\(\[storeName, COMPLETION_STORE\]/);
+  assert.match(trackableText, /repository|createTrackableRepository/);
+  assert.match(completionText, /runTransaction\(COMPLETION_STORE/);
+  assert.match(indexedDbText, /const done = transactionDone\(transaction\)[\s\S]*Promise\.all/);
   assert.match(indexedDbText, /request\.onblocked/);
   assert.match(indexedDbText, /database\.onversionchange/);
 });
@@ -152,8 +155,24 @@ test("PWA updates replace stale application shells instead of preserving a stuck
     readFile(new URL("../public/sw.js", import.meta.url), "utf8"),
     readFile(new URL("../app/hooks/usePwaUpdate.ts", import.meta.url), "utf8"),
   ]);
-  assert.match(serviceWorkerText, /zikirlerim-shell-v3/);
-  assert.match(serviceWorkerText, /then\(\(\) => self\.skipWaiting\(\)\)/);
+  assert.match(serviceWorkerText, /zikirlerim-shell-v4/);
+  assert.match(serviceWorkerText, /self\.registration\.active \? undefined : self\.skipWaiting\(\)/);
+  assert.match(serviceWorkerText, /type === "SKIP_WAITING"/);
   assert.match(updateHookText, /updateViaCache: "none"/);
   assert.match(updateHookText, /visibilitychange/);
+});
+
+test("source modules stay bounded and unused database scaffolding stays out", async () => {
+  const paths = (await readdir(new URL("../app/", import.meta.url), { recursive: true }))
+    .filter((path) => /\.(css|ts|tsx)$/.test(path));
+  const sources = await Promise.all(paths.map(async (path) => ({
+    path,
+    lines: (await readFile(new URL(`../app/${path}`, import.meta.url), "utf8")).split("\n").length,
+  })));
+  const oversized = sources.filter((source) => source.lines > 300);
+  assert.deepEqual(oversized, []);
+
+  const packageJson = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8"));
+  assert.equal(packageJson.dependencies?.["drizzle-orm"], undefined);
+  assert.equal(packageJson.devDependencies?.["drizzle-kit"], undefined);
 });

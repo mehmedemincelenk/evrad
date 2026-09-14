@@ -11,7 +11,7 @@ export function HomeScreen() {
   return (
     <section className="future-home" aria-labelledby="home-title">
       <header>
-        <p className="eyebrow">ZİKİRLERİM</p>
+        <p className="eyebrow">{t("home.eyebrow")}</p>
         <h1 id="home-title">{t("home.title")}</h1>
         <p>{t("home.subtitle")}</p>
       </header>
@@ -24,7 +24,7 @@ export function HomeScreen() {
       </div>
       <div className="home-modules">
         {modules.map((module) => (
-          <Link href={getModuleRoute(module.id, space)} key={module.id}>{t(module.translationKey)}<span aria-hidden="true">→</span></Link>
+          <Link href={getModuleRoute(module.id, space)} key={module.id}>{t(module.copy.menu)}<span aria-hidden="true">→</span></Link>
         ))}
       </div>
     </section>

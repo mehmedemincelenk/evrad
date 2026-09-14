@@ -7,10 +7,9 @@ import {
   TrackableCardShell,
 } from "../../components/TrackerPrimitives";
 import { t } from "../../core/i18n";
-import type { DevotionalItem } from "../../core/types";
 import { DevotionalDetails } from "../devotional/DevotionalDetails";
 import { getDevotionalDisplay } from "../devotional/devotional-utils";
-import type { DevotionalTemplate } from "./catalogs/dhikr";
+import type { DevotionalTemplate } from "./discovery-types";
 
 export function DiscoveryDevotionalCard({
   item,
@@ -26,20 +25,17 @@ export function DiscoveryDevotionalCard({
   onAdd: () => void;
 }) {
   const [fontLevel, setFontLevel] = useState(item.expandedArabicSize);
-  const display = getDevotionalDisplay(item as DevotionalItem);
+  const display = getDevotionalDisplay(item);
   const changeFont = (direction: -1 | 1) => setFontLevel((current) => (
     Math.max(0, Math.min(4, current + direction)) as 0 | 1 | 2 | 3 | 4
   ));
   return (
     <TrackableCardShell
       id={item.id}
-      complete={false}
       expanded={expanded}
-      dragging={false}
-      dragOffsetY={0}
-      dragHandle={<span className="discovery-mark" aria-label={t("discover.mark")}>✦</span>}
+      leading={<span className="discovery-mark" aria-label={t("discover.mark")}>✦</span>}
       summary={<CollapsedCardSummary title={display.text} arabic={display.arabic} targetCount={item.targetCount} targetUnit={item.targetUnit} targetUnitLabel={item.targetUnitLabel} expanded={expanded} onToggle={onToggle} />}
-      completion={<AddToLibraryButton title={display.text} added={added} onAdd={onAdd} />}
+      trailing={<AddToLibraryButton title={display.text} added={added} onAdd={onAdd} />}
     >
       <DevotionalDetails item={item} fontLevel={fontLevel} onChangeFont={changeFont} />
     </TrackableCardShell>

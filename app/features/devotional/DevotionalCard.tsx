@@ -7,6 +7,7 @@ import {
   TrackableCardShell,
   type SortHandleHandlers,
 } from "../../components/TrackerPrimitives";
+import { CardActions } from "../../components/CardActions";
 import { t } from "../../core/i18n";
 import type { DevotionalItem } from "../../core/types";
 import { getDevotionalDisplay } from "./devotional-utils";
@@ -37,7 +38,7 @@ export function DevotionalCard(props: DevotionalCardProps) {
       expanded={props.expanded}
       dragging={props.dragging}
       dragOffsetY={props.dragOffsetY}
-      dragHandle={<SortHandle sortId={item.id} label={t("card.reorderGeneric", { position: props.position })} {...props.sortHandleProps} />}
+      leading={<SortHandle sortId={item.id} label={t("card.reorderGeneric", { position: props.position })} {...props.sortHandleProps} />}
       summary={(
         <CollapsedCardSummary
           title={display.text}
@@ -49,22 +50,15 @@ export function DevotionalCard(props: DevotionalCardProps) {
           onToggle={props.onToggleExpanded}
         />
       )}
-      completion={(
+      trailing={(
         <CompletionLight
-          title={display.text}
           complete={props.complete}
           onToggle={props.onToggleComplete}
-          completeLabel={t("card.completeGeneric", { title: display.text })}
-          undoLabel={t("card.undoCompleteGeneric", { title: display.text })}
+          label={t(props.complete ? "card.undoCompleteGeneric" : "card.completeGeneric", { title: display.text })}
         />
       )}
     >
-      <DevotionalDetails item={item} fontLevel={item.expandedArabicSize} onChangeFont={props.onChangeFont} actions={(
-        <footer className="card-actions">
-          <button type="button" className="edit-button" onClick={props.onEdit}>{t("action.edit")}</button>
-          <button type="button" className="delete-button" onClick={props.onDelete} aria-label={`${display.text}: ${t("action.delete")}`}>×</button>
-        </footer>
-      )} />
+      <DevotionalDetails item={item} fontLevel={item.expandedArabicSize} onChangeFont={props.onChangeFont} actions={<CardActions title={display.text} onEdit={props.onEdit} onDelete={props.onDelete} />} />
     </TrackableCardShell>
   );
 }

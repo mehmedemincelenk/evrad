@@ -1,31 +1,71 @@
 import type { TranslationKey } from "./i18n";
-import type { TrackableEntity } from "./trackable";
 
-export type ModuleId =
-  | "prayers"
-  | "books"
-  | "memorization"
-  | "dhikr"
-  | "games";
-
+export type ModuleId = "prayers" | "books" | "memorization" | "dhikr" | "games";
 export type TrackableModuleId = Exclude<ModuleId, "games">;
-export type DevotionalModuleId = Extract<ModuleId, "dhikr" | "prayers" | "memorization">;
+export type DevotionalModuleId = Exclude<TrackableModuleId, "books">;
 export type ContentSpace = "library" | "discover";
-
 export type IconName = "prayer" | "book" | "memory" | "dhikr" | "game";
-
 export type TargetUnit = "count" | "custom";
+export type ArabicFontLevel = 0 | 1 | 2 | 3 | 4;
 
-export interface ModuleDefinition {
-  id: ModuleId;
+interface ModuleCopy {
+  menu: TranslationKey;
+  title: TranslationKey;
+  eyebrow: TranslationKey;
+  tagline: TranslationKey;
+  discoverTitle: TranslationKey;
+}
+
+interface TrackableModuleCopy extends ModuleCopy {
+  singular: TranslationKey;
+}
+
+interface ModuleBase {
   route: string;
   discoverRoute: string;
   icon: IconName;
-  enabled: boolean;
-  supportsCreate: boolean;
-  createRoute: string | null;
-  createTranslationKey: TranslationKey | null;
-  translationKey: TranslationKey;
+}
+
+export interface ModuleCreation {
+  route: string;
+  label: TranslationKey;
+}
+
+export type TrackableModuleDefinition = ModuleBase & {
+  id: TrackableModuleId;
+  kind: "devotional" | "books";
+  copy: TrackableModuleCopy;
+  create: ModuleCreation;
+};
+
+export type ModuleDefinition = TrackableModuleDefinition | ModuleBase & {
+  id: "games";
+  kind: "games";
+  copy: ModuleCopy;
+  create: null;
+};
+
+export interface TrackableEntity {
+  id: string;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type EntityTemplate<T extends TrackableEntity> = Omit<T, keyof TrackableEntity> & Pick<T, "id">;
+
+export interface TrackableRepository<T extends TrackableEntity> {
+  moduleId: TrackableModuleId;
+  load: () => Promise<T[]>;
+  save: (item: T) => Promise<void>;
+  saveOrder: (items: T[]) => Promise<void>;
+  remove: (id: string, remainingItems: T[]) => Promise<void>;
+}
+
+export interface TargetDraft {
+  targetCount: string;
+  targetUnit: TargetUnit;
+  targetUnitLabel: string;
 }
 
 export interface DevotionalItem extends TrackableEntity {
@@ -37,22 +77,16 @@ export interface DevotionalItem extends TrackableEntity {
   targetUnit: TargetUnit;
   targetUnitLabel: string | null;
   listDisplay: "arabic" | "name";
-  expandedArabicSize: 0 | 1 | 2 | 3 | 4;
+  expandedArabicSize: ArabicFontLevel;
 }
 
-export interface DevotionalDraft {
+export interface DevotionalDraft extends TargetDraft {
   name: string;
   arabic: string;
   translation: string;
   details: string;
-  targetCount: string;
-  targetUnit: TargetUnit;
-  targetUnitLabel: string;
   listDisplay: "arabic" | "name";
 }
-
-export type Dhikr = DevotionalItem;
-export type DhikrDraft = DevotionalDraft;
 
 export interface BookItem extends TrackableEntity {
   title: string;
@@ -63,26 +97,16 @@ export interface BookItem extends TrackableEntity {
   targetUnitLabel: string | null;
 }
 
-export interface BookDraft {
+export interface BookDraft extends TargetDraft {
   title: string;
   author: string;
   details: string;
-  targetCount: string;
-  targetUnit: TargetUnit;
-  targetUnitLabel: string;
 }
 
 export interface DailyCompletion {
   key: string;
-  itemType: ModuleId;
+  itemType: TrackableModuleId;
   itemId: string;
   localDate: string;
   completedAt: string;
-}
-
-export interface Preferences {
-  id: "preferences";
-  locale: "tr";
-  themeMode: "dark";
-  paletteId: "default";
 }

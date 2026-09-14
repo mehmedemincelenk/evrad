@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import type { TrackableEntity, TrackableRepository } from "../core/trackable";
-
-type LibraryTemplate<T> = Omit<T, keyof TrackableEntity> & { id: string };
+import { useCallback, useEffect, useRef, useState } from "react";
+import { storeTemplate } from "../core/entity";
+import type { EntityTemplate, TrackableEntity, TrackableRepository } from "../core/types";
 
 export function useDiscoveryLibrary<T extends TrackableEntity>(
   repository: TrackableRepository<T>,
@@ -28,15 +27,9 @@ export function useDiscoveryLibrary<T extends TrackableEntity>(
     return () => { active = false; };
   }, [onError, repository]);
 
-  const add = async (template: LibraryTemplate<T>): Promise<"added" | "exists" | "failed"> => {
-    if (itemIds.has(template.id)) return "exists";
-    const now = new Date().toISOString();
-    const item = {
-      ...template,
-      sortOrder: itemsRef.current.length,
-      createdAt: now,
-      updatedAt: now,
-    } as T;
+  const add = useCallback(async (template: EntityTemplate<T>): Promise<"added" | "exists" | "failed"> => {
+    if (itemsRef.current.some((item) => item.id === template.id)) return "exists";
+    const item = storeTemplate(template, itemsRef.current.length);
     itemsRef.current = [...itemsRef.current, item];
     setItemIds((current) => new Set(current).add(item.id));
     try {
@@ -52,7 +45,7 @@ export function useDiscoveryLibrary<T extends TrackableEntity>(
       onError();
       return "failed";
     }
-  };
+  }, [onError, repository]);
 
   return { ready, itemIds, add };
 }

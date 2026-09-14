@@ -10,14 +10,14 @@ export function DeleteConfirmation({
   onConfirm,
 }: {
   title: string;
-  itemLabel?: string;
+  itemLabel: string;
   onCancel: () => void;
   onConfirm: () => void;
 }) {
   return (
     <ConfirmationModal
-      title={itemLabel ? t("delete.genericTitle", { item: itemLabel }) : t("delete.title")}
-      body={<p>{itemLabel ? t("delete.genericBody", { title }) : t("delete.body", { title })}</p>}
+      title={t("delete.genericTitle", { item: itemLabel })}
+      body={<p>{t("delete.genericBody", { title })}</p>}
       cancelLabel={t("action.cancel")}
       confirmLabel={t("delete.confirm")}
       tone="danger"

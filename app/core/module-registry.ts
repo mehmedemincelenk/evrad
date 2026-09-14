@@ -1,24 +1,65 @@
-import type { ModuleDefinition } from "./types";
+import type { ContentSpace, ModuleDefinition, ModuleId, TrackableModuleDefinition, TrackableModuleId } from "./types";
 
-export const modules: ModuleDefinition[] = [
-  { id: "prayers", route: "/dualar", discoverRoute: "/kesfet/dualar", icon: "prayer", enabled: true, supportsCreate: true, createRoute: "/dualar/yeni", createTranslationKey: "menu.addPrayer", translationKey: "menu.prayers" },
-  { id: "books", route: "/kitaplar", discoverRoute: "/kesfet/kitaplar", icon: "book", enabled: true, supportsCreate: true, createRoute: "/kitaplar/yeni", createTranslationKey: "menu.addBook", translationKey: "menu.books" },
-  { id: "memorization", route: "/ezberler", discoverRoute: "/kesfet/ezberler", icon: "memory", enabled: true, supportsCreate: true, createRoute: "/ezberler/yeni", createTranslationKey: "menu.addMemorization", translationKey: "menu.memorization" },
-  { id: "dhikr", route: "/zikirler", discoverRoute: "/kesfet/zikirler", icon: "dhikr", enabled: true, supportsCreate: true, createRoute: "/zikirler/yeni", createTranslationKey: "menu.addDhikr", translationKey: "menu.dhikr" },
-  { id: "games", route: "/oyunlar", discoverRoute: "/kesfet/oyunlar", icon: "game", enabled: true, supportsCreate: false, createRoute: null, createTranslationKey: null, translationKey: "menu.games" },
-];
+export const modules = [
+  createTrackableModule("prayers", "devotional", "prayer", "/dualar", "menu.prayers", "menu.addPrayer"),
+  createTrackableModule("books", "books", "book", "/kitaplar", "menu.books", "menu.addBook"),
+  createTrackableModule("memorization", "devotional", "memory", "/ezberler", "menu.memorization", "menu.addMemorization"),
+  createTrackableModule("dhikr", "devotional", "dhikr", "/zikirler", "menu.dhikr", "menu.addDhikr"),
+  {
+    id: "games",
+    kind: "games",
+    route: "/oyunlar",
+    discoverRoute: "/kesfet/oyunlar",
+    icon: "game",
+    create: null,
+    copy: {
+      menu: "menu.games",
+      title: "module.games.title",
+      eyebrow: "module.games.eyebrow",
+      tagline: "module.games.tagline",
+      discoverTitle: "discover.games.title",
+    },
+  },
+] as const satisfies readonly ModuleDefinition[];
 
-export const enabledModules = modules.filter((module) => module.enabled);
-export const shouldShowHome = enabledModules.length > 1;
-export const defaultModule = enabledModules[0] ?? modules[0];
+function createTrackableModule(
+  id: TrackableModuleId,
+  kind: TrackableModuleDefinition["kind"],
+  icon: TrackableModuleDefinition["icon"],
+  route: string,
+  menu: TrackableModuleDefinition["copy"]["menu"],
+  addLabel: TrackableModuleDefinition["create"]["label"],
+): TrackableModuleDefinition {
+  const copyPrefix = `module.${id}` as const;
+  return {
+    id,
+    kind,
+    icon,
+    route,
+    discoverRoute: `/kesfet${route}`,
+    create: { route: `${route}/yeni`, label: addLabel },
+    copy: {
+      menu,
+      title: `${copyPrefix}.title`,
+      singular: `${copyPrefix}.singular`,
+      eyebrow: `${copyPrefix}.eyebrow`,
+      tagline: `${copyPrefix}.tagline`,
+      discoverTitle: `discover.${id}.title`,
+    },
+  } as TrackableModuleDefinition;
+}
 
-export function getModule(id: ModuleDefinition["id"]): ModuleDefinition {
+export function getModule(id: ModuleId): ModuleDefinition {
   const definition = modules.find((candidate) => candidate.id === id);
   if (!definition) throw new Error(`Unknown module: ${id}`);
   return definition;
 }
 
-export function getModuleRoute(id: ModuleDefinition["id"], space: "library" | "discover"): string {
+export function getTrackableModule(id: TrackableModuleId): TrackableModuleDefinition {
+  return getModule(id) as TrackableModuleDefinition;
+}
+
+export function getModuleRoute(id: ModuleId, space: ContentSpace): string {
   const definition = getModule(id);
   return space === "library" ? definition.route : definition.discoverRoute;
 }

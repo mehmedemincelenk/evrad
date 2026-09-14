@@ -1,0 +1,246 @@
+.trackable-list { display: grid; gap: 0.55rem; }
+
+.trackable-card {
+  position: relative;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: linear-gradient(145deg, rgba(24, 26, 32, 0.9), rgba(13, 15, 19, 0.94));
+  box-shadow: 0 1.1rem 2.8rem -2rem var(--shadow);
+  overflow: hidden;
+  transition: border-color 200ms ease, box-shadow 200ms ease, transform 200ms ease;
+}
+
+.trackable-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  opacity: 0;
+  background: radial-gradient(circle at 92% 3.5rem, rgba(255, 253, 241, 0.18), transparent 9rem);
+  transition: opacity 220ms ease;
+}
+
+.trackable-card.is-complete {
+  border-color: var(--line-strong);
+  box-shadow: 0 0 2.8rem -1.15rem rgba(255, 252, 232, 0.25), 0 1.1rem 2.8rem -2rem var(--shadow);
+}
+
+.trackable-card.is-complete::before { opacity: 1; }
+.trackable-card.is-expanded { border-color: rgba(255, 255, 255, 0.14); }
+.trackable-card.is-dragging {
+  z-index: 5;
+  transform: translateY(var(--drag-offset-y, 0)) scale(1.025);
+  border-color: rgba(255, 253, 239, 0.38);
+  box-shadow: 0 1.5rem 4rem -1.3rem #000, 0 0 2rem -0.8rem rgba(255, 252, 232, 0.22);
+  will-change: transform;
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 55ms linear;
+  animation: sortLift 180ms ease-out;
+}
+
+@keyframes sortLift {
+  from { transform: translateY(var(--drag-offset-y, 0)) scale(0.985); }
+  to { transform: translateY(var(--drag-offset-y, 0)) scale(1.025); }
+}
+
+.card-collapsed-row {
+  display: grid;
+  grid-template-columns: 2.1rem minmax(0, 1fr) 2.75rem;
+  align-items: stretch;
+  min-height: 4.7rem;
+}
+
+.drag-handle,
+.card-main,
+.completion-light,
+.edge-launcher,
+.module-button,
+.round-icon-button,
+.font-controls button,
+.edit-button,
+.delete-button {
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.drag-handle {
+  display: grid;
+  gap: 0.25rem;
+  align-content: center;
+  justify-content: center;
+  min-width: 2.1rem;
+  min-height: 3rem;
+  opacity: 0.42;
+  cursor: grab;
+  touch-action: none;
+}
+
+.is-sorting .drag-handle { cursor: grabbing; opacity: 0.7; }
+.drag-handle i { display: block; width: 0.85rem; height: 1px; background: var(--muted); pointer-events: none; }
+
+.card-main {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  min-width: 0;
+  padding: 0.65rem 0.45rem 0.65rem 0.25rem;
+  text-align: right;
+}
+
+.arabic-preview {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  font-family: "Noto Naskh Arabic", "Geeza Pro", "Traditional Arabic", serif;
+  font-size: clamp(1.55rem, 6.5vw, 1.95rem);
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.name-preview {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  color: var(--text);
+  font-family: Iowan Old Style, Baskerville, Georgia, serif;
+  font-size: clamp(1.05rem, 4.8vw, 1.35rem);
+  line-height: 1.25;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.target-preview {
+  color: var(--muted);
+  flex: 0 1 auto;
+  max-width: min(8rem, 34%);
+  overflow: hidden;
+  font-size: 0.68rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.infinity-target { font-family: Georgia, serif; font-size: 1.12rem; font-weight: 400; letter-spacing: 0; line-height: 0.7; }
+
+.completion-light {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  align-self: stretch;
+  padding: 0;
+}
+
+.completion-core {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 2.05rem;
+  aspect-ratio: 1;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.008);
+  transition: background 200ms ease, border-color 200ms ease, box-shadow 200ms ease, transform 200ms ease;
+}
+
+.completion-core::after {
+  content: "";
+  position: absolute;
+  inset: -0.75rem;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 253, 241, 0.2), transparent 67%);
+  opacity: 0;
+  transform: scale(0.55);
+  pointer-events: none;
+}
+
+.completion-core i {
+  width: 0.75rem;
+  height: 0.42rem;
+  border-left: 2px solid #121419;
+  border-bottom: 2px solid #121419;
+  opacity: 0;
+  transform: translateY(-0.08rem) rotate(-45deg) scale(0.6);
+  transition: opacity 150ms ease, transform 200ms ease;
+}
+
+.discovery-mark { display: grid; place-items: center; color: var(--muted-deep); font-size: 0.72rem; }
+.discovery-add .completion-core i { width: auto; height: auto; border: 0; color: var(--text-soft); font: 400 1.25rem/1 Inter, sans-serif; opacity: 1; transform: none; }
+.discovery-add.is-added .completion-core { border-color: var(--light); background: var(--light); box-shadow: 0 0 0.75rem rgba(255, 253, 240, 0.42); }
+.discovery-add.is-added .completion-core i { color: #121419; font-size: 0.8rem; }
+.discovery-add:disabled { cursor: default; }
+
+.is-complete .completion-core {
+  border-color: var(--light);
+  background: var(--light);
+  box-shadow: 0 0 0.75rem rgba(255, 253, 240, 0.78), 0 0 2.1rem rgba(255, 250, 220, 0.3);
+  animation: coreBloom 220ms ease-out;
+}
+
+.is-complete .completion-core::after { animation: haloBloom 420ms ease-out; }
+.is-complete .completion-core i { opacity: 1; transform: translateY(-0.08rem) rotate(-45deg) scale(1); }
+
+@keyframes coreBloom {
+  0% { transform: scale(0.82); box-shadow: 0 0 0 rgba(255, 253, 240, 0); }
+  70% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+@keyframes haloBloom {
+  0% { opacity: 0; transform: scale(0.55); }
+  45% { opacity: 1; }
+  100% { opacity: 0; transform: scale(1.25); }
+}
+
+.card-expanded-content {
+  margin: 0 0.85rem 0.85rem;
+  padding: 0.35rem 0.4rem 0.2rem;
+  border-top: 1px solid var(--line);
+  animation: revealCard 180ms ease-out;
+}
+
+@keyframes revealCard {
+  from { opacity: 0; transform: translateY(-0.4rem); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.detail-block { padding: 1.05rem 0.35rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); }
+.detail-label { margin: 0 0 0.55rem; color: var(--muted-deep); font-size: 0.64rem; font-weight: 750; letter-spacing: 0.13em; text-transform: uppercase; }
+.detail-value > p { margin: 0; color: var(--text-soft); font-size: 0.94rem; line-height: 1.72; }
+.detail-value > p.expanded-arabic { color: var(--text); font-family: "Noto Naskh Arabic", "Geeza Pro", "Traditional Arabic", serif; line-height: 1.82; text-align: right; white-space: pre-wrap; word-break: normal; overflow-wrap: anywhere; }
+.details-copy { white-space: pre-line; }
+
+.arabic-detail .detail-label { margin-bottom: 0; }
+.font-controls { display: grid; grid-template-columns: 2.75rem 1fr 2.75rem; align-items: center; gap: 0.45rem; margin: 0.5rem 0 0.8rem; }
+.font-controls button { min-height: 2.75rem; border: 1px solid var(--line); border-radius: 0.8rem; background: rgba(255, 255, 255, 0.025); color: var(--text-soft); }
+.font-controls button:disabled { opacity: 0.28; cursor: default; }
+.font-controls span { color: var(--muted); font-size: 0.68rem; text-align: center; }
+
+.card-actions { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 1rem 0.25rem 0.35rem; }
+.edit-button { min-height: 2.75rem; padding: 0 1rem; border: 1px solid var(--line); border-radius: 0.85rem; color: var(--text-soft); }
+.delete-button { display: grid; place-items: center; width: 2.75rem; min-height: 2.75rem; border: 1px solid rgba(255, 140, 136, 0.2); border-radius: 50%; background: var(--danger-surface); color: var(--danger); font-size: 1.25rem; }
+
+.quiet-note { margin: 1.55rem 0 0; color: #6f7279; font-family: Iowan Old Style, Baskerville, Georgia, serif; font-size: 0.82rem; font-style: italic; text-align: center; }
+
+.empty-state {
+  display: grid;
+  place-items: center;
+  min-height: 23rem;
+  padding: 3rem 1.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: linear-gradient(145deg, rgba(22, 24, 29, 0.8), rgba(12, 14, 17, 0.88));
+  text-align: center;
+}
+
+.empty-light { width: 3rem; aspect-ratio: 1; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.25); box-shadow: 0 0 2.5rem rgba(255, 250, 220, 0.12); }
+.empty-state h2 { margin: 0.2rem 0 0; font-family: Iowan Old Style, Baskerville, Georgia, serif; font-size: 1.6rem; font-weight: 450; }
+.empty-state p { max-width: 19rem; margin: -0.4rem 0 0; color: var(--muted); font-size: 0.9rem; line-height: 1.6; }
+

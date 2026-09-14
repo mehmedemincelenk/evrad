@@ -1,6 +1,4 @@
-import type { DevotionalItem } from "../../../core/types";
-
-export type DevotionalTemplate = Omit<DevotionalItem, "sortOrder" | "createdAt" | "updatedAt">;
+import type { DevotionalTemplate } from "../discovery-types";
 
 const sourceNote = "Kaynak: İslam ve İhsan — En Faziletli Zikirler.";
 

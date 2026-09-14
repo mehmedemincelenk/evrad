@@ -1,5 +1,5 @@
-import { DhikrApp } from "../features/dhikr/DhikrApp";
+import { DevotionalModuleApp } from "../features/devotional/DevotionalModuleApp";
 
 export default function DhikrPage() {
-  return <DhikrApp />;
+  return <DevotionalModuleApp moduleId="dhikr" />;
 }

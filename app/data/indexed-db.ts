@@ -10,7 +10,6 @@ export const ENTITY_STORES: Record<TrackableModuleId, string> = {
   memorization: "memorization",
 };
 export const COMPLETION_STORE = "completions";
-export const PREFERENCES_STORE = "preferences";
 
 let databasePromise: Promise<IDBDatabase> | null = null;
 const BLOCKED_TIMEOUT_MS = 2500;
@@ -22,12 +21,24 @@ export function requestResult<T>(request: IDBRequest<T>): Promise<T> {
   });
 }
 
-export function transactionDone(transaction: IDBTransaction): Promise<void> {
+function transactionDone(transaction: IDBTransaction): Promise<void> {
   return new Promise((resolve, reject) => {
     transaction.oncomplete = () => resolve();
     transaction.onerror = () => reject(transaction.error ?? new Error("IndexedDB transaction failed"));
     transaction.onabort = () => reject(transaction.error ?? new Error("IndexedDB transaction aborted"));
   });
+}
+
+export async function runTransaction<T>(
+  stores: string | string[],
+  mode: IDBTransactionMode,
+  operation: (transaction: IDBTransaction) => T | Promise<T>,
+): Promise<T> {
+  const database = await openDatabase();
+  const transaction = database.transaction(stores, mode);
+  const done = transactionDone(transaction);
+  const [result] = await Promise.all([Promise.resolve().then(() => operation(transaction)), done]);
+  return result;
 }
 
 export function getEntityStore(moduleId: TrackableModuleId): string {
@@ -55,9 +66,6 @@ export function openDatabase(): Promise<IDBDatabase> {
         const store = database.createObjectStore(COMPLETION_STORE, { keyPath: "key" });
         store.createIndex("localDate", "localDate", { unique: false });
         store.createIndex("itemId", "itemId", { unique: false });
-      }
-      if (!database.objectStoreNames.contains(PREFERENCES_STORE)) {
-        database.createObjectStore(PREFERENCES_STORE, { keyPath: "id" });
       }
       if (event.oldVersion > 0 && event.oldVersion < 5 && request.transaction) {
         request.transaction.objectStore(ENTITY_STORES.dhikr).clear();

@@ -1,6 +1,4 @@
-import type { BookItem } from "../../../core/types";
-
-export type BookTemplate = Omit<BookItem, "sortOrder" | "createdAt" | "updatedAt">;
+import type { BookTemplate } from "../discovery-types";
 
 export const bookCatalog: BookTemplate[] = [
   {

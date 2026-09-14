@@ -1,4 +1,4 @@
-import type { DevotionalTemplate } from "./dhikr";
+import type { DevotionalTemplate } from "../discovery-types";
 
 const quranSource = "Kaynak: Kur’an-ı Kerim, Diyanet İşleri Başkanlığı meali.";
 

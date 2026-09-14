@@ -9,23 +9,23 @@ export interface SortHandleHandlers {
 
 export function TrackableCardShell({
   id,
-  complete,
+  complete = false,
   expanded,
-  dragging,
-  dragOffsetY,
+  dragging = false,
+  dragOffsetY = 0,
   summary,
-  dragHandle,
-  completion,
+  leading,
+  trailing,
   children,
 }: {
   id: string;
-  complete: boolean;
+  complete?: boolean;
   expanded: boolean;
-  dragging: boolean;
-  dragOffsetY: number;
+  dragging?: boolean;
+  dragOffsetY?: number;
   summary: ReactNode;
-  dragHandle: ReactNode;
-  completion: ReactNode;
+  leading: ReactNode;
+  trailing: ReactNode;
   children?: ReactNode;
 }) {
   return (
@@ -35,9 +35,9 @@ export function TrackableCardShell({
       style={{ "--drag-offset-y": `${dragOffsetY}px` } as CSSProperties}
     >
       <div className="card-collapsed-row">
-        {dragHandle}
+        {leading}
         {summary}
-        {completion}
+        {trailing}
       </div>
       {expanded ? children : null}
     </article>
@@ -93,26 +93,20 @@ export function TargetBadge({ count, unit, unitLabel }: { count: number | null; 
 }
 
 export function CompletionLight({
-  title,
   complete,
   onToggle,
-  completeLabel,
-  undoLabel,
+  label,
 }: {
-  title: string;
   complete: boolean;
   onToggle: () => void;
-  completeLabel?: string;
-  undoLabel?: string;
+  label: string;
 }) {
   return (
     <button
       className="completion-light"
       type="button"
       onClick={onToggle}
-      aria-label={complete
-        ? undoLabel ?? t("card.undoComplete", { title })
-        : completeLabel ?? t("card.complete", { title })}
+      aria-label={label}
       aria-pressed={complete}
     >
       <span className="completion-core" aria-hidden="true">

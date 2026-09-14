@@ -15,11 +15,11 @@ export function EntityEditorPage({
   onClose: () => void;
   children: ReactNode;
 }) {
-  const pageRef = useRef<HTMLDivElement>(null);
+  const pageRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     document.body.classList.add("editor-open");
-    pageRef.current?.querySelector<HTMLElement>("input, textarea, button")?.focus();
+    pageRef.current?.querySelector<HTMLElement>("form input, form textarea, form button")?.focus();
     const onKeyDown = (event: KeyboardEvent) => event.key === "Escape" && onClose();
     document.addEventListener("keydown", onKeyDown);
     return () => {
