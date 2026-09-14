@@ -2,20 +2,22 @@
 
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import type { ModuleId } from "./core/types";
+import type { ContentSpace, ModuleId } from "./core/types";
 import { t } from "./core/i18n";
 import { TransientBottomBar } from "./components/TransientBottomBar";
 import { AppRuntimeContext } from "./core/AppRuntimeContext";
 import { usePwaUpdate } from "./hooks/usePwaUpdate";
 import { useTransientMenu } from "./hooks/useTransientMenu";
-import { getModule } from "./core/module-registry";
+import { getModule, getModuleRoute } from "./core/module-registry";
 
 export function AppShell({
   children,
   activeModule,
+  activeSpace = "library",
 }: {
   children: ReactNode;
   activeModule: ModuleId;
+  activeSpace?: ContentSpace;
 }) {
   const router = useRouter();
   const activeDefinition = getModule(activeModule);
@@ -39,7 +41,12 @@ export function AppShell({
       return;
     }
     menu.closeMenu();
-    if (id !== activeModule) router.push(getModule(id).route);
+    if (id !== activeModule) router.push(getModuleRoute(id, activeSpace));
+  };
+
+  const handleSpace = (space: ContentSpace) => {
+    menu.closeMenu();
+    if (space !== activeSpace) router.push(getModuleRoute(activeModule, space));
   };
 
   const handleAdd = () => {
@@ -69,10 +76,12 @@ export function AppShell({
           open={menu.open}
           activityKey={menu.activityKey}
           activeModule={activeModule}
+          activeSpace={activeSpace}
           onClose={menu.closeMenu}
           onActivity={menu.registerActivity}
           onModule={handleModule}
-          addLabel={activeDefinition.createTranslationKey ? t(activeDefinition.createTranslationKey) : null}
+          onSpace={handleSpace}
+          addLabel={activeSpace === "library" && activeDefinition.createTranslationKey ? t(activeDefinition.createTranslationKey) : null}
           onAdd={handleAdd}
         />
         {toast ? <div className="toast" role="status">{toast}</div> : null}

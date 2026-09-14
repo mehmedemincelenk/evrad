@@ -96,22 +96,43 @@ export function CompletionLight({
   title,
   complete,
   onToggle,
+  completeLabel,
+  undoLabel,
 }: {
   title: string;
   complete: boolean;
   onToggle: () => void;
+  completeLabel?: string;
+  undoLabel?: string;
 }) {
   return (
     <button
       className="completion-light"
       type="button"
       onClick={onToggle}
-      aria-label={t(complete ? "card.undoComplete" : "card.complete", { title })}
+      aria-label={complete
+        ? undoLabel ?? t("card.undoComplete", { title })
+        : completeLabel ?? t("card.complete", { title })}
       aria-pressed={complete}
     >
       <span className="completion-core" aria-hidden="true">
         <i />
       </span>
+    </button>
+  );
+}
+
+export function AddToLibraryButton({ title, added, onAdd }: { title: string; added: boolean; onAdd: () => void }) {
+  return (
+    <button
+      className={`completion-light discovery-add${added ? " is-added" : ""}`}
+      type="button"
+      onClick={onAdd}
+      aria-label={t(added ? "discover.added" : "discover.add", { title })}
+      aria-pressed={added}
+      disabled={added}
+    >
+      <span className="completion-core" aria-hidden="true"><i>{added ? "✓" : "+"}</i></span>
     </button>
   );
 }

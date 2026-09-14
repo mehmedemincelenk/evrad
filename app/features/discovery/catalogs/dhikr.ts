@@ -1,6 +1,6 @@
-import type { Dhikr } from "../../core/types";
+import type { DevotionalItem } from "../../../core/types";
 
-type RecommendedDhikr = Omit<Dhikr, "sortOrder" | "createdAt" | "updatedAt">;
+export type DevotionalTemplate = Omit<DevotionalItem, "sortOrder" | "createdAt" | "updatedAt">;
 
 const sourceNote = "Kaynak: İslam ve İhsan — En Faziletli Zikirler.";
 
@@ -15,7 +15,7 @@ const esmaulHusna = `اللَّهُ، الرَّحْمَنُ، الرَّحِي�
 الْعَفُوُّ، الرَّؤُوفُ، مَالِكُ الْمُلْكِ، ذُو الْجَلَالِ وَالْإِكْرَامِ، الْمُقْسِطُ، الْجَامِعُ، الْغَنِيُّ، الْمُغْنِي، الْمَانِعُ
 الضَّارُّ، النَّافِعُ، النُّورُ، الْهَادِي، الْبَدِيعُ، الْبَاقِي، الْوَارِثُ، الرَّشِيدُ، الصَّبُورُ`;
 
-export const recommendedDhikrs: RecommendedDhikr[] = [
+export const dhikrCatalog: DevotionalTemplate[] = [
   {
     id: "recommended-subhanallahi-wa-bihamdihi",
     name: "Sübhânallâhi ve bihamdihi",
@@ -173,22 +173,3 @@ export const recommendedDhikrs: RecommendedDhikr[] = [
     expandedArabicSize: 0,
   },
 ];
-
-function normalizeIdentity(value: string | null): string {
-  return (value ?? "")
-    .normalize("NFKD")
-    .replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]/g, "")
-    .replace(/[^\p{Letter}\p{Number}]+/gu, "")
-    .toLocaleLowerCase("tr");
-}
-
-export function getMissingRecommendedDhikrs(existing: Dhikr[]): RecommendedDhikr[] {
-  const ids = new Set(existing.map((item) => item.id));
-  const arabic = new Set(existing.map((item) => normalizeIdentity(item.arabic)).filter(Boolean));
-  const names = new Set(existing.map((item) => normalizeIdentity(item.name)).filter(Boolean));
-  return recommendedDhikrs.filter((item) => (
-    !ids.has(item.id)
-    && (!item.arabic || !arabic.has(normalizeIdentity(item.arabic)))
-    && (!item.name || !names.has(normalizeIdentity(item.name)))
-  ));
-}

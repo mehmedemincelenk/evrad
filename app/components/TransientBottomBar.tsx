@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { modules } from "../core/module-registry";
-import type { IconName, ModuleId } from "../core/types";
+import type { ContentSpace, IconName, ModuleId } from "../core/types";
 import { t } from "../core/i18n";
 
 const glyphs: Record<IconName, string> = {
@@ -17,18 +17,22 @@ export function TransientBottomBar({
   open,
   activityKey,
   activeModule,
+  activeSpace,
   onClose,
   onActivity,
   onModule,
+  onSpace,
   addLabel,
   onAdd,
 }: {
   open: boolean;
   activityKey: number;
   activeModule: ModuleId;
+  activeSpace: ContentSpace;
   onClose: () => void;
   onActivity: () => void;
   onModule: (id: ModuleId, enabled: boolean) => void;
+  onSpace: (space: ContentSpace) => void;
   addLabel: string | null;
   onAdd: () => void;
 }) {
@@ -55,28 +59,45 @@ export function TransientBottomBar({
         onPointerDown={onActivity}
         onFocusCapture={onActivity}
       >
-        {modules.map((module) => {
-          const label = t(module.translationKey);
-          const active = module.id === activeModule;
-          return (
+        <div className="space-toggle" role="group" aria-label={t("menu.spaceLabel")}>
+          {(["library", "discover"] as const).map((space) => (
             <button
-              className={`module-button${active ? " is-active" : ""}${!module.enabled ? " is-disabled" : ""}`}
+              key={space}
               type="button"
-              key={module.id}
-              onClick={() => { onActivity(); onModule(module.id, module.enabled); }}
-              aria-label={module.enabled ? `${label}${active ? `, ${t("menu.active")}` : ""}` : t("menu.comingSoonLabel", { module: label })}
+              className={activeSpace === space ? "is-selected" : ""}
+              aria-pressed={activeSpace === space}
+              onClick={() => { onActivity(); onSpace(space); }}
               tabIndex={open ? 0 : -1}
-              data-tooltip={label}
             >
-              <span aria-hidden="true">{glyphs[module.icon]}</span>
+              <span aria-hidden="true">{space === "library" ? "▦" : "✦"}</span>
+              {t(space === "library" ? "menu.library" : "menu.discover")}
             </button>
-          );
-        })}
-        {addLabel ? (
-          <button className="module-button add-module-button" type="button" onClick={() => { onActivity(); onAdd(); }} aria-label={addLabel} tabIndex={open ? 0 : -1} data-tooltip={addLabel}>
-            <span aria-hidden="true">+</span>
-          </button>
-        ) : null}
+          ))}
+        </div>
+        <div className={`module-actions${addLabel ? "" : " without-add"}`}>
+          {modules.map((module) => {
+            const label = t(module.translationKey);
+            const active = module.id === activeModule;
+            return (
+              <button
+                className={`module-button${active ? " is-active" : ""}`}
+                type="button"
+                key={module.id}
+                onClick={() => { onActivity(); onModule(module.id, module.enabled); }}
+                aria-label={`${label}${active ? `, ${t("menu.active")}` : ""}`}
+                tabIndex={open ? 0 : -1}
+                data-tooltip={label}
+              >
+                <span aria-hidden="true">{glyphs[module.icon]}</span>
+              </button>
+            );
+          })}
+          {addLabel ? (
+            <button className="module-button add-module-button" type="button" onClick={() => { onActivity(); onAdd(); }} aria-label={addLabel} tabIndex={open ? 0 : -1} data-tooltip={addLabel}>
+              <span aria-hidden="true">+</span>
+            </button>
+          ) : null}
+        </div>
       </nav>
     </>
   );

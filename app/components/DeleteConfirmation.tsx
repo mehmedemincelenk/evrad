@@ -3,11 +3,21 @@
 import { ConfirmationModal } from "./ConfirmationModal";
 import { t } from "../core/i18n";
 
-export function DeleteConfirmation({ title, onCancel, onConfirm }: { title: string; onCancel: () => void; onConfirm: () => void }) {
+export function DeleteConfirmation({
+  title,
+  itemLabel,
+  onCancel,
+  onConfirm,
+}: {
+  title: string;
+  itemLabel?: string;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
   return (
     <ConfirmationModal
-      title={t("delete.title")}
-      body={<p>{t("delete.body", { title })}</p>}
+      title={itemLabel ? t("delete.genericTitle", { item: itemLabel }) : t("delete.title")}
+      body={<p>{itemLabel ? t("delete.genericBody", { title }) : t("delete.body", { title })}</p>}
       cancelLabel={t("action.cancel")}
       confirmLabel={t("delete.confirm")}
       tone="danger"

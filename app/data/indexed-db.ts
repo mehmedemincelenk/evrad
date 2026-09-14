@@ -1,7 +1,7 @@
 import type { TrackableModuleId } from "../core/types";
 
 const DB_NAME = "zikirlerim";
-const DB_VERSION = 4;
+const DB_VERSION = 5;
 
 export const ENTITY_STORES: Record<TrackableModuleId, string> = {
   dhikr: "dhikrs",
@@ -44,7 +44,7 @@ export function openDatabase(): Promise<IDBDatabase> {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
     let settled = false;
     let blockedTimeout: number | undefined;
-    request.onupgradeneeded = () => {
+    request.onupgradeneeded = (event) => {
       const database = request.result;
       Object.values(ENTITY_STORES).forEach((storeName) => {
         if (!database.objectStoreNames.contains(storeName)) {
@@ -58,6 +58,16 @@ export function openDatabase(): Promise<IDBDatabase> {
       }
       if (!database.objectStoreNames.contains(PREFERENCES_STORE)) {
         database.createObjectStore(PREFERENCES_STORE, { keyPath: "id" });
+      }
+      if (event.oldVersion > 0 && event.oldVersion < 5 && request.transaction) {
+        request.transaction.objectStore(ENTITY_STORES.dhikr).clear();
+        const cursorRequest = request.transaction.objectStore(COMPLETION_STORE).openCursor();
+        cursorRequest.onsuccess = () => {
+          const cursor = cursorRequest.result;
+          if (!cursor) return;
+          if (cursor.value.itemType === "dhikr") cursor.delete();
+          cursor.continue();
+        };
       }
     };
     request.onblocked = () => {

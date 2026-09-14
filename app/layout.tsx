@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import "./globals.css";
 
 const title = "Zikirlerim";
-const description = "Günlük zikirlerini kendi sıranla, sakin ve aydınlık bir deneyimle takip et.";
+const description = "Zikir, dua, ezber ve okumalarını takip et; yeni içerikler keşfet.";
 
 export async function generateMetadata(): Promise<Metadata> {
   const requestHeaders = await headers();
@@ -31,14 +31,14 @@ export async function generateMetadata(): Promise<Metadata> {
       description,
       type: "website",
       locale: "tr_TR",
-      url: `${origin}/zikirler`,
-      images: [{ url: `${origin}/og.png`, width: 1732, height: 908, alt: "Zikirlerim — güne bırakılmış küçük bir ışık" }],
+      url: origin,
+      images: [{ url: `${origin}/og-v2.png`, width: 1672, height: 941, alt: "Zikirlerim — Kütüphanen, keşiflerin, günlük ışığın" }],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: [`${origin}/og.png`],
+      images: [`${origin}/og-v2.png`],
     },
   };
 }

@@ -5,7 +5,7 @@ import { enabledModules } from "../core/module-registry";
 
 const coreUrls = [
   "/",
-  ...enabledModules.flatMap((module) => [module.route, module.createRoute].filter((route): route is string => Boolean(route))),
+  ...enabledModules.flatMap((module) => [module.route, module.discoverRoute, module.createRoute].filter((route): route is string => Boolean(route))),
   "/manifest.webmanifest",
   "/icon-192.png",
   "/icon-512.png",

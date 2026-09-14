@@ -1,10 +1,10 @@
 {
   "name": "Zikirlerim",
   "short_name": "Zikirlerim",
-  "description": "Günlük zikirlerini kendi sıranla, sakin ve aydınlık bir deneyimle takip et.",
+  "description": "Zikir, dua, ezber ve okumalarını takip et; yeni içerikler keşfet.",
   "lang": "tr",
   "dir": "ltr",
-  "start_url": "/zikirler",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",

@@ -22,7 +22,7 @@ test("server-renders the Zikirlerim application", async () => {
   const html = await response.text();
   assert.match(html, /<title>Zikirlerim<\/title>/i);
   assert.match(html, /BUGÜNÜN RİTMİ/);
-  assert.match(html, /Zikirlerin yükleniyor/);
+  assert.match(html, /Zikirlerim yükleniyor/);
   assert.match(html, /Bölüm menüsünü aç/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton|Your site is taking shape/i);
 });
@@ -36,10 +36,21 @@ test("new dhikr has its own full-page route", async () => {
   assert.match(html, /Örn\. sayfa/);
 });
 
-test("root route forwards to the active module", async () => {
+test("root route renders the library and discovery home", async () => {
   const response = await render("/");
-  assert.ok([302, 303, 307, 308].includes(response.status));
-  assert.match(response.headers.get("location") ?? "", /\/zikirler$/);
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /Kütüphane/);
+  assert.match(html, /Keşfet/);
+  assert.match(html, /Dualar/);
+  assert.match(html, /Oyunlar/);
+});
+
+test("prayer, memorization, book, game, and discovery routes are active", async () => {
+  for (const pathname of ["/dualar", "/ezberler", "/kitaplar", "/oyunlar", "/kesfet/zikirler", "/kesfet/dualar", "/kesfet/ezberler", "/kesfet/kitaplar", "/kesfet/oyunlar"]) {
+    const response = await render(pathname);
+    assert.equal(response.status, 200, pathname);
+  }
 });
 
 test("PWA manifest and architecture declarations stay aligned", async () => {
@@ -50,10 +61,11 @@ test("PWA manifest and architecture declarations stay aligned", async () => {
   ]);
   const manifest = JSON.parse(manifestText);
   assert.equal(manifest.name, "Zikirlerim");
-  assert.equal(manifest.start_url, "/zikirler");
+  assert.equal(manifest.start_url, "/");
   assert.equal(manifest.display, "standalone");
   assert.match(registryText, /id: "dhikr"[\s\S]*enabled: true/);
-  assert.match(registryText, /id: "games"[\s\S]*enabled: false/);
+  assert.match(registryText, /id: "games"[\s\S]*enabled: true/);
+  assert.equal((registryText.match(/enabled: true/g) ?? []).length, 5);
   assert.match(typesText, /"prayers"[\s\S]*"books"[\s\S]*"memorization"[\s\S]*"dhikr"[\s\S]*"games"/);
 });
 
@@ -86,9 +98,10 @@ test("new modules can reuse navigation, storage, layout, and collection behavior
     readFile(new URL("../app/components/TrackerPrimitives.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/hooks/usePwaUpdate.ts", import.meta.url), "utf8"),
   ]);
-  assert.match(registryText, /createRoute/);
-  assert.match(shellText, /router\.push\(getModule\(id\)\.route\)/);
-  assert.match(homeText, /<Link href=\{module\.route\}/);
+  assert.match(registryText, /discoverRoute/);
+  assert.match(shellText, /router\.push\(getModuleRoute\(id, activeSpace\)\)/);
+  assert.match(shellText, /router\.push\(getModuleRoute\(activeModule, space\)\)/);
+  assert.match(homeText, /getModuleRoute\(module\.id, space\)/);
   assert.match(repositoryText, /createTrackableRepository/);
   assert.match(completionText, /loadIds\(itemType: ModuleId/);
   assert.match(collectionText, /completionRepository\.loadIds\(repository\.moduleId/);
@@ -98,30 +111,40 @@ test("new modules can reuse navigation, storage, layout, and collection behavior
   assert.match(pwaText, /enabledModules\.flatMap/);
 });
 
-test("recommended collection is deduplicated and long entries use names", async () => {
-  const recommendedText = await readFile(new URL("../app/features/dhikr/recommended-dhikrs.ts", import.meta.url), "utf8");
-  assert.match(recommendedText, /recommendedDhikrs/);
-  assert.match(recommendedText, /recommended-esmaul-husna[\s\S]*listDisplay: "name"/);
-  assert.match(recommendedText, /recommended-distress-dhikr[\s\S]*listDisplay: "name"/);
-  assert.match(recommendedText, /recommended-la-ilaha-expanded[\s\S]*listDisplay: "name"/);
-  assert.match(recommendedText, /recommended-after-prayer-tahlil[\s\S]*targetCount: 1/);
-  assert.match(recommendedText, /لَا إِلٰهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ/);
-  assert.match(recommendedText, /getMissingRecommendedDhikrs/);
-  assert.match(recommendedText, /normalizeIdentity/);
+test("discovery cards add individual catalog items to the matching library", async () => {
+  const [screenText, hookText, primitivesText, dhikrCatalogText, prayerCatalogText] = await Promise.all([
+    readFile(new URL("../app/features/discovery/DiscoveryModuleApp.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/hooks/useDiscoveryLibrary.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/TrackerPrimitives.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/features/discovery/catalogs/dhikr.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/features/discovery/catalogs/prayers.ts", import.meta.url), "utf8"),
+  ]);
+  assert.match(screenText, /useDiscoveryLibrary/);
+  assert.match(hookText, /repository\.save\(item\)/);
+  assert.match(primitivesText, /AddToLibraryButton/);
+  assert.match(dhikrCatalogText, /recommended-esmaul-husna[\s\S]*listDisplay: "name"/);
+  assert.match(prayerCatalogText, /discover-prayer-rabbana-atina/);
+  assert.doesNotMatch(screenText, /tavsiye edilen tüm zikirler/i);
 });
 
 test("IndexedDB transactions cannot finish before their completion listener is attached", async () => {
-  const [trackableText, completionText, dhikrRepositoryText, indexedDbText] = await Promise.all([
+  const [trackableText, completionText, indexedDbText] = await Promise.all([
     readFile(new URL("../app/data/trackable-repository.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/data/completion-repository.ts", import.meta.url), "utf8"),
-    readFile(new URL("../app/features/dhikr/dhikr-repository.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/data/indexed-db.ts", import.meta.url), "utf8"),
   ]);
   assert.doesNotMatch(trackableText, /await requestResult[\s\S]{0,300}await transactionDone\(transaction\)/);
   assert.doesNotMatch(completionText, /await requestResult[\s\S]{0,300}await transactionDone\(transaction\)/);
-  assert.match(dhikrRepositoryText, /const done = transactionDone\(transaction\)/);
   assert.match(indexedDbText, /request\.onblocked/);
   assert.match(indexedDbText, /database\.onversionchange/);
+});
+
+test("the v5 migration clears legacy dhikr records exactly once", async () => {
+  const indexedDbText = await readFile(new URL("../app/data/indexed-db.ts", import.meta.url), "utf8");
+  assert.match(indexedDbText, /DB_VERSION = 5/);
+  assert.match(indexedDbText, /event\.oldVersion > 0 && event\.oldVersion < 5/);
+  assert.match(indexedDbText, /objectStore\(ENTITY_STORES\.dhikr\)\.clear\(\)/);
+  assert.match(indexedDbText, /cursor\.value\.itemType === "dhikr"/);
 });
 
 test("PWA updates replace stale application shells instead of preserving a stuck client", async () => {

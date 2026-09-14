@@ -9,6 +9,8 @@ export type ModuleId =
   | "games";
 
 export type TrackableModuleId = Exclude<ModuleId, "games">;
+export type DevotionalModuleId = Extract<ModuleId, "dhikr" | "prayers" | "memorization">;
+export type ContentSpace = "library" | "discover";
 
 export type IconName = "prayer" | "book" | "memory" | "dhikr" | "game";
 
@@ -17,6 +19,7 @@ export type TargetUnit = "count" | "custom";
 export interface ModuleDefinition {
   id: ModuleId;
   route: string;
+  discoverRoute: string;
   icon: IconName;
   enabled: boolean;
   supportsCreate: boolean;
@@ -25,7 +28,7 @@ export interface ModuleDefinition {
   translationKey: TranslationKey;
 }
 
-export interface Dhikr extends TrackableEntity {
+export interface DevotionalItem extends TrackableEntity {
   name: string | null;
   arabic: string | null;
   translation: string | null;
@@ -37,7 +40,7 @@ export interface Dhikr extends TrackableEntity {
   expandedArabicSize: 0 | 1 | 2 | 3 | 4;
 }
 
-export interface DhikrDraft {
+export interface DevotionalDraft {
   name: string;
   arabic: string;
   translation: string;
@@ -46,6 +49,27 @@ export interface DhikrDraft {
   targetUnit: TargetUnit;
   targetUnitLabel: string;
   listDisplay: "arabic" | "name";
+}
+
+export type Dhikr = DevotionalItem;
+export type DhikrDraft = DevotionalDraft;
+
+export interface BookItem extends TrackableEntity {
+  title: string;
+  author: string | null;
+  details: string | null;
+  targetCount: number | null;
+  targetUnit: TargetUnit;
+  targetUnitLabel: string | null;
+}
+
+export interface BookDraft {
+  title: string;
+  author: string;
+  details: string;
+  targetCount: string;
+  targetUnit: TargetUnit;
+  targetUnitLabel: string;
 }
 
 export interface DailyCompletion {
