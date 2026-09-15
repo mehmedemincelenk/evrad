@@ -7,7 +7,14 @@ export type ContentSpace = "library" | "discover";
 export type IconName = "prayer" | "book" | "memory" | "dhikr" | "game";
 export type TargetUnit = "count" | "custom";
 export type ArabicFontLevel = 0 | 1 | 2 | 3 | 4;
-export type DevotionalContext = "beforePrayer" | "afterPrayer" | "morning";
+export type DevotionalContext =
+  | "beforePrayer"
+  | "afterPrayer"
+  | "morning"
+  | "gratitude"
+  | "forgiveness"
+  | "protection"
+  | "relief";
 
 interface ModuleCopy {
   menu: TranslationKey;

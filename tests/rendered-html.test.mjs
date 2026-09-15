@@ -39,7 +39,7 @@ test("new dhikr has its own full-page route", async () => {
   assert.match(html, /Yeni zikir/);
   assert.match(html, /Günlük hedef/);
   assert.match(html, /Örn\. sayfa/);
-  assert.match(html, /Vakitler/);
+  assert.match(html, /Kategoriler/);
 });
 
 test("devotional contexts are shared by editors, library filters, discovery, and storage", async () => {
@@ -56,8 +56,10 @@ test("devotional contexts are shared by editors, library filters, discovery, and
     readFile(new URL("../app/styles/overlays.css", import.meta.url), "utf8"),
     readFile(new URL("../app/core/i18n.ts", import.meta.url), "utf8"),
   ]);
-  assert.match(typesText, /"beforePrayer"\s*\|\s*"afterPrayer"\s*\|\s*"morning"/);
-  assert.match(chipsText, /\["afterPrayer", "beforePrayer", "morning"\]/);
+  for (const category of ["beforePrayer", "afterPrayer", "morning", "gratitude", "forgiveness", "protection", "relief"]) {
+    assert.match(typesText, new RegExp(`"${category}"`));
+    assert.match(chipsText, new RegExp(`"${category}"`));
+  }
   assert.match(chipsText, /aria-pressed/);
   assert.match(filterText, /item\.contexts\.includes\(activeContext\)/);
   assert.match(editorText, /canChooseName \? <label/);
@@ -66,7 +68,7 @@ test("devotional contexts are shared by editors, library filters, discovery, and
   assert.match(libraryLayoutText, /actionHref=\{module\.discoverRoute\}/);
   assert.match(discoveryText, /useDevotionalContextFilter/);
   assert.match(repositoriesText, /contexts: item\.contexts \?\? \[\]/);
-  assert.equal((cssText.match(/--chip-text:/g) ?? []).length, 3);
+  assert.equal((cssText.match(/--chip-text:/g) ?? []).length, 7);
   assert.match(overlaysCss, /storageBreath 1\.25s ease-in-out infinite/);
   assert.match(i18nText, /Hedef için 1 veya daha büyük bir tam sayı yazmalısın/);
 });

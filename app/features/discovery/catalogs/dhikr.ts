@@ -25,7 +25,7 @@ export const dhikrCatalog: DevotionalTemplate[] = [
     targetUnitLabel: null,
     listDisplay: "arabic",
     expandedArabicSize: 1,
-    contexts: ["morning"],
+    contexts: ["morning", "forgiveness", "gratitude"],
   },
   {
     id: "recommended-subhanallahi-azim",
@@ -38,7 +38,7 @@ export const dhikrCatalog: DevotionalTemplate[] = [
     targetUnitLabel: null,
     listDisplay: "name",
     expandedArabicSize: 1,
-    contexts: ["morning"],
+    contexts: ["morning", "gratitude"],
   },
   {
     id: "recommended-la-hawla",
@@ -51,7 +51,7 @@ export const dhikrCatalog: DevotionalTemplate[] = [
     targetUnitLabel: null,
     listDisplay: "arabic",
     expandedArabicSize: 1,
-    contexts: [],
+    contexts: ["protection", "relief"],
   },
   {
     id: "recommended-la-ilaha-illallah",
@@ -64,7 +64,7 @@ export const dhikrCatalog: DevotionalTemplate[] = [
     targetUnitLabel: null,
     listDisplay: "arabic",
     expandedArabicSize: 1,
-    contexts: [],
+    contexts: ["relief"],
   },
   {
     id: "recommended-la-ilaha-expanded",
@@ -77,7 +77,7 @@ export const dhikrCatalog: DevotionalTemplate[] = [
     targetUnitLabel: null,
     listDisplay: "name",
     expandedArabicSize: 0,
-    contexts: [],
+    contexts: ["gratitude"],
   },
   {
     id: "recommended-four-phrases",
@@ -90,7 +90,7 @@ export const dhikrCatalog: DevotionalTemplate[] = [
     targetUnitLabel: null,
     listDisplay: "name",
     expandedArabicSize: 1,
-    contexts: ["morning"],
+    contexts: ["morning", "gratitude"],
   },
   {
     id: "seed-subhanallah",
@@ -103,7 +103,7 @@ export const dhikrCatalog: DevotionalTemplate[] = [
     targetUnitLabel: null,
     listDisplay: "arabic",
     expandedArabicSize: 1,
-    contexts: ["afterPrayer"],
+    contexts: ["afterPrayer", "gratitude"],
   },
   {
     id: "seed-alhamdulillah",
@@ -116,7 +116,7 @@ export const dhikrCatalog: DevotionalTemplate[] = [
     targetUnitLabel: null,
     listDisplay: "arabic",
     expandedArabicSize: 1,
-    contexts: ["afterPrayer"],
+    contexts: ["afterPrayer", "gratitude"],
   },
   {
     id: "seed-allahuakbar",
@@ -129,7 +129,7 @@ export const dhikrCatalog: DevotionalTemplate[] = [
     targetUnitLabel: null,
     listDisplay: "arabic",
     expandedArabicSize: 1,
-    contexts: ["afterPrayer"],
+    contexts: ["afterPrayer", "gratitude"],
   },
   {
     id: "recommended-after-prayer-tahlil",
@@ -142,7 +142,7 @@ export const dhikrCatalog: DevotionalTemplate[] = [
     targetUnitLabel: null,
     listDisplay: "name",
     expandedArabicSize: 0,
-    contexts: ["afterPrayer"],
+    contexts: ["afterPrayer", "forgiveness"],
   },
   {
     id: "recommended-esmaul-husna",
@@ -155,7 +155,7 @@ export const dhikrCatalog: DevotionalTemplate[] = [
     targetUnitLabel: null,
     listDisplay: "name",
     expandedArabicSize: 0,
-    contexts: [],
+    contexts: ["gratitude", "relief"],
   },
   {
     id: "seed-hasbunallah",
@@ -168,7 +168,7 @@ export const dhikrCatalog: DevotionalTemplate[] = [
     targetUnitLabel: null,
     listDisplay: "arabic",
     expandedArabicSize: 1,
-    contexts: [],
+    contexts: ["protection", "relief"],
   },
   {
     id: "recommended-distress-dhikr",
@@ -181,6 +181,6 @@ export const dhikrCatalog: DevotionalTemplate[] = [
     targetUnitLabel: null,
     listDisplay: "name",
     expandedArabicSize: 0,
-    contexts: [],
+    contexts: ["protection", "relief"],
   },
 ];

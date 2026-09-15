@@ -14,7 +14,7 @@ export const prayerCatalog: DevotionalTemplate[] = [
     targetUnitLabel: null,
     listDisplay: "name",
     expandedArabicSize: 1,
-    contexts: [],
+    contexts: ["protection", "gratitude"],
   },
   {
     id: "discover-prayer-rabbana-ghfirli",
@@ -27,7 +27,7 @@ export const prayerCatalog: DevotionalTemplate[] = [
     targetUnitLabel: null,
     listDisplay: "name",
     expandedArabicSize: 1,
-    contexts: [],
+    contexts: ["forgiveness"],
   },
   {
     id: "discover-prayer-yunus",
@@ -40,6 +40,6 @@ export const prayerCatalog: DevotionalTemplate[] = [
     targetUnitLabel: null,
     listDisplay: "name",
     expandedArabicSize: 1,
-    contexts: [],
+    contexts: ["forgiveness", "relief"],
   },
 ];

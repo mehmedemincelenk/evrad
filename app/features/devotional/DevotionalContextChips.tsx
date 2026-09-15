@@ -1,7 +1,15 @@
 import { t } from "../../core/i18n";
 import type { DevotionalContext } from "../../core/types";
 
-export const devotionalContexts: DevotionalContext[] = ["afterPrayer", "beforePrayer", "morning"];
+export const devotionalContexts: DevotionalContext[] = [
+  "afterPrayer",
+  "beforePrayer",
+  "morning",
+  "gratitude",
+  "forgiveness",
+  "protection",
+  "relief",
+];
 
 export function DevotionalContextChips({
   selected,
