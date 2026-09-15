@@ -7,6 +7,7 @@ export type ContentSpace = "library" | "discover";
 export type IconName = "prayer" | "book" | "memory" | "dhikr" | "game";
 export type TargetUnit = "count" | "custom";
 export type ArabicFontLevel = 0 | 1 | 2 | 3 | 4;
+export type DevotionalContext = "beforePrayer" | "afterPrayer" | "morning";
 
 interface ModuleCopy {
   menu: TranslationKey;
@@ -78,6 +79,7 @@ export interface DevotionalItem extends TrackableEntity {
   targetUnitLabel: string | null;
   listDisplay: "arabic" | "name";
   expandedArabicSize: ArabicFontLevel;
+  contexts: DevotionalContext[];
 }
 
 export interface DevotionalDraft extends TargetDraft {
@@ -86,6 +88,7 @@ export interface DevotionalDraft extends TargetDraft {
   translation: string;
   details: string;
   listDisplay: "arabic" | "name";
+  contexts: DevotionalContext[];
 }
 
 export interface BookItem extends TrackableEntity {

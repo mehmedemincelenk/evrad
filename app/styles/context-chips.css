@@ -1,0 +1,37 @@
+.context-filter { margin: -1rem 0 1.25rem; }
+
+.context-chips {
+  display: flex;
+  gap: 0.45rem;
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 0.15rem 0.05rem 0.35rem;
+  scrollbar-width: none;
+}
+
+.context-chips::-webkit-scrollbar { display: none; }
+
+.context-chip {
+  flex: 0 0 auto;
+  min-height: 2.35rem;
+  padding: 0 0.8rem;
+  border: 1px solid var(--chip-line);
+  border-radius: 999px;
+  background: var(--chip-surface);
+  color: var(--chip-text);
+  cursor: pointer;
+  font-size: 0.7rem;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: background 160ms ease, border-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
+}
+
+.context-chip.is-afterPrayer { --chip-line: rgba(229, 185, 112, 0.28); --chip-surface: rgba(229, 185, 112, 0.06); --chip-text: #c9ad7e; }
+.context-chip.is-beforePrayer { --chip-line: rgba(162, 151, 214, 0.28); --chip-surface: rgba(162, 151, 214, 0.06); --chip-text: #aaa1d0; }
+.context-chip.is-morning { --chip-line: rgba(127, 190, 166, 0.28); --chip-surface: rgba(127, 190, 166, 0.06); --chip-text: #8ebba9; }
+.context-chip.is-selected { background: var(--chip-text); border-color: var(--chip-text); color: #111318; box-shadow: 0 0 1rem color-mix(in srgb, var(--chip-text) 22%, transparent); }
+
+.filter-empty { margin: 1.5rem 0; color: var(--muted); font-family: Iowan Old Style, Baskerville, Georgia, serif; font-size: 0.9rem; font-style: italic; text-align: center; }
+
+.field-group > .context-chips { margin-top: -0.1rem; }
+.field-group > small { color: var(--muted); font-size: 0.72rem; }

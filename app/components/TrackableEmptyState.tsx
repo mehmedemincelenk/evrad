@@ -2,19 +2,19 @@ export function TrackableEmptyState({
   title,
   body,
   actionLabel,
-  onAction,
+  actionHref,
 }: {
   title: string;
   body: string;
   actionLabel?: string;
-  onAction?: () => void;
+  actionHref?: string;
 }) {
   return (
     <div className="empty-state">
       <div className="empty-light" aria-hidden="true" />
       <h2>{title}</h2>
       <p>{body}</p>
-      {actionLabel && onAction ? <button className="primary-button" type="button" onClick={onAction}>{actionLabel}</button> : null}
+      {actionLabel && actionHref ? <a className="primary-button" href={actionHref}>{actionLabel}</a> : null}
     </div>
   );
 }

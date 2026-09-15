@@ -27,22 +27,22 @@
   place-items: center;
   align-content: center;
   gap: 1rem;
-  min-height: 18rem;
+  min-height: 12rem;
   color: var(--muted);
   font-size: 0.82rem;
 }
 
 .loading-orb {
-  width: 2rem;
+  width: 1.15rem;
   aspect-ratio: 1;
-  border: 1px solid rgba(255, 253, 239, 0.14);
-  border-top-color: var(--light);
+  border: 1px solid rgba(255, 253, 239, 0.34);
   border-radius: 50%;
   box-shadow: 0 0 1.25rem rgba(255, 250, 220, 0.12);
-  animation: storageSpin 720ms linear infinite;
+  background: rgba(255, 253, 239, 0.06);
+  animation: storageBreath 1.25s ease-in-out infinite;
 }
 
-@keyframes storageSpin { to { transform: rotate(360deg); } }
+@keyframes storageBreath { 50% { opacity: 0.48; transform: scale(0.78); } }
 
 .sort-status {
   position: fixed;

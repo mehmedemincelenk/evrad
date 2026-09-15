@@ -14,7 +14,7 @@ export function LibraryModuleLayout({
   today,
   hasItems,
   sorting,
-  onAdd,
+  toolbar,
   children,
 }: {
   module: TrackableModuleDefinition;
@@ -23,7 +23,7 @@ export function LibraryModuleLayout({
   today: Date | null;
   hasItems: boolean;
   sorting: { draggingId: string | null; announcement: string };
-  onAdd: () => void;
+  toolbar?: ReactNode;
   children: ReactNode;
 }) {
   const title = t(module.copy.title);
@@ -33,9 +33,10 @@ export function LibraryModuleLayout({
       loading={!storageReady}
       hasItems={hasItems}
       loadingState={<StorageLoading label={t("loading.generic", { module: title })} />}
-      emptyState={<TrackableEmptyState title={t("empty.libraryTitle")} body={t("empty.libraryBody", { item: itemLabel })} actionLabel={t("empty.addFirst", { item: itemLabel })} onAction={onAdd} />}
+      emptyState={<TrackableEmptyState title={t("empty.libraryTitle")} body={t("empty.libraryBody", { item: itemLabel })} actionLabel={t("empty.discover", { item: itemLabel })} actionHref={module.discoverRoute} />}
       status={<SortStatus active={Boolean(sorting.draggingId)} announcement={sorting.announcement} activeLabel={t("card.sorting")} />}
       footer={<p className="quiet-note">{t("app.lightNote")}</p>}
+      toolbar={toolbar}
     >
       {children}
     </TrackableModuleLayout>

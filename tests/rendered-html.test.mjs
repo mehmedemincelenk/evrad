@@ -38,6 +38,36 @@ test("new dhikr has its own full-page route", async () => {
   assert.match(html, /Yeni zikir/);
   assert.match(html, /Günlük hedef/);
   assert.match(html, /Örn\. sayfa/);
+  assert.match(html, /Vakitler/);
+});
+
+test("devotional contexts are shared by editors, library filters, discovery, and storage", async () => {
+  const [typesText, chipsText, filterText, editorText, libraryText, libraryLayoutText, discoveryText, repositoriesText, cssText, overlaysCss, i18nText] = await Promise.all([
+    readFile(new URL("../app/core/types.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/features/devotional/DevotionalContextChips.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/features/devotional/useDevotionalContextFilter.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/features/devotional/DevotionalEditor.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/features/devotional/DevotionalModuleApp.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/LibraryModuleLayout.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/features/discovery/DiscoveryModuleApp.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/data/repositories.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/styles/context-chips.css", import.meta.url), "utf8"),
+    readFile(new URL("../app/styles/overlays.css", import.meta.url), "utf8"),
+    readFile(new URL("../app/core/i18n.ts", import.meta.url), "utf8"),
+  ]);
+  assert.match(typesText, /"beforePrayer"\s*\|\s*"afterPrayer"\s*\|\s*"morning"/);
+  assert.match(chipsText, /\["afterPrayer", "beforePrayer", "morning"\]/);
+  assert.match(chipsText, /aria-pressed/);
+  assert.match(filterText, /item\.contexts\.includes\(activeContext\)/);
+  assert.match(editorText, /canChooseName \? <label/);
+  assert.match(editorText, /<DevotionalContextChips/);
+  assert.match(libraryText, /useDevotionalContextFilter/);
+  assert.match(libraryLayoutText, /actionHref=\{module\.discoverRoute\}/);
+  assert.match(discoveryText, /useDevotionalContextFilter/);
+  assert.match(repositoriesText, /contexts: item\.contexts \?\? \[\]/);
+  assert.equal((cssText.match(/--chip-text:/g) ?? []).length, 3);
+  assert.match(overlaysCss, /storageBreath 1\.25s ease-in-out infinite/);
+  assert.match(i18nText, /Hedef için 1 veya daha büyük bir tam sayı yazmalısın/);
 });
 
 test("root route renders the library and discovery home", async () => {
@@ -205,7 +235,7 @@ test("PWA updates replace stale application shells instead of preserving a stuck
     readFile(new URL("../public/sw.js", import.meta.url), "utf8"),
     readFile(new URL("../app/hooks/usePwaUpdate.ts", import.meta.url), "utf8"),
   ]);
-  assert.match(serviceWorkerText, /zikirlerim-shell-v9/);
+  assert.match(serviceWorkerText, /zikirlerim-shell-v10/);
   assert.match(serviceWorkerText, /caches\.match\(request\)[\s\S]*cached \?\? \(await networkResponse\)/);
   assert.match(serviceWorkerText, /self\.registration\.active \? undefined : self\.skipWaiting\(\)/);
   assert.match(serviceWorkerText, /type === "SKIP_WAITING"/);

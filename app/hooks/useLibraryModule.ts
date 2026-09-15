@@ -88,7 +88,6 @@ export function useLibraryModule<T extends TrackableEntity, Draft>({
     setDeleteTarget(null);
   }, [deleteTarget, forgetItemState, itemsRef, replaceItems, repository, showStorageError]);
 
-  const addFirst = useCallback(() => router.push(definition.create.route), [definition.create.route, router]);
   const editItem = useCallback((id: string) => router.push(`${definition.route}/${encodeURIComponent(id)}/duzenle`), [definition.route, router]);
 
   return {
@@ -102,7 +101,6 @@ export function useLibraryModule<T extends TrackableEntity, Draft>({
     saveDraft,
     confirmDelete,
     closeEditor,
-    addFirst,
     editItem,
   };
 }

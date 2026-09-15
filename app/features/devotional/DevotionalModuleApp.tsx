@@ -4,10 +4,13 @@ import { AppShell } from "../../AppShell";
 import { DeleteConfirmation } from "../../components/DeleteConfirmation";
 import { LibraryModuleLayout } from "../../components/LibraryModuleLayout";
 import type { EntityEditorMode } from "../../core/editor";
+import { t } from "../../core/i18n";
 import type { DevotionalModuleId } from "../../core/types";
 import { DevotionalCard } from "./DevotionalCard";
+import { DevotionalContextChips } from "./DevotionalContextChips";
 import { DevotionalEditor } from "./DevotionalEditor";
 import { getDevotionalDisplay } from "./devotional-utils";
+import { useDevotionalContextFilter } from "./useDevotionalContextFilter";
 import { useDevotionalModule } from "./useDevotionalModule";
 
 export function DevotionalModuleApp({
@@ -28,6 +31,8 @@ function DevotionalScreen({ moduleId, editorMode }: { moduleId: DevotionalModule
   const state = useDevotionalModule(moduleId, editorMode);
   const { collection, module } = state;
   const sorting = collection.sorting;
+  const contextFilter = useDevotionalContextFilter(collection.items);
+  const selectedContexts = contextFilter.activeContext ? [contextFilter.activeContext] : [];
   return (
     <>
       <LibraryModuleLayout
@@ -37,9 +42,13 @@ function DevotionalScreen({ moduleId, editorMode }: { moduleId: DevotionalModule
         today={collection.today}
         hasItems={collection.items.length > 0}
         sorting={sorting}
-        onAdd={state.addFirst}
+        toolbar={collection.items.length > 0 ? (
+          <div className="context-filter">
+            <DevotionalContextChips selected={selectedContexts} onToggle={contextFilter.toggleContext} label={t("filter.contexts")} />
+          </div>
+        ) : null}
       >
-        {collection.items.map((item, index) => (
+        {contextFilter.filteredItems.length === 0 ? <p className="filter-empty">{t("filter.empty")}</p> : contextFilter.filteredItems.map((item) => (
           <DevotionalCard
             key={item.id}
             item={item}
@@ -47,7 +56,7 @@ function DevotionalScreen({ moduleId, editorMode }: { moduleId: DevotionalModule
             expanded={collection.expandedIds.has(item.id)}
             dragging={sorting.draggingId === item.id}
             dragOffsetY={sorting.draggingId === item.id ? sorting.dragOffsetY : 0}
-            position={index + 1}
+            position={collection.items.findIndex((candidate) => candidate.id === item.id) + 1}
             onToggleExpanded={() => collection.toggleExpanded(item.id)}
             onToggleComplete={() => collection.toggleComplete(item.id)}
             onChangeFont={(direction) => state.changeFont(item, direction)}

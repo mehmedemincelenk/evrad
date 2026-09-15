@@ -23,5 +23,6 @@ export function devotionalFromDraft(
     ...targetFromDraft(draft),
     listDisplay: draft.listDisplay,
     expandedArabicSize: existing?.expandedArabicSize ?? 1,
+    contexts: draft.contexts,
   };
 }

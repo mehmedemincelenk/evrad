@@ -16,6 +16,8 @@ import { useExpandableItems } from "../../hooks/useExpandableItems";
 import { DiscoveryBookCard } from "./DiscoveryBookCard";
 import { DiscoveryDevotionalCard } from "./DiscoveryDevotionalCard";
 import { bookCatalog, getDevotionalCatalog } from "./discovery-catalog";
+import { DevotionalContextChips } from "../devotional/DevotionalContextChips";
+import { useDevotionalContextFilter } from "../devotional/useDevotionalContextFilter";
 
 export function DiscoveryModuleApp({ moduleId }: { moduleId: ModuleId }) {
   return (
@@ -25,7 +27,7 @@ export function DiscoveryModuleApp({ moduleId }: { moduleId: ModuleId }) {
   );
 }
 
-function DiscoveryLayout({ moduleId, loading, hasItems, children }: { moduleId: ModuleId; loading: boolean; hasItems: boolean; children?: ReactNode }) {
+function DiscoveryLayout({ moduleId, loading, hasItems, toolbar, children }: { moduleId: ModuleId; loading: boolean; hasItems: boolean; toolbar?: ReactNode; children?: ReactNode }) {
   const definition = getModule(moduleId);
   const title = t(definition.copy.discoverTitle);
   return (
@@ -35,6 +37,7 @@ function DiscoveryLayout({ moduleId, loading, hasItems, children }: { moduleId: 
       hasItems={hasItems}
       loadingState={<StorageLoading label={t("loading.generic", { module: title })} />}
       emptyState={<TrackableEmptyState title={t("discover.emptyTitle")} body={t("discover.emptyBody")} />}
+      toolbar={toolbar}
     >
       {children}
     </TrackableModuleLayout>
@@ -45,11 +48,13 @@ function DiscoveryList<T extends TrackableEntity>({
   moduleId,
   catalog,
   repository,
+  toolbar,
   renderCard,
 }: {
   moduleId: ModuleId;
   catalog: EntityTemplate<T>[];
   repository: TrackableRepository<T>;
+  toolbar?: ReactNode;
   renderCard: (props: { item: EntityTemplate<T>; expanded: boolean; added: boolean; onToggle: () => void; onAdd: () => void }) => ReactNode;
 }) {
   const { showToast } = useAppRuntime();
@@ -62,8 +67,8 @@ function DiscoveryList<T extends TrackableEntity>({
   };
 
   return (
-    <DiscoveryLayout moduleId={moduleId} loading={!library.ready} hasItems={catalog.length > 0}>
-      {catalog.map((item) => (
+    <DiscoveryLayout moduleId={moduleId} loading={!library.ready} hasItems={Boolean(toolbar) || catalog.length > 0} toolbar={toolbar}>
+      {catalog.length === 0 ? <p className="filter-empty">{t("filter.empty")}</p> : catalog.map((item) => (
         <Fragment key={item.id}>
           {renderCard({
             item,
@@ -79,11 +84,18 @@ function DiscoveryList<T extends TrackableEntity>({
 }
 
 function DevotionalDiscovery({ moduleId }: { moduleId: DevotionalModuleId }) {
+  const contextFilter = useDevotionalContextFilter(getDevotionalCatalog(moduleId));
+  const selectedContexts = contextFilter.activeContext ? [contextFilter.activeContext] : [];
   return (
     <DiscoveryList<DevotionalItem>
       moduleId={moduleId}
-      catalog={getDevotionalCatalog(moduleId)}
+      catalog={contextFilter.filteredItems}
       repository={devotionalRepositories[moduleId]}
+      toolbar={(
+        <div className="context-filter">
+          <DevotionalContextChips selected={selectedContexts} onToggle={contextFilter.toggleContext} label={t("filter.contexts")} />
+        </div>
+      )}
       renderCard={(props) => <DiscoveryDevotionalCard {...props} />}
     />
   );

@@ -39,7 +39,6 @@ function BookScreen({ editorMode }: { editorMode: EntityEditorMode }) {
         today={collection.today}
         hasItems={collection.items.length > 0}
         sorting={sorting}
-        onAdd={state.addFirst}
       >
         {collection.items.map((item, index) => (
           <BookCard

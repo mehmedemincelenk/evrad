@@ -6,10 +6,12 @@ import { TargetFields } from "../../components/TargetFields";
 import { t } from "../../core/i18n";
 import { validateTarget } from "../../core/target";
 import type { DevotionalDraft, DevotionalItem } from "../../core/types";
+import { DevotionalContextChips } from "./DevotionalContextChips";
 
 const emptyDraft: DevotionalDraft = {
   name: "", arabic: "", translation: "", details: "", targetCount: "",
   targetUnit: "count", targetUnitLabel: "", listDisplay: "arabic",
+  contexts: [],
 };
 
 function createDraft(item: DevotionalItem | null): DevotionalDraft {
@@ -18,6 +20,7 @@ function createDraft(item: DevotionalItem | null): DevotionalDraft {
     name: item.name ?? "", arabic: item.arabic ?? "", translation: item.translation ?? "",
     details: item.details ?? "", targetCount: item.targetCount?.toString() ?? "",
     targetUnit: item.targetUnit, targetUnitLabel: item.targetUnitLabel ?? "", listDisplay: item.listDisplay,
+    contexts: item.contexts,
   };
 }
 
@@ -69,6 +72,15 @@ export function DevotionalEditor({
         <label className="field-group"><span>{t("editor.arabic")}</span><textarea className="arabic-field" value={draft.arabic} onChange={(event) => update({ arabic: event.target.value })} placeholder={t("editor.arabicPlaceholder")} lang="ar" dir="rtl" rows={4} /></label>
         <label className="field-group"><span>{t("editor.translation")}</span><textarea value={draft.translation} onChange={(event) => update({ translation: event.target.value })} placeholder={t("editor.translationPlaceholder")} rows={3} /></label>
         <label className="field-group"><span>{t("editor.details")}</span><textarea value={draft.details} onChange={(event) => update({ details: event.target.value })} placeholder={t("editor.detailsPlaceholder")} rows={5} /></label>
+        <section className="field-group">
+          <span>{t("editor.contexts")}</span>
+          <DevotionalContextChips
+            selected={draft.contexts}
+            label={t("editor.contexts")}
+            onToggle={(context) => update({ contexts: draft.contexts.includes(context) ? draft.contexts.filter((item) => item !== context) : [...draft.contexts, context] })}
+          />
+          <small>{t("editor.contextsHint")}</small>
+        </section>
         <TargetFields value={draft} showHint onChange={update} />
         {canChooseName ? <label className="choice-row"><input type="checkbox" checked={draft.listDisplay === "name"} onChange={(event) => update({ listDisplay: event.target.checked ? "name" : "arabic" })} /><span className="choice-control" aria-hidden="true"><i /></span><span>{t("editor.showName")}</span></label> : null}
         {error ? <p className="form-error" role="alert">{error}</p> : null}

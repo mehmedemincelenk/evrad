@@ -9,6 +9,7 @@ interface TrackableModuleLayoutProps {
   children: ReactNode;
   footer?: ReactNode;
   status?: ReactNode;
+  toolbar?: ReactNode;
 }
 
 export function TrackableModuleLayout({
@@ -20,11 +21,13 @@ export function TrackableModuleLayout({
   children,
   footer,
   status,
+  toolbar,
 }: TrackableModuleLayoutProps) {
   return (
     <>
       <section className="module-screen" aria-labelledby="page-title">
         {header}
+        {!loading ? toolbar : null}
         {loading ? loadingState : hasItems ? <div className="trackable-list">{children}</div> : emptyState}
         {footer}
       </section>

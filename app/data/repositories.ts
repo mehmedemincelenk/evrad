@@ -2,9 +2,17 @@ import type { BookItem, DevotionalItem, DevotionalModuleId, TrackableRepository 
 import { createTrackableRepository } from "./trackable-repository";
 
 export const devotionalRepositories: Record<DevotionalModuleId, TrackableRepository<DevotionalItem>> = {
-  dhikr: createTrackableRepository("dhikr"),
-  prayers: createTrackableRepository("prayers"),
-  memorization: createTrackableRepository("memorization"),
+  dhikr: createDevotionalRepository("dhikr"),
+  prayers: createDevotionalRepository("prayers"),
+  memorization: createDevotionalRepository("memorization"),
 };
 
 export const bookRepository = createTrackableRepository<BookItem>("books");
+
+function createDevotionalRepository(moduleId: DevotionalModuleId): TrackableRepository<DevotionalItem> {
+  const repository = createTrackableRepository<DevotionalItem>(moduleId);
+  return {
+    ...repository,
+    load: async () => (await repository.load()).map((item) => ({ ...item, contexts: item.contexts ?? [] })),
+  };
+}
