@@ -39,7 +39,6 @@ function DevotionalScreen({ moduleId, editorMode }: { moduleId: DevotionalModule
         module={module}
         itemLabel={state.itemLabel}
         storageReady={collection.storageReady}
-        today={collection.today}
         hasItems={collection.items.length > 0}
         sorting={sorting}
         toolbar={collection.items.length > 0 ? (

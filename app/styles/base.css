@@ -129,12 +129,4 @@ h1 {
   line-height: 0.95;
 }
 
-.date-line {
-  margin: 0.75rem 0 0;
-  color: var(--text-soft);
-  font-family: Iowan Old Style, Baskerville, Georgia, serif;
-  font-size: 0.94rem;
-  text-transform: capitalize;
-}
-
 .dayline { margin: 0.35rem 0 0; color: var(--muted); font-size: 0.85rem; }

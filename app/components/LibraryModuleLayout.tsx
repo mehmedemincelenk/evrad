@@ -11,7 +11,6 @@ export function LibraryModuleLayout({
   module,
   itemLabel,
   storageReady,
-  today,
   hasItems,
   sorting,
   toolbar,
@@ -20,7 +19,6 @@ export function LibraryModuleLayout({
   module: TrackableModuleDefinition;
   itemLabel: string;
   storageReady: boolean;
-  today: Date | null;
   hasItems: boolean;
   sorting: { draggingId: string | null; announcement: string };
   toolbar?: ReactNode;
@@ -29,7 +27,7 @@ export function LibraryModuleLayout({
   const title = t(module.copy.title);
   return (
     <TrackableModuleLayout
-      header={<ModuleScreenHeader eyebrow={t(module.copy.eyebrow)} title={title} tagline={t(module.copy.tagline)} today={today} />}
+      header={<ModuleScreenHeader eyebrow={t(module.copy.eyebrow)} title={title} tagline={t(module.copy.tagline)} />}
       loading={!storageReady}
       hasItems={hasItems}
       loadingState={<StorageLoading label={t("loading.generic", { module: title })} />}

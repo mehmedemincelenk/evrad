@@ -5,12 +5,10 @@ import { getLocalDateKey } from "../core/date";
 
 export function useLocalDay() {
   const [dateKey, setDateKey] = useState(() => getLocalDateKey());
-  const [today, setToday] = useState<Date | null>(null);
 
   useEffect(() => {
     const checkDate = () => {
       const nextDate = new Date();
-      setToday(nextDate);
       setDateKey(getLocalDateKey(nextDate));
     };
     checkDate();
@@ -25,5 +23,5 @@ export function useLocalDay() {
     };
   }, []);
 
-  return { dateKey, today };
+  return dateKey;
 }

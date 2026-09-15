@@ -4,11 +4,3 @@ export function getLocalDateKey(date = new Date()): string {
   const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 }
-
-export function formatLongDate(date = new Date()): string {
-  return new Intl.DateTimeFormat("tr-TR", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-  }).format(date);
-}

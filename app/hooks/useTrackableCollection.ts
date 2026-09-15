@@ -22,7 +22,7 @@ export function useTrackableCollection<T extends TrackableEntity>({
   const [completionsReady, setCompletionsReady] = useState(false);
   const itemsRef = useRef(items);
   const completeIdsRef = useRef(completeIds);
-  const { dateKey, today } = useLocalDay();
+  const dateKey = useLocalDay();
   const { expandedIds, toggleExpanded, forgetExpanded } = useExpandableItems();
 
   const replaceItems = useCallback((next: T[]) => {
@@ -102,8 +102,6 @@ export function useTrackableCollection<T extends TrackableEntity>({
     toggleComplete,
     forgetItemState,
     storageReady: itemsReady && completionsReady,
-    today,
-    dateKey,
     sorting,
   };
 }
