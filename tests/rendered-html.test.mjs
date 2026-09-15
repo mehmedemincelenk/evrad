@@ -24,6 +24,10 @@ test("server-renders the Zikirlerim application", async () => {
   assert.match(html, /GÜNÜN VİRDİ/);
   assert.match(html, /Zikirlerim yükleniyor/);
   assert.match(html, /Bölüm menüsünü aç/);
+  assert.match(html, /name="apple-mobile-web-app-capable" content="yes"/);
+  assert.match(html, /name="mobile-web-app-capable" content="yes"/);
+  assert.equal((html.match(/name="mobile-web-app-capable"/g) ?? []).length, 1);
+  assert.match(html, /name="apple-mobile-web-app-status-bar-style" content="black"/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton|Your site is taking shape/i);
 });
 
@@ -62,6 +66,7 @@ test("PWA manifest and architecture declarations stay aligned", async () => {
   ]);
   const manifest = JSON.parse(manifestText);
   assert.equal(manifest.name, "Zikirlerim");
+  assert.equal(manifest.id, "/");
   assert.equal(manifest.start_url, "/");
   assert.equal(manifest.display, "standalone");
   assert.equal((registryText.match(/createTrackableModule\(/g) ?? []).length, 5);
@@ -200,12 +205,13 @@ test("PWA updates replace stale application shells instead of preserving a stuck
     readFile(new URL("../public/sw.js", import.meta.url), "utf8"),
     readFile(new URL("../app/hooks/usePwaUpdate.ts", import.meta.url), "utf8"),
   ]);
-  assert.match(serviceWorkerText, /zikirlerim-shell-v8/);
+  assert.match(serviceWorkerText, /zikirlerim-shell-v9/);
   assert.match(serviceWorkerText, /caches\.match\(request\)[\s\S]*cached \?\? \(await networkResponse\)/);
   assert.match(serviceWorkerText, /self\.registration\.active \? undefined : self\.skipWaiting\(\)/);
   assert.match(serviceWorkerText, /type === "SKIP_WAITING"/);
   assert.match(updateHookText, /updateViaCache: "none"/);
   assert.match(updateHookText, /visibilitychange/);
+  assert.doesNotMatch(updateHookText, /icon-192|icon-512|NotoNaskhArabic/);
 });
 
 test("source modules stay bounded and unused database scaffolding stays out", async () => {

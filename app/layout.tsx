@@ -24,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
       ],
       apple: [{ url: "/apple-touch-icon.png", type: "image/png", sizes: "180x180" }],
     },
-    appleWebApp: { capable: true, statusBarStyle: "black-translucent", title },
+    appleWebApp: { capable: true, statusBarStyle: "black", title },
     formatDetection: { telephone: false },
     openGraph: {
       title,
@@ -53,6 +53,9 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="tr">
+      <head>
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+      </head>
       <body data-theme="dark" data-palette="default">{children}</body>
     </html>
   );

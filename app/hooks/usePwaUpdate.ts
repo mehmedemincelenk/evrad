@@ -3,14 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { modules } from "../core/module-registry";
 
-const coreUrls = [
-  "/",
+const moduleUrls = [
   ...modules.flatMap((module) => [module.route, module.discoverRoute, module.create?.route].filter((route): route is string => Boolean(route))),
-  "/manifest.webmanifest",
-  "/icon-192.png",
-  "/icon-512.png",
-  "/fonts/NotoNaskhArabic-Regular.ttf",
-  "/fonts/NotoNaskhArabic-Bold.ttf",
 ];
 
 export function usePwaUpdate() {
@@ -40,7 +34,7 @@ export function usePwaUpdate() {
       const resourceUrls = performance.getEntriesByType("resource")
         .map((entry) => entry.name)
         .filter((url) => url.startsWith(window.location.origin));
-      ready.active?.postMessage({ type: "CACHE_URLS", urls: [...coreUrls, ...resourceUrls] });
+      ready.active?.postMessage({ type: "CACHE_URLS", urls: [...moduleUrls, ...resourceUrls] });
       registration.update().catch(() => undefined);
     }).catch(() => undefined);
 

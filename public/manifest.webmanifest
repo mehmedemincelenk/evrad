@@ -1,6 +1,7 @@
 {
   "name": "Zikirlerim",
   "short_name": "Zikirlerim",
+  "id": "/",
   "description": "Zikir, dua, ezber ve okumalarını takip et; yeni içerikler keşfet.",
   "lang": "tr",
   "dir": "ltr",
