@@ -24,7 +24,7 @@
 .field-group textarea { min-height: 6.5rem; padding: 0.85rem 0.9rem; line-height: 1.55; resize: vertical; }
 .field-group input::placeholder, .field-group textarea::placeholder { color: #60636b; }
 .field-group input:focus, .field-group textarea:focus { border-color: rgba(255, 253, 239, 0.34); box-shadow: 0 0 0 3px rgba(255, 253, 239, 0.055); }
-.field-group .arabic-field { min-height: 8rem; font-family: "Noto Naskh Arabic", "Geeza Pro", serif; font-size: 1.65rem; line-height: 1.8; text-align: right; }
+.field-group .arabic-field { min-height: 8rem; font-family: var(--font-arabic); font-size: 1.55rem; line-height: 1.75; text-align: right; }
 .target-field { display: grid; }
 .target-field small { color: var(--muted); font-size: 0.72rem; }
 

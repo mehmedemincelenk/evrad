@@ -1,9 +1,7 @@
-"use client";
-
-import { useEffect } from "react";
 import type { ContentSpace } from "../core/types";
 import { t } from "../core/i18n";
 import { PlusMinusIcon } from "./PlusMinusIcon";
+import { TransientMenuBackdrop } from "./TransientMenuBackdrop";
 
 export function TransientBottomBar({
   open,
@@ -22,16 +20,9 @@ export function TransientBottomBar({
   addLabel: string | null;
   onAdd: () => void;
 }) {
-  useEffect(() => {
-    if (!open) return;
-    const onKeyDown = (event: KeyboardEvent) => event.key === "Escape" && onClose();
-    document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
-  }, [open, onClose]);
-
   return (
     <>
-      {open ? <button className="menu-scrim" aria-label={t("menu.close")} type="button" onClick={onClose} /> : null}
+      {open ? <TransientMenuBackdrop label={t("menu.close")} onClose={onClose} /> : null}
       <nav
         className={`transient-bottom-bar${open ? " is-open" : ""}`}
         aria-label={t("menu.label")}
@@ -39,19 +30,17 @@ export function TransientBottomBar({
         onPointerDown={onActivity}
         onFocusCapture={onActivity}
       >
-        <div className="space-toggle" role="group" aria-label={t("menu.spaceLabel")}>
+        <div className="bottom-destinations">
           {(["library", "discover"] as const).map((space) => (
             <button
               key={space}
               type="button"
-              className={activeSpace === space ? "is-selected" : ""}
-              aria-pressed={activeSpace === space}
-              aria-label={t(space === "library" ? "menu.library" : "menu.discover")}
-              data-tooltip={t(space === "library" ? "menu.library" : "menu.discover")}
+              className={`bottom-destination${activeSpace === space ? " is-selected" : ""}`}
+              aria-current={activeSpace === space ? "page" : undefined}
               onClick={() => onSpace(space)}
               tabIndex={open ? 0 : -1}
             >
-              <span className={`space-glyph is-${space}`} aria-hidden="true">{space === "library" ? "▦" : "✦"}</span>
+              {t(space === "library" ? "menu.library" : "menu.discover")}
             </button>
           ))}
         </div>

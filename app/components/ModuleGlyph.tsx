@@ -1,10 +1,10 @@
 import type { IconName } from "../core/types";
 
 const glyphs: Record<IconName, string> = {
-  dhikr: "۞",
-  prayer: "☾",
-  memory: "◈",
-  book: "▤",
+  dhikr: "📿",
+  prayer: "🤲",
+  memory: "🧠",
+  book: "📖",
   game: "✦",
 };
 

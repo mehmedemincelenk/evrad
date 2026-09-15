@@ -16,7 +16,7 @@
   min-height: 2.35rem;
   padding: 0 0.8rem;
   border: 1px solid var(--chip-line);
-  border-radius: 0.65rem;
+  border-radius: 0.28rem;
   background: var(--chip-surface);
   color: var(--chip-text);
   cursor: pointer;

@@ -1,12 +1,10 @@
-const CACHE_NAME = "zikirlerim-shell-v10";
+const CACHE_NAME = "zikirlerim-shell-v11";
 const CORE_URLS = [
   "/",
   "/zikirler",
   "/manifest.webmanifest",
   "/icon-192.png",
   "/icon-512.png",
-  "/fonts/NotoNaskhArabic-Regular.ttf",
-  "/fonts/NotoNaskhArabic-Bold.ttf",
 ];
 
 self.addEventListener("install", (event) => {

@@ -33,6 +33,13 @@ export function useTransientMenu() {
     registerActivity();
   }, [registerActivity]);
 
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (event: KeyboardEvent) => event.key === "Escape" && closeMenu();
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [closeMenu, open]);
+
   useEffect(() => clearTimer, [clearTimer]);
 
   return { open, openMenu, closeMenu, registerActivity };
