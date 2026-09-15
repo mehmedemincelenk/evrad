@@ -13,7 +13,7 @@ export function DevotionalDetails({
   onChangeFont,
   actions,
 }: {
-  item: Pick<DevotionalItem, "name" | "arabic" | "translation" | "details">;
+  item: Pick<DevotionalItem, "name" | "arabic" | "translation" | "details" | "source">;
   fontLevel: 0 | 1 | 2 | 3 | 4;
   onChangeFont: (direction: -1 | 1) => void;
   actions?: ReactNode;
@@ -28,11 +28,12 @@ export function DevotionalDetails({
             <span>{t("detail.fontLevel", { level: fontLevel + 1 })}</span>
             <button type="button" onClick={() => onChangeFont(1)} aria-label={t("detail.fontLarger")} disabled={fontLevel === 4}>A+</button>
           </div>
-          <p className="expanded-arabic" lang="ar" dir="rtl" style={{ fontSize: fontSizes[fontLevel] }}>{item.arabic}</p>
+          <p className="expanded-arabic" dir="auto" style={{ fontSize: fontSizes[fontLevel] }}>{item.arabic}</p>
         </DetailBlock>
       ) : null}
       {item.translation ? <DetailBlock label={t("detail.translation")}><p>{item.translation}</p></DetailBlock> : null}
       {item.details ? <DetailBlock label={t("detail.details")}><p className="details-copy">{item.details}</p></DetailBlock> : null}
+      {item.source ? <DetailBlock label={t("detail.source")}><p>{item.source}</p></DetailBlock> : null}
       {actions}
     </ExpandableCardContent>
   );

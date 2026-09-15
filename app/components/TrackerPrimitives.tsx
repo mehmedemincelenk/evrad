@@ -71,7 +71,7 @@ export function CollapsedCardSummary({
       aria-label={t(expanded ? "card.close" : "card.open", { title })}
     >
       <TargetBadge count={targetCount} unit={targetUnit} unitLabel={targetUnitLabel} />
-      <span className={arabic ? "arabic-preview" : "name-preview"} lang={arabic ? "ar" : "tr"} dir={arabic ? "rtl" : "ltr"}>
+      <span className={arabic ? "arabic-preview" : "name-preview"} dir="auto">
         {title}
       </span>
     </button>

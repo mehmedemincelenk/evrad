@@ -1,13 +1,14 @@
 import type { TrackableModuleId } from "../core/types";
 
 const DB_NAME = "zikirlerim";
-const DB_VERSION = 5;
+const DB_VERSION = 6;
 
 export const ENTITY_STORES: Record<TrackableModuleId, string> = {
   dhikr: "dhikrs",
   prayers: "prayers",
   books: "books",
   memorization: "memorization",
+  poetry: "poetry",
 };
 export const COMPLETION_STORE = "completions";
 

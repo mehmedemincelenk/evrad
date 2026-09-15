@@ -20,6 +20,7 @@ export function devotionalFromDraft(
     arabic: draft.arabic || null,
     translation: draft.translation || null,
     details: draft.details || null,
+    source: draft.source || null,
     ...targetFromDraft(draft),
     listDisplay: draft.listDisplay,
     expandedArabicSize: existing?.expandedArabicSize ?? 1,

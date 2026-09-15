@@ -9,7 +9,7 @@ import type { DevotionalDraft, DevotionalItem } from "../../core/types";
 import { DevotionalContextChips } from "./DevotionalContextChips";
 
 const emptyDraft: DevotionalDraft = {
-  name: "", arabic: "", translation: "", details: "", targetCount: "",
+  name: "", arabic: "", translation: "", details: "", source: "", targetCount: "",
   targetUnit: "count", targetUnitLabel: "", listDisplay: "arabic",
   contexts: [],
 };
@@ -18,7 +18,7 @@ function createDraft(item: DevotionalItem | null): DevotionalDraft {
   if (!item) return emptyDraft;
   return {
     name: item.name ?? "", arabic: item.arabic ?? "", translation: item.translation ?? "",
-    details: item.details ?? "", targetCount: item.targetCount?.toString() ?? "",
+    details: item.details ?? "", source: item.source ?? "", targetCount: item.targetCount?.toString() ?? "",
     targetUnit: item.targetUnit, targetUnitLabel: item.targetUnitLabel ?? "", listDisplay: item.listDisplay,
     contexts: item.contexts,
   };
@@ -52,7 +52,7 @@ export function DevotionalEditor({
       await onSave({
         ...draft,
         name: draft.name.trim(), arabic: draft.arabic.trim(), translation: draft.translation.trim(),
-        details: draft.details.trim(), targetCount: draft.targetCount.trim(), targetUnitLabel: draft.targetUnitLabel.trim(),
+        details: draft.details.trim(), source: draft.source.trim(), targetCount: draft.targetCount.trim(), targetUnitLabel: draft.targetUnitLabel.trim(),
         listDisplay: !hasArabic ? "name" : !hasName ? "arabic" : draft.listDisplay,
       });
     } catch {
@@ -69,9 +69,10 @@ export function DevotionalEditor({
     >
       <form className="entity-form" onSubmit={(event) => void submit(event)} noValidate aria-busy={saving}>
         <label className="field-group"><span>{t("editor.name")}</span><input value={draft.name} onChange={(event) => update({ name: event.target.value })} placeholder={t("editor.namePlaceholder")} autoComplete="off" /></label>
-        <label className="field-group"><span>{t("editor.arabic")}</span><textarea className="arabic-field" value={draft.arabic} onChange={(event) => update({ arabic: event.target.value })} placeholder={t("editor.arabicPlaceholder")} lang="ar" dir="rtl" rows={4} /></label>
+        <label className="field-group"><span>{t("editor.arabic")}</span><textarea className="arabic-field" value={draft.arabic} onChange={(event) => update({ arabic: event.target.value })} placeholder={t("editor.arabicPlaceholder")} dir="auto" rows={4} /></label>
         <label className="field-group"><span>{t("editor.translation")}</span><textarea value={draft.translation} onChange={(event) => update({ translation: event.target.value })} placeholder={t("editor.translationPlaceholder")} rows={3} /></label>
         <label className="field-group"><span>{t("editor.details")}</span><textarea value={draft.details} onChange={(event) => update({ details: event.target.value })} placeholder={t("editor.detailsPlaceholder")} rows={5} /></label>
+        <label className="field-group"><span>{t("editor.source")}</span><input value={draft.source} onChange={(event) => update({ source: event.target.value })} placeholder={t("editor.sourcePlaceholder")} autoComplete="off" /></label>
         <section className="field-group">
           <span>{t("editor.contexts")}</span>
           <DevotionalContextChips

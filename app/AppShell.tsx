@@ -18,12 +18,14 @@ export function AppShell({
   children,
   activeModule,
   activeSpace = "library",
+  pinnedNavigation = false,
 }: {
   children: ReactNode;
-  activeModule: ModuleId;
-  activeSpace?: ContentSpace;
+  activeModule: ModuleId | null;
+  activeSpace?: ContentSpace | null;
+  pinnedNavigation?: boolean;
 }) {
-  const activeDefinition = getModule(activeModule);
+  const activeDefinition = activeModule ? getModule(activeModule) : null;
   const bottomMenu = useTransientMenu();
   const [bottomMenuPage, setBottomMenuPage] = useState<"actions" | "modules">("actions");
   const { updateReady, activateUpdate } = usePwaUpdate();
@@ -41,18 +43,23 @@ export function AppShell({
 
   const handleSpace = (space: ContentSpace) => {
     bottomMenu.closeMenu();
-    if (space !== activeSpace) navigateTo(getModuleRoute(activeModule, space));
+    if (space !== activeSpace || !activeModule) navigateTo(getModuleRoute(activeModule ?? "dhikr", space));
   };
 
   const handleAdd = () => {
-    if (!activeDefinition.create) return;
+    if (!activeDefinition?.create) return;
     bottomMenu.closeMenu();
     navigateTo(activeDefinition.create.route);
   };
 
   const handleModule = (moduleId: ModuleId) => {
     bottomMenu.closeMenu();
-    if (moduleId !== activeModule) navigateTo(getModuleRoute(moduleId, activeSpace));
+    if (moduleId !== activeModule) navigateTo(getModuleRoute(moduleId, activeSpace ?? "library"));
+  };
+
+  const handleHome = () => {
+    bottomMenu.closeMenu();
+    if (activeModule !== null) navigateTo("/");
   };
 
   const handleBackup = () => {
@@ -71,23 +78,25 @@ export function AppShell({
         <div className="ambient ambient-one" />
         <div className="ambient ambient-two" />
         {children}
-        {!bottomMenu.open ? (
+        {!pinnedNavigation && !bottomMenu.open ? (
           <EdgeMenuLauncher
             label={t("menu.openSpaces")}
             onClick={openBottomMenu}
           />
         ) : null}
         <TransientBottomBar
-          open={bottomMenu.open}
+          open={pinnedNavigation || bottomMenu.open}
           activeSpace={activeSpace}
           activeModule={activeModule}
+          pinned={pinnedNavigation}
           page={bottomMenuPage}
           onPageChange={setBottomMenuPage}
           onClose={bottomMenu.closeMenu}
           onActivity={bottomMenu.registerActivity}
           onSpace={handleSpace}
+          onHome={handleHome}
           onModule={handleModule}
-          addLabel={activeDefinition.create ? t(activeDefinition.create.label) : null}
+          addLabel={activeDefinition?.create ? t(activeDefinition.create.label) : null}
           onAdd={handleAdd}
           backupLabel={t("backup.save")}
           backupSaving={backup.saving}

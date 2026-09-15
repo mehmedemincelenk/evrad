@@ -1,31 +1,32 @@
 "use client";
 
-import { useState } from "react";
-import { getModuleRoute, modules } from "../../core/module-registry";
+import { AppShell } from "../../AppShell";
+import { StorageLoading } from "../../components/StorageLoading";
 import { t } from "../../core/i18n";
-import type { ContentSpace } from "../../core/types";
+import { DailySelectionSection } from "./DailySelectionSection";
+import { useDailySelection } from "./useDailySelection";
 
 export function HomeScreen() {
-  const [space, setSpace] = useState<ContentSpace>("library");
+  const { ready, selection, refresh } = useDailySelection();
+  const hasContent = Boolean(selection && (selection.dhikr.length || selection.prayer || selection.surah || selection.poem));
   return (
-    <section className="future-home" aria-labelledby="home-title">
-      <header>
-        <p className="eyebrow">{t("home.eyebrow")}</p>
-        <h1 id="home-title">{t("home.title")}</h1>
-        <p>{t("home.subtitle")}</p>
-      </header>
-      <div className="home-space-toggle" role="group" aria-label={t("menu.spaceLabel")}>
-        {(["library", "discover"] as const).map((value) => (
-          <button type="button" key={value} className={space === value ? "is-selected" : ""} aria-pressed={space === value} onClick={() => setSpace(value)}>
-            {t(value === "library" ? "menu.library" : "menu.discover")}
+    <AppShell activeModule={null} activeSpace={null} pinnedNavigation>
+      <section className="daily-home" aria-labelledby="home-title">
+        <header className="daily-home-header">
+          <div><p className="eyebrow">{t("home.eyebrow")}</p><h1 id="home-title">{t("home.title")}</h1></div>
+          <button type="button" className="daily-refresh" onClick={refresh} aria-label={t("home.refresh")} title={t("home.refresh")} disabled={!ready}>
+            <span aria-hidden="true">↻</span>
           </button>
-        ))}
-      </div>
-      <div className="home-modules">
-        {modules.map((module) => (
-          <a href={getModuleRoute(module.id, space)} key={module.id}>{t(module.copy.menu)}<span aria-hidden="true">→</span></a>
-        ))}
-      </div>
-    </section>
+        </header>
+        {!ready ? <StorageLoading label={t("home.loading")} /> : hasContent && selection ? (
+          <div className="daily-selection">
+            <DailySelectionSection title={t("home.dhikr")} items={selection.dhikr} kind="dhikr" />
+            <DailySelectionSection title={t("home.prayer")} items={selection.prayer ? [selection.prayer] : []} kind="prayer" />
+            <DailySelectionSection title={t("home.surah")} items={selection.surah ? [selection.surah] : []} kind="surah" />
+            <DailySelectionSection title={t("home.poem")} items={selection.poem ? [selection.poem] : []} kind="poem" />
+          </div>
+        ) : <p className="daily-empty">{t("home.empty")}</p>}
+      </section>
+    </AppShell>
   );
 }

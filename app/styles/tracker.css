@@ -204,6 +204,7 @@
 .detail-label { margin: 0 0 0.55rem; color: var(--muted-deep); font-size: 0.64rem; font-weight: 750; letter-spacing: 0.13em; text-transform: uppercase; }
 .detail-value > p { margin: 0; color: var(--text-soft); font-size: 0.94rem; line-height: 1.72; }
 .detail-value > p.expanded-arabic { color: var(--text); font-family: var(--font-arabic); line-height: 1.72; text-align: right; white-space: pre-wrap; word-break: normal; overflow-wrap: anywhere; }
+.detail-value > p.expanded-arabic:dir(ltr) { font-family: Iowan Old Style, Baskerville, Georgia, serif; line-height: 1.8; text-align: left; }
 .details-copy { white-space: pre-line; }
 
 .arabic-detail .detail-label { margin-bottom: 0; }

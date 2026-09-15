@@ -1,10 +1,10 @@
 import type { TranslationKey } from "./i18n";
 
-export type ModuleId = "prayers" | "books" | "memorization" | "dhikr" | "games";
+export type ModuleId = "prayers" | "books" | "memorization" | "dhikr" | "poetry" | "games";
 export type TrackableModuleId = Exclude<ModuleId, "games">;
 export type DevotionalModuleId = Exclude<TrackableModuleId, "books">;
 export type ContentSpace = "library" | "discover";
-export type IconName = "prayer" | "book" | "memory" | "dhikr" | "game";
+export type IconName = "prayer" | "book" | "memory" | "dhikr" | "poetry" | "game";
 export type TargetUnit = "count" | "custom";
 export type ArabicFontLevel = 0 | 1 | 2 | 3 | 4;
 export type DevotionalContext =
@@ -81,6 +81,7 @@ export interface DevotionalItem extends TrackableEntity {
   arabic: string | null;
   translation: string | null;
   details: string | null;
+  source: string | null;
   targetCount: number | null;
   targetUnit: TargetUnit;
   targetUnitLabel: string | null;
@@ -94,6 +95,7 @@ export interface DevotionalDraft extends TargetDraft {
   arabic: string;
   translation: string;
   details: string;
+  source: string;
   listDisplay: "arabic" | "name";
   contexts: DevotionalContext[];
 }

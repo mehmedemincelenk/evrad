@@ -6,6 +6,7 @@ export interface BackupPayload {
     prayers: DevotionalItem[];
     memorization: DevotionalItem[];
     books: BookItem[];
+    poetry: DevotionalItem[];
   };
   completions: DailyCompletion[];
 }

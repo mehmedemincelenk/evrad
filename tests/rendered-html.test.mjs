@@ -73,19 +73,19 @@ test("devotional contexts are shared by editors, library filters, discovery, and
   assert.match(i18nText, /Hedef için 1 veya daha büyük bir tam sayı yazmalısın/);
 });
 
-test("root route renders the library and discovery home", async () => {
+test("root route renders the pinned daily page", async () => {
   const response = await render("/");
   assert.equal(response.status, 200);
   const html = await response.text();
-  assert.match(html, /Kütüphane/);
-  assert.match(html, /Keşfet/);
-  assert.match(html, /Dualar/);
-  assert.match(html, /Oyunlar/);
-  assert.match(html, /href="\/zikirler"/);
+  assert.match(html, /Günün Sayfası/);
+  assert.match(html, /aria-label="Kütüphane"/);
+  assert.match(html, /aria-label="Keşfet"/);
+  assert.match(html, /transient-bottom-bar is-open is-pinned/);
+  assert.match(html, /Günün sayfasını yenile/);
 });
 
-test("prayer, memorization, book, game, and discovery routes are active", async () => {
-  for (const pathname of ["/dualar", "/ezberler", "/kitaplar", "/oyunlar", "/kesfet/zikirler", "/kesfet/dualar", "/kesfet/ezberler", "/kesfet/kitaplar", "/kesfet/oyunlar"]) {
+test("prayer, surah, poetry, book, game, and discovery routes are active", async () => {
+  for (const pathname of ["/dualar", "/sureler", "/siirler", "/kitaplar", "/oyunlar", "/kesfet/zikirler", "/kesfet/dualar", "/kesfet/sureler", "/kesfet/siirler", "/kesfet/kitaplar", "/kesfet/oyunlar"]) {
     const response = await render(pathname);
     assert.equal(response.status, 200, pathname);
   }
@@ -102,10 +102,10 @@ test("PWA manifest and architecture declarations stay aligned", async () => {
   assert.equal(manifest.id, "/");
   assert.equal(manifest.start_url, "/");
   assert.equal(manifest.display, "standalone");
-  assert.equal((registryText.match(/createTrackableModule\(/g) ?? []).length, 5);
+  assert.equal((registryText.match(/createTrackableModule\(/g) ?? []).length, 6);
   assert.match(registryText, /id: "games"[\s\S]*create: null/);
   assert.doesNotMatch(registryText, /enabled:|supportsCreate|createRoute/);
-  assert.match(typesText, /"prayers"[\s\S]*"books"[\s\S]*"memorization"[\s\S]*"dhikr"[\s\S]*"games"/);
+  assert.match(typesText, /"prayers"[\s\S]*"books"[\s\S]*"memorization"[\s\S]*"dhikr"[\s\S]*"poetry"[\s\S]*"games"/);
 });
 
 test("target units and long-press sorting remain modular", async () => {
@@ -182,8 +182,9 @@ test("new modules can reuse navigation, storage, layout, and collection behavior
   ]);
   assert.match(registryText, /discoverRoute/);
   assert.match(bottomBarText, /onModule\(id\)/);
-  assert.match(shellText, /navigateTo\(getModuleRoute\(activeModule, space\)\)/);
-  assert.match(homeText, /getModuleRoute\(module\.id, space\)/);
+  assert.match(shellText, /getModuleRoute\(activeModule \?\? "dhikr", space\)/);
+  assert.match(homeText, /useDailySelection/);
+  assert.match(homeText, /pinnedNavigation/);
   assert.doesNotMatch(homeText, /next\/link/);
   assert.match(repositoryText, /createTrackableRepository/);
   assert.match(completionText, /loadIds\(itemType: TrackableModuleId/);
@@ -227,9 +228,10 @@ test("IndexedDB access is centralized and destructive updates stay atomic", asyn
   assert.match(indexedDbText, /database\.onversionchange/);
 });
 
-test("the v5 migration clears legacy dhikr records exactly once", async () => {
+test("the v6 store upgrade preserves the one-time legacy dhikr cleanup", async () => {
   const indexedDbText = await readFile(new URL("../app/data/indexed-db.ts", import.meta.url), "utf8");
-  assert.match(indexedDbText, /DB_VERSION = 5/);
+  assert.match(indexedDbText, /DB_VERSION = 6/);
+  assert.match(indexedDbText, /poetry: "poetry"/);
   assert.match(indexedDbText, /event\.oldVersion > 0 && event\.oldVersion < 5/);
   assert.match(indexedDbText, /objectStore\(ENTITY_STORES\.dhikr\)\.clear\(\)/);
   assert.match(indexedDbText, /cursor\.value\.itemType === "dhikr"/);
@@ -240,7 +242,7 @@ test("PWA updates replace stale application shells instead of preserving a stuck
     readFile(new URL("../public/sw.js", import.meta.url), "utf8"),
     readFile(new URL("../app/hooks/usePwaUpdate.ts", import.meta.url), "utf8"),
   ]);
-  assert.match(serviceWorkerText, /zikirlerim-shell-v13/);
+  assert.match(serviceWorkerText, /zikirlerim-shell-v14/);
   assert.match(serviceWorkerText, /caches\.match\(request\)[\s\S]*cached \?\? \(await networkResponse\)/);
   assert.match(serviceWorkerText, /self\.registration\.active \? undefined : self\.skipWaiting\(\)/);
   assert.match(serviceWorkerText, /type === "SKIP_WAITING"/);
@@ -256,7 +258,7 @@ test("portable backups include every library and completion record", async () =>
     readFile(new URL("../app/components/TransientBottomBar.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/hooks/usePersistentStorage.ts", import.meta.url), "utf8"),
   ]);
-  assert.match(repositoryText, /\["dhikr", "prayers", "memorization", "books"\]/);
+  assert.match(repositoryText, /\["dhikr", "prayers", "memorization", "books", "poetry"\]/);
   assert.match(repositoryText, /COMPLETION_STORE/);
   assert.match(fileText, /SHA-256/);
   assert.match(fileText, /\.zikirlerim/);

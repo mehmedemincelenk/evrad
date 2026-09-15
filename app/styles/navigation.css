@@ -32,6 +32,7 @@
 .module-glyph.is-prayer { font-size: 1.18rem; transform: translateY(-0.03rem); }
 .module-glyph.is-memory { font-size: 1.12rem; }
 .module-glyph.is-book { font-size: 1.12rem; }
+.module-glyph.is-poetry { font-family: Iowan Old Style, Baskerville, Georgia, serif; font-size: 1.4rem; }
 
 .menu-scrim { position: fixed; inset: 0; z-index: 30; width: 100%; border: 0; background: rgba(2, 3, 5, 0.38); }
 
@@ -58,9 +59,22 @@
 }
 
 .transient-bottom-bar.is-open { opacity: 1; transform: translate(-50%, 0); visibility: visible; }
-.bottom-destinations { display: flex; gap: 0.3rem; }
-.bottom-destination { min-height: 2.75rem; padding: 0 0.9rem; border: 1px solid var(--line); border-radius: var(--menu-radius); background: transparent; color: var(--text-soft); cursor: pointer; font-size: 0.75rem; font-weight: 700; touch-action: manipulation; }
+.transient-bottom-bar.is-pinned { box-shadow: 0 1rem 3.5rem rgba(0, 0, 0, 0.5), 0 0 2.5rem rgba(255, 250, 220, 0.05); }
+.bottom-destinations { display: flex; flex: 0 0 auto; gap: 0.28rem; padding-right: 0.28rem; border-right: 1px solid var(--line); }
+.bottom-destination { display: grid; width: 2.6rem; min-height: 2.75rem; place-items: center; padding: 0; border: 1px solid var(--line); border-radius: var(--menu-radius); background: transparent; color: var(--text-soft); cursor: pointer; touch-action: manipulation; }
 .bottom-destination.is-selected { border-color: var(--line-strong); background: var(--light); color: #15171c; box-shadow: 0 0 1rem rgba(255, 253, 240, 0.13); }
+.navigation-glyph { display: grid; width: 1.2rem; height: 1.2rem; place-items: center; font-size: 1.15rem; line-height: 1; }
+.navigation-glyph.is-home { font-size: 1.35rem; transform: translateY(-0.05rem); }
+.navigation-glyph.is-library { font-size: 1.05rem; letter-spacing: -0.1em; }
+.navigation-glyph.is-discover { font-size: 1.05rem; }
+.bottom-switcher { display: grid; grid-template-areas: "stack"; width: 5.8rem; overflow: hidden; transition: width 420ms cubic-bezier(0.22, 1, 0.36, 1); }
+.bottom-switcher.has-add { width: 8.83rem; }
+.bottom-switcher.is-modules { width: 14.65rem; }
+.bottom-page { grid-area: stack; display: flex; gap: 0.28rem; min-width: max-content; transition: opacity 210ms ease, transform 420ms cubic-bezier(0.22, 1, 0.36, 1); }
+.bottom-page-actions { opacity: 1; transform: translateX(0); }
+.bottom-page-modules { opacity: 0; transform: translateX(105%); pointer-events: none; }
+.bottom-switcher.is-modules .bottom-page-actions { opacity: 0; transform: translateX(-105%); pointer-events: none; }
+.bottom-switcher.is-modules .bottom-page-modules { opacity: 1; transform: translateX(0); pointer-events: auto; }
 .bottom-action-button,
 .bottom-module-button { position: relative; display: grid; width: 2.75rem; min-height: 2.75rem; place-items: center; border: 1px solid rgba(255, 255, 255, 0.16); border-radius: var(--menu-radius); background: transparent; color: var(--light); cursor: pointer; touch-action: manipulation; }
 .bottom-action-button:disabled { cursor: wait; opacity: 0.52; }
@@ -68,6 +82,8 @@
 .bottom-action-button[data-tooltip]:hover::after,
 .bottom-action-button[data-tooltip]:focus-visible::after { opacity: 1; transform: translate(-50%, 0); }
 .bottom-module-buttons { display: flex; gap: 0.28rem; }
+.bottom-page-modules .bottom-action-button,
+.bottom-module-button { width: 2.2rem; }
 .bottom-module-button { color: var(--muted); }
 .bottom-module-button.is-selected { border-color: var(--line-strong); background: var(--light); color: #15171c; box-shadow: 0 0 1rem rgba(255, 253, 240, 0.13); }
 .menu-chevron { display: block; width: 0.55rem; height: 0.55rem; border-top: 1.5px solid currentColor; border-right: 1.5px solid currentColor; }
@@ -85,7 +101,12 @@
 
 @media (max-width: 350px) {
   .transient-bottom-bar { gap: 0.2rem; padding-inline: 0.28rem; }
-  .bottom-destination { padding-inline: 0.65rem; }
+  .bottom-destinations, .bottom-page, .bottom-module-buttons { gap: 0.18rem; }
+  .bottom-destination, .bottom-action-button { width: 2.35rem; }
+  .bottom-module-button { width: 2.15rem; }
+  .bottom-switcher { width: 4.88rem; }
+  .bottom-switcher.has-add { width: 7.42rem; }
+  .bottom-switcher.is-modules { width: 12rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

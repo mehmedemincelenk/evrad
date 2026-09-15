@@ -2,7 +2,7 @@ import type { BookItem, DailyCompletion, DevotionalItem, TrackableModuleId } fro
 import { COMPLETION_STORE, ENTITY_STORES, requestResult, runTransaction } from "../../data/indexed-db";
 import type { BackupPayload } from "./backup-types";
 
-const moduleIds: TrackableModuleId[] = ["dhikr", "prayers", "memorization", "books"];
+const moduleIds: TrackableModuleId[] = ["dhikr", "prayers", "memorization", "books", "poetry"];
 
 export function readBackupPayload(): Promise<BackupPayload> {
   const storeNames = [...Object.values(ENTITY_STORES), COMPLETION_STORE];
@@ -20,6 +20,7 @@ export function readBackupPayload(): Promise<BackupPayload> {
         prayers: records[1] as DevotionalItem[],
         memorization: records[2] as DevotionalItem[],
         books: records[3] as BookItem[],
+        poetry: records[4] as DevotionalItem[],
       },
       completions,
     };
