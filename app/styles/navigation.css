@@ -105,14 +105,24 @@
 .bottom-destinations { display: flex; gap: 0.3rem; }
 .bottom-destination { min-height: 2.75rem; padding: 0 0.9rem; border: 1px solid var(--line); border-radius: 0.55rem; background: transparent; color: var(--text-soft); cursor: pointer; font-size: 0.75rem; font-weight: 700; touch-action: manipulation; }
 .bottom-destination.is-selected { border-color: var(--line-strong); background: var(--light); color: #15171c; box-shadow: 0 0 1rem rgba(255, 253, 240, 0.13); }
-.bottom-add-button { position: relative; display: grid; width: 2.75rem; min-height: 2.75rem; place-items: center; border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 0.82rem; background: transparent; color: var(--light); cursor: pointer; touch-action: manipulation; }
-.bottom-add-button::after { content: attr(data-tooltip); position: absolute; bottom: calc(100% + 0.65rem); left: 50%; padding: 0.35rem 0.5rem; border: 1px solid var(--line); border-radius: 0.45rem; background: #17191f; color: var(--text-soft); font-family: Inter, sans-serif; font-size: 0.62rem; white-space: nowrap; opacity: 0; transform: translate(-50%, 0.25rem); pointer-events: none; transition: 130ms ease; }
-.bottom-add-button:hover::after, .bottom-add-button:focus-visible::after { opacity: 1; transform: translate(-50%, 0); }
+.bottom-add-button,
+.bottom-save-button { position: relative; display: grid; width: 2.75rem; min-height: 2.75rem; place-items: center; border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 0.58rem; background: transparent; color: var(--light); cursor: pointer; touch-action: manipulation; }
+.bottom-save-button:disabled { cursor: wait; opacity: 0.52; }
+.bottom-add-button::after,
+.bottom-save-button::after { content: attr(data-tooltip); position: absolute; bottom: calc(100% + 0.65rem); left: 50%; padding: 0.35rem 0.5rem; border: 1px solid var(--line); border-radius: 0.45rem; background: #17191f; color: var(--text-soft); font-family: Inter, sans-serif; font-size: 0.62rem; white-space: nowrap; opacity: 0; transform: translate(-50%, 0.25rem); pointer-events: none; transition: 130ms ease; }
+.bottom-add-button:hover::after,
+.bottom-add-button:focus-visible::after,
+.bottom-save-button:hover::after,
+.bottom-save-button:focus-visible::after { opacity: 1; transform: translate(-50%, 0); }
 
 .plus-minus-icon { position: relative; display: block; width: 1rem; height: 1rem; }
 .plus-minus-icon::before, .plus-minus-icon::after { content: ""; position: absolute; top: 50%; left: 50%; width: 0.9rem; height: 1.5px; border-radius: 999px; background: currentColor; transform: translate(-50%, -50%); }
 .plus-minus-icon::after { transform: translate(-50%, -50%) rotate(90deg); }
 .plus-minus-icon.is-minus::after { display: none; }
+
+.save-icon { position: relative; display: block; width: 1rem; height: 1rem; border: 1.5px solid currentColor; border-radius: 0.14rem; }
+.save-icon::before { content: ""; position: absolute; top: -1.5px; right: 0.12rem; width: 0.42rem; height: 0.34rem; border: 1.5px solid currentColor; border-top: 0; }
+.save-icon i { position: absolute; right: 0.16rem; bottom: 0.13rem; left: 0.16rem; height: 0.32rem; border: 1.5px solid currentColor; border-radius: 0.06rem; }
 
 @media (max-width: 350px) {
   .transient-bottom-bar { gap: 0.2rem; padding-inline: 0.28rem; }

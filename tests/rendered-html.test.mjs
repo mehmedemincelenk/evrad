@@ -236,13 +236,31 @@ test("PWA updates replace stale application shells instead of preserving a stuck
     readFile(new URL("../public/sw.js", import.meta.url), "utf8"),
     readFile(new URL("../app/hooks/usePwaUpdate.ts", import.meta.url), "utf8"),
   ]);
-  assert.match(serviceWorkerText, /zikirlerim-shell-v11/);
+  assert.match(serviceWorkerText, /zikirlerim-shell-v12/);
   assert.match(serviceWorkerText, /caches\.match\(request\)[\s\S]*cached \?\? \(await networkResponse\)/);
   assert.match(serviceWorkerText, /self\.registration\.active \? undefined : self\.skipWaiting\(\)/);
   assert.match(serviceWorkerText, /type === "SKIP_WAITING"/);
   assert.match(updateHookText, /updateViaCache: "none"/);
   assert.match(updateHookText, /visibilitychange/);
   assert.doesNotMatch(updateHookText, /icon-192|icon-512|NotoNaskhArabic/);
+});
+
+test("portable backups include every library and completion record", async () => {
+  const [repositoryText, fileText, menuText, persistenceText] = await Promise.all([
+    readFile(new URL("../app/features/backup/backup-repository.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/features/backup/backup-file.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/TransientBottomBar.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/hooks/usePersistentStorage.ts", import.meta.url), "utf8"),
+  ]);
+  assert.match(repositoryText, /\["dhikr", "prayers", "memorization", "books"\]/);
+  assert.match(repositoryText, /COMPLETION_STORE/);
+  assert.match(fileText, /SHA-256/);
+  assert.match(fileText, /\.zikirlerim/);
+  assert.match(fileText, /navigator\.share/);
+  assert.match(fileText, /anchor\.download/);
+  assert.match(menuText, /<SaveIcon/);
+  assert.match(menuText, /aria-busy=\{backupSaving\}/);
+  assert.match(persistenceText, /navigator\.storage\?\.persist/);
 });
 
 test("source modules stay bounded and unused database scaffolding stays out", async () => {

@@ -58,6 +58,8 @@ export const tr = {
   "menu.library": "Kütüphane",
   "menu.discover": "Keşfet",
   "menu.active": "Aktif bölüm",
+  "backup.save": "Yedeği kaydet",
+  "backup.error": "Yedek hazırlanamadı. Biraz sonra yeniden deneyebilirsin.",
   "notification.label": "Bildirimler",
   "toast.storageError": "Cihaz kayıt alanına ulaşılamadı. Değişiklikler bu oturumla sınırlı olabilir.",
   "toast.updateReady": "Yeni sürüm hazır.",

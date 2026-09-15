@@ -2,6 +2,7 @@ import type { ContentSpace } from "../core/types";
 import { t } from "../core/i18n";
 import { PlusMinusIcon } from "./PlusMinusIcon";
 import { TransientMenuBackdrop } from "./TransientMenuBackdrop";
+import { SaveIcon } from "./SaveIcon";
 
 export function TransientBottomBar({
   open,
@@ -11,6 +12,9 @@ export function TransientBottomBar({
   onSpace,
   addLabel,
   onAdd,
+  backupLabel,
+  backupSaving,
+  onBackup,
 }: {
   open: boolean;
   activeSpace: ContentSpace;
@@ -19,6 +23,9 @@ export function TransientBottomBar({
   onSpace: (space: ContentSpace) => void;
   addLabel: string | null;
   onAdd: () => void;
+  backupLabel: string;
+  backupSaving: boolean;
+  onBackup: () => void;
 }) {
   return (
     <>
@@ -44,6 +51,18 @@ export function TransientBottomBar({
             </button>
           ))}
         </div>
+        <button
+          className="bottom-save-button"
+          type="button"
+          onClick={onBackup}
+          aria-label={backupLabel}
+          aria-busy={backupSaving}
+          disabled={backupSaving}
+          tabIndex={open ? 0 : -1}
+          data-tooltip={backupLabel}
+        >
+          <SaveIcon />
+        </button>
         {addLabel ? (
           <button className="bottom-add-button" type="button" onClick={onAdd} aria-label={addLabel} tabIndex={open ? 0 : -1} data-tooltip={addLabel}>
             <PlusMinusIcon />
