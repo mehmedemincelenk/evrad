@@ -1,4 +1,4 @@
-const CACHE_NAME = "zikirlerim-shell-v12";
+const CACHE_NAME = "zikirlerim-shell-v13";
 const CORE_URLS = [
   "/",
   "/zikirler",

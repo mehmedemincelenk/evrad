@@ -47,5 +47,29 @@ export function useDiscoveryLibrary<T extends TrackableEntity>(
     }
   }, [onError, repository]);
 
-  return { ready, itemIds, add };
+  const remove = useCallback(async (id: string): Promise<"removed" | "missing" | "failed"> => {
+    const previousItems = itemsRef.current;
+    if (!previousItems.some((item) => item.id === id)) return "missing";
+
+    const remainingItems = previousItems.filter((item) => item.id !== id);
+    itemsRef.current = remainingItems;
+    setItemIds(new Set(remainingItems.map((item) => item.id)));
+    try {
+      await repository.remove(id, remainingItems);
+      return "removed";
+    } catch {
+      itemsRef.current = previousItems;
+      setItemIds(new Set(previousItems.map((item) => item.id)));
+      onError();
+      return "failed";
+    }
+  }, [onError, repository]);
+
+  const toggle = useCallback((template: EntityTemplate<T>) => (
+    itemsRef.current.some((item) => item.id === template.id)
+      ? remove(template.id)
+      : add(template)
+  ), [add, remove]);
+
+  return { ready, itemIds, toggle };
 }

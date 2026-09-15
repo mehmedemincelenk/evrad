@@ -123,7 +123,6 @@ export function AddToLibraryButton({ title, added, onAdd }: { title: string; add
       onClick={onAdd}
       aria-label={t(added ? "discover.added" : "discover.add", { title })}
       aria-pressed={added}
-      disabled={added}
     >
       <span className="completion-core" aria-hidden="true"><PlusMinusIcon minus={added} /></span>
     </button>

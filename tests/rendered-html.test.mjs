@@ -125,9 +125,8 @@ test("target units and long-press sorting remain modular", async () => {
 });
 
 test("the compact menu and completion symbols keep interaction work lightweight", async () => {
-  const [menuText, moduleTabsText, moduleGlyphText, menuHookText, shellText, primitiveText, symbolText, navigationCss] = await Promise.all([
+  const [menuText, moduleGlyphText, menuHookText, shellText, primitiveText, symbolText, navigationCss] = await Promise.all([
     readFile(new URL("../app/components/TransientBottomBar.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/components/ModuleTabs.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/ModuleGlyph.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/hooks/useTransientMenu.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/AppShell.tsx", import.meta.url), "utf8"),
@@ -136,11 +135,10 @@ test("the compact menu and completion symbols keep interaction work lightweight"
     readFile(new URL("../app/styles/navigation.css", import.meta.url), "utf8"),
   ]);
   assert.doesNotMatch(menuText, /activityKey/);
-  assert.doesNotMatch(menuText, /modules\.map/);
-  assert.match(moduleTabsText, /\["dhikr", "prayers", "memorization", "books"\]/);
-  assert.match(moduleTabsText, /aria-current/);
-  assert.match(moduleTabsText, /aria-label=\{label\}/);
-  assert.match(moduleTabsText, /<ModuleGlyph icon=\{definition\.icon\}/);
+  assert.match(menuText, /trackableNavigationModules\.map/);
+  assert.match(menuText, /page === "actions"/);
+  assert.match(menuText, /aria-current=\{selected \? "page"/);
+  assert.match(menuText, /<ModuleGlyph icon=\{definition\.icon\}/);
   assert.match(moduleGlyphText, /Record<IconName, string>/);
   assert.match(menuHookText, /timeoutRef/);
   assert.doesNotMatch(menuHookText, /setActivityKey/);
@@ -148,8 +146,9 @@ test("the compact menu and completion symbols keep interaction work lightweight"
   assert.match(primitiveText, /<PlusMinusIcon minus=\{added\}/);
   assert.match(primitiveText, /<span className="completion-core" aria-hidden="true" \/>/);
   assert.match(symbolText, /is-minus/);
-  assert.match(navigationCss, /\.top-module-tabs\s*\{[\s\S]*grid-template-columns:\s*repeat\(4/);
+  assert.doesNotMatch(navigationCss, /\.top-module-tabs/);
   assert.match(navigationCss, /\.transient-bottom-bar\s*\{[\s\S]*display:\s*flex/);
+  assert.match(navigationCss, /--menu-radius:[\s\S]*border-radius:\s*var\(--menu-radius\)/);
 });
 
 test("notifications stay viewport-pinned and routine success actions stay quiet", async () => {
@@ -167,11 +166,11 @@ test("notifications stay viewport-pinned and routine success actions stay quiet"
 });
 
 test("new modules can reuse navigation, storage, layout, and collection behavior", async () => {
-  const [registryText, shellText, homeText, moduleTabsText, repositoryText, completionText, collectionText, layoutText, primitivesText, pwaText] = await Promise.all([
+  const [registryText, shellText, homeText, bottomBarText, repositoryText, completionText, collectionText, layoutText, primitivesText, pwaText] = await Promise.all([
     readFile(new URL("../app/core/module-registry.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/AppShell.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/features/home/HomeScreen.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/components/ModuleTabs.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/TransientBottomBar.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/data/trackable-repository.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/data/completion-repository.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/hooks/useTrackableCollection.ts", import.meta.url), "utf8"),
@@ -180,7 +179,7 @@ test("new modules can reuse navigation, storage, layout, and collection behavior
     readFile(new URL("../app/hooks/usePwaUpdate.ts", import.meta.url), "utf8"),
   ]);
   assert.match(registryText, /discoverRoute/);
-  assert.match(moduleTabsText, /getModuleRoute\(id, activeSpace\)/);
+  assert.match(bottomBarText, /onModule\(id\)/);
   assert.match(shellText, /navigateTo\(getModuleRoute\(activeModule, space\)\)/);
   assert.match(homeText, /getModuleRoute\(module\.id, space\)/);
   assert.doesNotMatch(homeText, /next\/link/);
@@ -193,7 +192,7 @@ test("new modules can reuse navigation, storage, layout, and collection behavior
   assert.match(pwaText, /modules\.flatMap/);
 });
 
-test("discovery cards add individual catalog items to the matching library", async () => {
+test("discovery cards toggle individual catalog items in the matching library", async () => {
   const [screenText, hookText, primitivesText, dhikrCatalogText, prayerCatalogText] = await Promise.all([
     readFile(new URL("../app/features/discovery/DiscoveryModuleApp.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/hooks/useDiscoveryLibrary.ts", import.meta.url), "utf8"),
@@ -203,7 +202,10 @@ test("discovery cards add individual catalog items to the matching library", asy
   ]);
   assert.match(screenText, /useDiscoveryLibrary/);
   assert.match(hookText, /repository\.save\(item\)/);
+  assert.match(hookText, /repository\.remove\(id, remainingItems\)/);
+  assert.match(hookText, /const toggle = useCallback/);
   assert.match(primitivesText, /AddToLibraryButton/);
+  assert.doesNotMatch(primitivesText.match(/export function AddToLibraryButton[\s\S]*?\n\}/)?.[0] ?? "", /disabled=\{added\}/);
   assert.match(dhikrCatalogText, /recommended-esmaul-husna[\s\S]*listDisplay: "name"/);
   assert.match(prayerCatalogText, /discover-prayer-rabbana-atina/);
   assert.doesNotMatch(screenText, /tavsiye edilen tüm zikirler/i);
@@ -236,7 +238,7 @@ test("PWA updates replace stale application shells instead of preserving a stuck
     readFile(new URL("../public/sw.js", import.meta.url), "utf8"),
     readFile(new URL("../app/hooks/usePwaUpdate.ts", import.meta.url), "utf8"),
   ]);
-  assert.match(serviceWorkerText, /zikirlerim-shell-v12/);
+  assert.match(serviceWorkerText, /zikirlerim-shell-v13/);
   assert.match(serviceWorkerText, /caches\.match\(request\)[\s\S]*cached \?\? \(await networkResponse\)/);
   assert.match(serviceWorkerText, /self\.registration\.active \? undefined : self\.skipWaiting\(\)/);
   assert.match(serviceWorkerText, /type === "SKIP_WAITING"/);

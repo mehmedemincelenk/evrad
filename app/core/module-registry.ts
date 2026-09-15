@@ -22,6 +22,13 @@ export const modules = [
   },
 ] as const satisfies readonly ModuleDefinition[];
 
+export const trackableNavigationModules: readonly TrackableModuleId[] = [
+  "dhikr",
+  "prayers",
+  "memorization",
+  "books",
+];
+
 function createTrackableModule(
   id: TrackableModuleId,
   kind: TrackableModuleDefinition["kind"],

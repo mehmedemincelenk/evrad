@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react
 import type { ContentSpace, ModuleId } from "./core/types";
 import { t } from "./core/i18n";
 import { TransientBottomBar } from "./components/TransientBottomBar";
-import { ModuleTabs } from "./components/ModuleTabs";
 import { AppNotifications } from "./components/AppNotifications";
 import { EdgeMenuLauncher } from "./components/EdgeMenuLauncher";
 import { AppRuntimeContext } from "./core/AppRuntimeContext";
@@ -26,7 +25,7 @@ export function AppShell({
 }) {
   const activeDefinition = getModule(activeModule);
   const bottomMenu = useTransientMenu();
-  const topMenu = useTransientMenu();
+  const [bottomMenuPage, setBottomMenuPage] = useState<"actions" | "modules">("actions");
   const { updateReady, activateUpdate } = usePwaUpdate();
   const [toast, setToast] = useState<string | null>(null);
   const showToast = useCallback((message: string) => setToast(message), []);
@@ -51,9 +50,19 @@ export function AppShell({
     navigateTo(activeDefinition.create.route);
   };
 
+  const handleModule = (moduleId: ModuleId) => {
+    bottomMenu.closeMenu();
+    if (moduleId !== activeModule) navigateTo(getModuleRoute(moduleId, activeSpace));
+  };
+
   const handleBackup = () => {
     bottomMenu.closeMenu();
     void backup.exportBackup();
+  };
+
+  const openBottomMenu = () => {
+    setBottomMenuPage("actions");
+    bottomMenu.openMenu();
   };
 
   return (
@@ -61,34 +70,23 @@ export function AppShell({
       <main className="app-shell">
         <div className="ambient ambient-one" />
         <div className="ambient ambient-two" />
-        <ModuleTabs
-          open={topMenu.open}
-          activeModule={activeModule}
-          activeSpace={activeSpace}
-          onClose={topMenu.closeMenu}
-          onActivity={topMenu.registerActivity}
-        />
         {children}
-        {!topMenu.open ? (
-          <EdgeMenuLauncher
-            edge="top"
-            label={t("menu.openModules")}
-            onClick={() => { bottomMenu.closeMenu(); topMenu.openMenu(); }}
-          />
-        ) : null}
         {!bottomMenu.open ? (
           <EdgeMenuLauncher
-            edge="bottom"
             label={t("menu.openSpaces")}
-            onClick={() => { topMenu.closeMenu(); bottomMenu.openMenu(); }}
+            onClick={openBottomMenu}
           />
         ) : null}
         <TransientBottomBar
           open={bottomMenu.open}
           activeSpace={activeSpace}
+          activeModule={activeModule}
+          page={bottomMenuPage}
+          onPageChange={setBottomMenuPage}
           onClose={bottomMenu.closeMenu}
           onActivity={bottomMenu.registerActivity}
           onSpace={handleSpace}
+          onModule={handleModule}
           addLabel={activeDefinition.create ? t(activeDefinition.create.label) : null}
           onAdd={handleAdd}
           backupLabel={t("backup.save")}

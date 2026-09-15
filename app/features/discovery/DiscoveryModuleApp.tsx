@@ -62,10 +62,6 @@ function DiscoveryList<T extends TrackableEntity>({
   const onError = useCallback(() => showToast(t("toast.storageError")), [showToast]);
   const library = useDiscoveryLibrary(repository, onError);
 
-  const add = async (item: EntityTemplate<T>) => {
-    await library.add(item);
-  };
-
   return (
     <DiscoveryLayout moduleId={moduleId} loading={!library.ready} hasItems={Boolean(toolbar) || catalog.length > 0} toolbar={toolbar}>
       {catalog.length === 0 ? <p className="filter-empty">{t("filter.empty")}</p> : catalog.map((item) => (
@@ -75,7 +71,7 @@ function DiscoveryList<T extends TrackableEntity>({
             expanded: expandedIds.has(item.id),
             added: library.itemIds.has(item.id),
             onToggle: () => toggleExpanded(item.id),
-            onAdd: () => void add(item),
+            onAdd: () => void library.toggle(item),
           })}
         </Fragment>
       ))}
