@@ -156,8 +156,9 @@ test("the compact menu and completion symbols keep interaction work lightweight"
   ]);
   assert.doesNotMatch(menuText, /activityKey/);
   assert.match(menuText, /trackableNavigationModules\.map/);
-  assert.match(menuText, /page === "actions"/);
-  assert.match(menuText, /aria-current=\{selected \? "page"/);
+  assert.match(menuText, /bottom-context-trigger/);
+  assert.match(menuText, /bottom-space-segment/);
+  assert.match(menuText, /aria-pressed=\{selected\}/);
   assert.match(menuText, /<ModuleGlyph icon=\{definition\.icon\}/);
   assert.match(moduleGlyphText, /Record<IconName, string>/);
   assert.match(menuHookText, /timeoutRef/);
@@ -167,7 +168,8 @@ test("the compact menu and completion symbols keep interaction work lightweight"
   assert.match(primitiveText, /<span className="completion-core" aria-hidden="true" \/>/);
   assert.match(symbolText, /is-minus/);
   assert.doesNotMatch(navigationCss, /\.top-module-tabs/);
-  assert.match(navigationCss, /\.transient-bottom-bar\s*\{[\s\S]*display:\s*flex/);
+  assert.match(navigationCss, /\.bottom-context-panel/);
+  assert.match(navigationCss, /min-height:\s*2\.75rem/);
   assert.match(navigationCss, /--menu-radius:[\s\S]*border-radius:\s*var\(--menu-radius\)/);
 });
 
@@ -199,7 +201,7 @@ test("new modules can reuse navigation, storage, layout, and collection behavior
     readFile(new URL("../app/hooks/usePwaUpdate.ts", import.meta.url), "utf8"),
   ]);
   assert.match(registryText, /discoverRoute/);
-  assert.match(bottomBarText, /onModule\(id\)/);
+  assert.match(bottomBarText, /chooseModule\(id\)/);
   assert.match(shellText, /getModuleRoute\(activeModule \?\? "dhikr", space\)/);
   assert.match(homeText, /useDailySelection/);
   assert.match(homeText, /pinnedNavigation/);
@@ -270,10 +272,10 @@ test("PWA updates replace stale application shells instead of preserving a stuck
 });
 
 test("portable backups include every library and completion record", async () => {
-  const [repositoryText, fileText, menuText, persistenceText] = await Promise.all([
+  const [repositoryText, fileText, footerText, persistenceText] = await Promise.all([
     readFile(new URL("../app/features/backup/backup-repository.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/features/backup/backup-file.ts", import.meta.url), "utf8"),
-    readFile(new URL("../app/components/TransientBottomBar.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/AppFooter.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/hooks/usePersistentStorage.ts", import.meta.url), "utf8"),
   ]);
   assert.match(repositoryText, /\["dhikr", "prayers", "memorization", "books", "poetry"\]/);
@@ -282,8 +284,8 @@ test("portable backups include every library and completion record", async () =>
   assert.match(fileText, /\.zikirlerim/);
   assert.match(fileText, /navigator\.share/);
   assert.match(fileText, /anchor\.download/);
-  assert.match(menuText, /<SaveIcon/);
-  assert.match(menuText, /aria-busy=\{backupSaving\}/);
+  assert.match(footerText, /<SaveIcon/);
+  assert.match(footerText, /aria-busy=\{saving\}/);
   assert.match(persistenceText, /navigator\.storage\?\.persist/);
 });
 

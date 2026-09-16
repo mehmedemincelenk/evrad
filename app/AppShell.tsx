@@ -13,6 +13,7 @@ import { getModule, getModuleRoute } from "./core/module-registry";
 import { navigateTo } from "./core/navigation";
 import { useBackupExport } from "./features/backup/useBackupExport";
 import { usePersistentStorage } from "./hooks/usePersistentStorage";
+import { AppFooter } from "./components/AppFooter";
 
 export function AppShell({
   children,
@@ -27,7 +28,6 @@ export function AppShell({
 }) {
   const activeDefinition = activeModule ? getModule(activeModule) : null;
   const bottomMenu = useTransientMenu();
-  const [bottomMenuPage, setBottomMenuPage] = useState<"actions" | "modules">("actions");
   const { updateReady, activateUpdate } = usePwaUpdate();
   const [toast, setToast] = useState<string | null>(null);
   const showToast = useCallback((message: string) => setToast(message), []);
@@ -68,7 +68,6 @@ export function AppShell({
   };
 
   const openBottomMenu = () => {
-    setBottomMenuPage("actions");
     bottomMenu.openMenu();
   };
 
@@ -78,6 +77,7 @@ export function AppShell({
         <div className="ambient ambient-one" />
         <div className="ambient ambient-two" />
         {children}
+        <AppFooter label={t("backup.save")} saving={backup.saving} onBackup={handleBackup} />
         {!pinnedNavigation && !bottomMenu.open ? (
           <EdgeMenuLauncher
             label={t("menu.openSpaces")}
@@ -89,8 +89,6 @@ export function AppShell({
           activeSpace={activeSpace}
           activeModule={activeModule}
           pinned={pinnedNavigation}
-          page={bottomMenuPage}
-          onPageChange={setBottomMenuPage}
           onClose={bottomMenu.closeMenu}
           onActivity={bottomMenu.registerActivity}
           onSpace={handleSpace}
@@ -98,9 +96,6 @@ export function AppShell({
           onModule={handleModule}
           addLabel={activeDefinition?.create ? t(activeDefinition.create.label) : null}
           onAdd={handleAdd}
-          backupLabel={t("backup.save")}
-          backupSaving={backup.saving}
-          onBackup={handleBackup}
         />
         <AppNotifications message={toast} updateReady={updateReady} onActivateUpdate={activateUpdate} />
       </main>
