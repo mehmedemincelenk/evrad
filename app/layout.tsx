@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import "./globals.css";
 
 const title = "Zikirlerim";
-const description = "Zikir, dua, sûre, şiir ve okumalarını takip et; her gün yeni bir sayfa aç.";
+const description = "Zikir, dua, ezber, şiir ve okumalarını takip et; her gün yeni bir sayfa aç.";
 
 export async function generateMetadata(): Promise<Metadata> {
   const requestHeaders = await headers();

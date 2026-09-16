@@ -102,24 +102,30 @@ test("daily cards reuse library card primitives and completion records", async (
   assert.doesNotMatch(selectionText, /getDiscoveryItems/);
 });
 
-test("prayer, surah, poetry, book, game, and discovery routes are active", async () => {
-  for (const pathname of ["/dualar", "/sureler", "/siirler", "/kitaplar", "/oyunlar", "/kesfet/zikirler", "/kesfet/dualar", "/kesfet/sureler", "/kesfet/siirler", "/kesfet/kitaplar", "/kesfet/oyunlar"]) {
+test("prayer, memorization, poetry, book, game, and discovery routes are active", async () => {
+  for (const pathname of ["/dualar", "/ezberler", "/siirler", "/kitaplar", "/oyunlar", "/kesfet/zikirler", "/kesfet/dualar", "/kesfet/ezberler", "/kesfet/siirler", "/kesfet/kitaplar", "/kesfet/oyunlar"]) {
     const response = await render(pathname);
     assert.equal(response.status, 200, pathname);
   }
 });
 
 test("PWA manifest and architecture declarations stay aligned", async () => {
-  const [manifestText, registryText, typesText] = await Promise.all([
+  const [manifestText, registryText, typesText, workerText] = await Promise.all([
     readFile(new URL("../public/manifest.webmanifest", import.meta.url), "utf8"),
     readFile(new URL("../app/core/module-registry.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/core/types.ts", import.meta.url), "utf8"),
+    readFile(new URL("../public/sw.js", import.meta.url), "utf8"),
   ]);
   const manifest = JSON.parse(manifestText);
   assert.equal(manifest.name, "Zikirlerim");
   assert.equal(manifest.id, "/");
   assert.equal(manifest.start_url, "/");
   assert.equal(manifest.display, "standalone");
+  assert.equal(manifest.scope, "/");
+  assert.match(workerText, /await fetch\(request\)/);
+  assert.match(workerText, /await caches\.match\(request\)/);
+  assert.match(workerText, /self\.skipWaiting\(\)/);
+  assert.doesNotMatch(workerText, /cached \?\? \(await networkResponse\)/);
   assert.equal((registryText.match(/createTrackableModule\(/g) ?? []).length, 6);
   assert.match(registryText, /id: "games"[\s\S]*create: null/);
   assert.doesNotMatch(registryText, /enabled:|supportsCreate|createRoute/);
@@ -234,18 +240,17 @@ test("discovery cards toggle individual catalog items in the matching library", 
   assert.doesNotMatch(screenText, /tavsiye edilen tüm zikirler/i);
 });
 
-test("memorization discovery contains the complete requested collections", async () => {
-  const [catalogText, surahText, asmaText, hadithText, i18nText] = await Promise.all([
+test("memorization discovery contains only the requested v1 surahs", async () => {
+  const [catalogText, surahText, i18nText] = await Promise.all([
     readFile(new URL("../app/features/discovery/catalogs/memorization.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/features/discovery/catalogs/short-surahs.ts", import.meta.url), "utf8"),
-    readFile(new URL("../app/features/discovery/catalogs/asma-al-husna.ts", import.meta.url), "utf8"),
-    readFile(new URL("../app/features/discovery/catalogs/short-hadiths.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/core/i18n.ts", import.meta.url), "utf8"),
   ]);
   assert.equal((surahText.match(/^ {2}\{"id":"surah-/gm) ?? []).length, 37);
-  assert.equal((asmaText.match(/^ {2}\["/gm) ?? []).length, 99);
-  assert.equal((hadithText.match(/^ {2}\["/gm) ?? []).length, 40);
-  assert.match(catalogText, /fatiha[\s\S]*shortSurahCatalog[\s\S]*asmaAlHusnaCatalog[\s\S]*shortHadithCatalog/);
+  assert.match(catalogText, /"surah-94"/);
+  assert.match(catalogText, /"surah-al-falaq"/);
+  assert.match(catalogText, /"surah-an-nas"/);
+  assert.doesNotMatch(catalogText, /asmaAlHusnaCatalog|shortHadithCatalog/);
   assert.match(i18nText, /"module\.memorization\.title": "Ezberler"/);
   assert.match(i18nText, /"discover\.memorization\.title": "Ezberleri keşfet"/);
 });
@@ -278,9 +283,9 @@ test("PWA updates replace stale application shells instead of preserving a stuck
     readFile(new URL("../public/sw.js", import.meta.url), "utf8"),
     readFile(new URL("../app/hooks/usePwaUpdate.ts", import.meta.url), "utf8"),
   ]);
-  assert.match(serviceWorkerText, /zikirlerim-shell-v15/);
-  assert.match(serviceWorkerText, /caches\.match\(request\)[\s\S]*cached \?\? \(await networkResponse\)/);
-  assert.match(serviceWorkerText, /self\.registration\.active \? undefined : self\.skipWaiting\(\)/);
+  assert.match(serviceWorkerText, /zikirlerim-shell-v16/);
+  assert.match(serviceWorkerText, /await fetch\(request\)[\s\S]*await caches\.match\(request\)/);
+  assert.match(serviceWorkerText, /then\(\(\) => self\.skipWaiting\(\)\)/);
   assert.match(serviceWorkerText, /type === "SKIP_WAITING"/);
   assert.match(updateHookText, /updateViaCache: "none"/);
   assert.match(updateHookText, /visibilitychange/);

@@ -2,7 +2,7 @@
   "name": "Zikirlerim",
   "short_name": "Zikirlerim",
   "id": "/",
-  "description": "Zikir, dua, sûre, şiir ve okumalarını takip et; her gün yeni bir sayfa aç.",
+  "description": "Zikir, dua, ezber, şiir ve okumalarını takip et; her gün yeni bir sayfa aç.",
   "lang": "tr",
   "dir": "ltr",
   "start_url": "/",

@@ -1,7 +1,18 @@
-const CACHE_NAME = "zikirlerim-shell-v15";
+const CACHE_NAME = "zikirlerim-shell-v16";
 const CORE_URLS = [
   "/",
   "/zikirler",
+  "/dualar",
+  "/ezberler",
+  "/siirler",
+  "/kitaplar",
+  "/oyunlar",
+  "/kesfet/zikirler",
+  "/kesfet/dualar",
+  "/kesfet/ezberler",
+  "/kesfet/siirler",
+  "/kesfet/kitaplar",
+  "/kesfet/oyunlar",
   "/manifest.webmanifest",
   "/icon-192.png",
   "/icon-512.png",
@@ -11,7 +22,7 @@ self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => cache.addAll(CORE_URLS))
-      .then(() => (self.registration.active ? undefined : self.skipWaiting())),
+      .then(() => self.skipWaiting()),
   );
 });
 
@@ -47,19 +58,17 @@ self.addEventListener("fetch", (event) => {
   if (url.origin !== self.location.origin) return;
 
   if (request.mode === "navigate") {
-    const networkResponse = fetch(request)
-      .then((response) => {
+    event.respondWith((async () => {
+      try {
+        const response = await fetch(request);
         if (response.ok) {
-          const copy = response.clone();
-          return caches.open(CACHE_NAME).then((cache) => cache.put(request, copy)).then(() => response);
+          event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.put(request, response.clone())));
         }
         return response;
-      })
-      .catch(() => null);
-    event.waitUntil(networkResponse.then(() => undefined));
-    event.respondWith(
-      caches.match(request).then(async (cached) => cached ?? (await networkResponse) ?? (await caches.match("/zikirler")) ?? Response.error()),
-    );
+      } catch {
+        return (await caches.match(request)) ?? (await caches.match("/")) ?? Response.error();
+      }
+    })());
     return;
   }
 

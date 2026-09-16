@@ -1,21 +1,20 @@
 import type { DevotionalTemplate } from "../discovery-types";
-import { asmaAlHusnaCatalog } from "./asma-al-husna";
-import { memorizationTemplate } from "./memorization-template";
-import { shortHadithCatalog } from "./short-hadiths";
 import { shortSurahCatalog } from "./short-surahs";
 
-const fatiha = memorizationTemplate(
-  "surah-al-fatiha",
-  "Fâtiha Sûresi",
-  "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nالْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ\nالرَّحْمَٰنِ الرَّحِيمِ\nمَالِكِ يَوْمِ الدِّينِ\nإِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ\nاهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ\nصِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ",
-  "Rahmân ve Rahîm olan Allah’ın adıyla. Hamd, âlemlerin Rabbi Allah’a mahsustur. O, Rahmân ve Rahîm’dir; hesap gününün sahibidir. Yalnız sana kulluk eder ve yalnız senden yardım dileriz. Bizi doğru yola ilet; nimet verdiklerinin yoluna, gazaba uğrayanların ve sapmışların yoluna değil.",
-  "Kur’an-ı Kerîm’in açılış sûresidir ve yedi âyettir.",
-  "Fâtiha sûresi, 1/1-7 · Meal: Diyanet İşleri",
-);
+// V1 keşfinde yalnız İnşirâh ve yaygın namaz sûreleri yer alır.
+// Daha önce kaldırılmış Esmâ ve hadis koleksiyonları kendiliğinden geri eklenmez.
+const v1SurahIds = new Set([
+  "surah-94",
+  "surah-105",
+  "surah-106",
+  "surah-107",
+  "surah-108",
+  "surah-109",
+  "surah-110",
+  "surah-111",
+  "surah-al-ikhlas",
+  "surah-al-falaq",
+  "surah-an-nas",
+]);
 
-export const memorizationCatalog: DevotionalTemplate[] = [
-  fatiha,
-  ...shortSurahCatalog,
-  ...asmaAlHusnaCatalog,
-  ...shortHadithCatalog,
-];
+export const memorizationCatalog: DevotionalTemplate[] = shortSurahCatalog.filter((item) => v1SurahIds.has(item.id));
