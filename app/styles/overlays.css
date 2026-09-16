@@ -119,14 +119,7 @@
 .daily-selection-section::after { content: "❦"; position: absolute; bottom: -3.15rem; left: 50%; color: var(--muted-deep); font-family: Georgia, serif; font-size: 0.9rem; transform: translateX(-50%); }
 .daily-selection-section:last-child::after { display: none; }
 .daily-selection-section > h2 { margin: 0 0 1.45rem; color: var(--muted); font-size: 0.65rem; font-weight: 750; letter-spacing: 0.18em; text-align: center; text-transform: uppercase; }
-.daily-selection-items { display: grid; gap: 1.75rem; }
-.daily-selection-item { text-align: center; }
-.daily-selection-item h3 { margin: 0 0 0.65rem; color: var(--text-soft); font-family: Iowan Old Style, Baskerville, Georgia, serif; font-size: 1rem; font-weight: 500; }
-.daily-original { margin: 0; color: var(--light); font-family: var(--font-arabic), Iowan Old Style, Baskerville, Georgia, serif; font-size: clamp(1.35rem, 6vw, 2rem); line-height: 1.85; white-space: pre-wrap; }
-.daily-selection-section.is-poem .daily-original { font-family: Iowan Old Style, Baskerville, Georgia, serif; font-size: clamp(1.2rem, 5.4vw, 1.65rem); font-style: italic; line-height: 1.9; }
-.daily-translation { max-width: 33rem; margin: 0.85rem auto 0; color: var(--text-soft); font-family: Iowan Old Style, Baskerville, Georgia, serif; font-size: 0.95rem; line-height: 1.7; }
-.daily-details { max-width: 34rem; margin: 1rem auto 0; color: var(--muted); font-size: 0.78rem; line-height: 1.65; white-space: pre-line; }
-.daily-source { margin: 0.85rem 0 0; color: var(--muted-deep); font-family: Iowan Old Style, Baskerville, Georgia, serif; font-size: 0.78rem; font-style: italic; }
+.daily-selection-items { display: grid; gap: 0.55rem; }
 .daily-empty { max-width: 26rem; margin: 25vh auto 0; color: var(--muted); font-family: Iowan Old Style, Baskerville, Georgia, serif; font-style: italic; line-height: 1.8; text-align: center; }
 
 button:focus-visible { outline: 2px solid var(--light); outline-offset: 3px; }

@@ -84,6 +84,24 @@ test("root route renders the pinned daily page", async () => {
   assert.match(html, /Günün sayfasını yenile/);
 });
 
+test("daily cards reuse library card primitives and completion records", async () => {
+  const [homeText, sectionText, cardText, completionText, selectionText] = await Promise.all([
+    readFile(new URL("../app/features/home/HomeScreen.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/features/home/DailySelectionSection.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/features/home/DailyTrackableCard.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/features/home/useDailyCompletions.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/features/home/useDailySelection.ts", import.meta.url), "utf8"),
+  ]);
+  assert.match(homeText, /useDailyCompletions/);
+  assert.match(sectionText, /<DailyTrackableCard/);
+  assert.match(cardText, /<TrackableCardShell/);
+  assert.match(cardText, /<CollapsedCardSummary/);
+  assert.match(cardText, /<CompletionLight/);
+  assert.match(completionText, /completionRepository\.loadIds\(moduleId, dateKey\)/);
+  assert.match(completionText, /completionRepository\.set\(moduleId, itemId, dateKey, complete\)/);
+  assert.doesNotMatch(selectionText, /getDiscoveryItems/);
+});
+
 test("prayer, surah, poetry, book, game, and discovery routes are active", async () => {
   for (const pathname of ["/dualar", "/sureler", "/siirler", "/kitaplar", "/oyunlar", "/kesfet/zikirler", "/kesfet/dualar", "/kesfet/sureler", "/kesfet/siirler", "/kesfet/kitaplar", "/kesfet/oyunlar"]) {
     const response = await render(pathname);

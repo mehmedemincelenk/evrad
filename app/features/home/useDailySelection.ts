@@ -3,9 +3,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocalDay } from "../../hooks/useLocalDay";
 import { devotionalRepositories } from "../../data/repositories";
-import { storeTemplate } from "../../core/entity";
-import { getDevotionalCatalog } from "../discovery/discovery-catalog";
-import type { DevotionalItem } from "../../core/types";
 import type { DailyLibraries, DailySelection, StoredDailySelection } from "./daily-selection";
 import { createDailySelection, restoreSelection, serializeSelection } from "./daily-selection";
 
@@ -27,12 +24,7 @@ export function useDailySelection() {
       devotionalRepositories.poetry.load(),
     ]).then(([dhikr, prayers, memorization, poetry]) => {
       if (!active) return;
-      const libraries = {
-        dhikr: withCatalogFallback(dhikr, "dhikr"),
-        prayers: withCatalogFallback(prayers, "prayers"),
-        memorization: withCatalogFallback(memorization, "memorization"),
-        poetry: withCatalogFallback(poetry, "poetry"),
-      };
+      const libraries = { dhikr, prayers, memorization, poetry };
       librariesRef.current = libraries;
       const stored = readStoredSelection();
       const restored = stored?.date === date ? restoreSelection(stored, libraries) : null;
@@ -57,10 +49,6 @@ export function useDailySelection() {
   }, [date]);
 
   return { ready, selection, refresh };
-}
-
-function withCatalogFallback(items: DevotionalItem[], moduleId: "dhikr" | "prayers" | "memorization" | "poetry"): DevotionalItem[] {
-  return items.length ? items : getDevotionalCatalog(moduleId).map((item, index) => storeTemplate(item, index));
 }
 
 function readStoredSelection(): StoredDailySelection | null {
