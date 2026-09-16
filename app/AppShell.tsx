@@ -10,10 +10,10 @@ import { AppRuntimeContext } from "./core/AppRuntimeContext";
 import { usePwaUpdate } from "./hooks/usePwaUpdate";
 import { useTransientMenu } from "./hooks/useTransientMenu";
 import { getModule, getModuleRoute } from "./core/module-registry";
-import { navigateTo } from "./core/navigation";
 import { useBackupExport } from "./features/backup/useBackupExport";
 import { usePersistentStorage } from "./hooks/usePersistentStorage";
 import { AppFooter } from "./components/AppFooter";
+import { useRouter } from "next/navigation";
 
 export function AppShell({
   children,
@@ -27,6 +27,7 @@ export function AppShell({
   pinnedNavigation?: boolean;
 }) {
   const activeDefinition = activeModule ? getModule(activeModule) : null;
+  const router = useRouter();
   const bottomMenu = useTransientMenu();
   const { updateReady, activateUpdate } = usePwaUpdate();
   const [toast, setToast] = useState<string | null>(null);
@@ -43,23 +44,23 @@ export function AppShell({
 
   const handleSpace = (space: ContentSpace) => {
     bottomMenu.closeMenu();
-    if (space !== activeSpace || !activeModule) navigateTo(getModuleRoute(activeModule ?? "dhikr", space));
+    if (space !== activeSpace || !activeModule) router.push(getModuleRoute(activeModule ?? "dhikr", space));
   };
 
   const handleAdd = () => {
     if (!activeDefinition?.create) return;
     bottomMenu.closeMenu();
-    navigateTo(activeDefinition.create.route);
+    router.push(activeDefinition.create.route);
   };
 
   const handleModule = (moduleId: ModuleId) => {
     bottomMenu.closeMenu();
-    if (moduleId !== activeModule) navigateTo(getModuleRoute(moduleId, activeSpace ?? "library"));
+    if (moduleId !== activeModule) router.push(getModuleRoute(moduleId, activeSpace ?? "library"));
   };
 
   const handleHome = () => {
     bottomMenu.closeMenu();
-    if (activeModule !== null) navigateTo("/");
+    if (activeModule !== null) router.push("/");
   };
 
   const handleBackup = () => {

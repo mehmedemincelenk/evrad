@@ -23,7 +23,7 @@ test("server-renders the Zikirlerim application", async () => {
   assert.match(html, /<title>Zikirlerim<\/title>/i);
   assert.match(html, /GÜNÜN VİRDİ/);
   assert.match(html, /Zikirlerim yükleniyor/);
-  assert.match(html, /İçerik bölümlerini aç/);
+  assert.match(html, /aria-label="Zikirler, Kütüphane"/);
   assert.match(html, /Kütüphane ve keşif menüsünü aç/);
   assert.match(html, /name="apple-mobile-web-app-capable" content="yes"/);
   assert.match(html, /name="mobile-web-app-capable" content="yes"/);
@@ -87,7 +87,7 @@ test("root route renders the pinned daily page", async () => {
 test("daily cards reuse library card primitives and completion records", async () => {
   const [homeText, sectionText, cardText, completionText, selectionText] = await Promise.all([
     readFile(new URL("../app/features/home/HomeScreen.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/features/home/DailySelectionSection.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/features/home/DailySelectionCards.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/features/home/DailyTrackableCard.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/features/home/useDailyCompletions.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/features/home/useDailySelection.ts", import.meta.url), "utf8"),
@@ -163,7 +163,7 @@ test("the compact menu and completion symbols keep interaction work lightweight"
   assert.match(moduleGlyphText, /Record<IconName, string>/);
   assert.match(menuHookText, /timeoutRef/);
   assert.doesNotMatch(menuHookText, /setActivityKey/);
-  assert.match(shellText, /navigateTo\(getModuleRoute/);
+  assert.match(shellText, /router\.push\(getModuleRoute/);
   assert.match(primitiveText, /<PlusMinusIcon minus=\{added\}/);
   assert.match(primitiveText, /<span className="completion-core" aria-hidden="true" \/>/);
   assert.match(symbolText, /is-minus/);
@@ -262,7 +262,7 @@ test("PWA updates replace stale application shells instead of preserving a stuck
     readFile(new URL("../public/sw.js", import.meta.url), "utf8"),
     readFile(new URL("../app/hooks/usePwaUpdate.ts", import.meta.url), "utf8"),
   ]);
-  assert.match(serviceWorkerText, /zikirlerim-shell-v14/);
+  assert.match(serviceWorkerText, /zikirlerim-shell-v15/);
   assert.match(serviceWorkerText, /caches\.match\(request\)[\s\S]*cached \?\? \(await networkResponse\)/);
   assert.match(serviceWorkerText, /self\.registration\.active \? undefined : self\.skipWaiting\(\)/);
   assert.match(serviceWorkerText, /type === "SKIP_WAITING"/);

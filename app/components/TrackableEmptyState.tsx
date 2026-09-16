@@ -14,7 +14,8 @@ export function TrackableEmptyState({
       <div className="empty-light" aria-hidden="true" />
       <h2>{title}</h2>
       <p>{body}</p>
-      {actionLabel && actionHref ? <a className="primary-button" href={actionHref}>{actionLabel}</a> : null}
+      {actionLabel && actionHref ? <Link className="primary-button" href={actionHref}>{actionLabel}</Link> : null}
     </div>
   );
 }
+import Link from "next/link";
