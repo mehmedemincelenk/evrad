@@ -33,6 +33,7 @@
 .module-glyph.is-memory { font-size: 1.12rem; }
 .module-glyph.is-book { font-size: 1.12rem; }
 .module-glyph.is-poetry { font-family: Iowan Old Style, Baskerville, Georgia, serif; font-size: 1.4rem; }
+.module-glyph.is-bag { font-family: Iowan Old Style, Baskerville, Georgia, serif; font-size: 1.45rem; }
 
 .menu-scrim { position: fixed; inset: 0; z-index: 30; width: 100%; border: 0; background: rgba(2, 3, 5, 0.38); }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, type FormEvent, type ReactNode } from "react";
 import { EntityEditorPage } from "../../components/EntityEditorPage";
 import { TargetFields } from "../../components/TargetFields";
 import { t } from "../../core/i18n";
@@ -25,12 +25,13 @@ function createDraft(item: DevotionalItem | null): DevotionalDraft {
 }
 
 export function DevotionalEditor({
-  item, itemLabel, onClose, onSave,
+  item, itemLabel, onClose, onSave, beforeFields,
 }: {
   item: DevotionalItem | null;
   itemLabel: string;
   onClose: () => void;
   onSave: (draft: DevotionalDraft) => Promise<void>;
+  beforeFields?: ReactNode;
 }) {
   const [draft, setDraft] = useState(() => createDraft(item));
   const [error, setError] = useState<string | null>(null);
@@ -68,6 +69,7 @@ export function DevotionalEditor({
       onClose={onClose}
     >
       <form className="entity-form" onSubmit={(event) => void submit(event)} noValidate aria-busy={saving}>
+        {beforeFields}
         <label className="field-group"><span>{t("editor.name")}</span><input value={draft.name} onChange={(event) => update({ name: event.target.value })} placeholder={t("editor.namePlaceholder")} autoComplete="off" /></label>
         <label className="field-group"><span>{t("editor.arabic")}</span><textarea className="arabic-field" value={draft.arabic} onChange={(event) => update({ arabic: event.target.value })} placeholder={t("editor.arabicPlaceholder")} dir="auto" rows={4} /></label>
         <label className="field-group"><span>{t("editor.translation")}</span><textarea value={draft.translation} onChange={(event) => update({ translation: event.target.value })} placeholder={t("editor.translationPlaceholder")} rows={3} /></label>

@@ -94,7 +94,7 @@ function DevotionalDiscovery({ moduleId }: { moduleId: DevotionalModuleId }) {
           <DevotionalContextChips selected={selectedContexts} onToggle={contextFilter.toggleContext} label={t("filter.contexts")} />
         </div>
       ) : undefined}
-      renderCard={(props) => <DiscoveryDevotionalCard {...props} />}
+      renderCard={(props) => <DiscoveryDevotionalCard {...props} moduleId={moduleId} />}
     />
   );
 }

@@ -53,6 +53,7 @@ export function CollapsedCardSummary({
   targetUnitLabel,
   expanded,
   onToggle,
+  tags = [],
 }: {
   title: string;
   arabic: boolean;
@@ -61,6 +62,7 @@ export function CollapsedCardSummary({
   targetUnitLabel: string | null;
   expanded: boolean;
   onToggle: () => void;
+  tags?: string[];
 }) {
   return (
     <button
@@ -71,11 +73,17 @@ export function CollapsedCardSummary({
       aria-label={t(expanded ? "card.close" : "card.open", { title })}
     >
       <TargetBadge count={targetCount} unit={targetUnit} unitLabel={targetUnitLabel} />
-      <span className={arabic ? "arabic-preview" : "name-preview"} dir="auto">
-        {title}
+      <span className="card-summary-copy">
+        <span className={arabic ? "arabic-preview" : "name-preview"} dir="auto">{title}</span>
+        <MiniTags tags={tags} />
       </span>
     </button>
   );
+}
+
+export function MiniTags({ tags }: { tags: string[] }) {
+  if (!tags.length) return null;
+  return <span className="mini-tags" aria-label={tags.join(", ")}>{tags.map((tag) => <span key={tag}>{tag}</span>)}</span>;
 }
 
 export function TargetBadge({ count, unit, unitLabel }: { count: number | null; unit: TargetUnit; unitLabel: string | null }) {

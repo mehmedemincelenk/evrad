@@ -9,12 +9,14 @@ import {
 } from "../../components/TrackerPrimitives";
 import { CardActions } from "../../components/CardActions";
 import { t } from "../../core/i18n";
-import type { DevotionalItem } from "../../core/types";
+import type { DevotionalItem, DevotionalModuleId } from "../../core/types";
 import { getDevotionalDisplay } from "./devotional-utils";
 import { DevotionalDetails } from "./DevotionalDetails";
+import { getDevotionalTags } from "./devotional-tags";
 
 interface DevotionalCardProps {
   item: DevotionalItem;
+  moduleId: DevotionalModuleId;
   complete: boolean;
   expanded: boolean;
   dragging: boolean;
@@ -31,6 +33,7 @@ interface DevotionalCardProps {
 export function DevotionalCard(props: DevotionalCardProps) {
   const { item } = props;
   const display = getDevotionalDisplay(item);
+  const tags = getDevotionalTags(props.moduleId, item);
   return (
     <TrackableCardShell
       id={item.id}
@@ -48,6 +51,7 @@ export function DevotionalCard(props: DevotionalCardProps) {
           targetUnitLabel={item.targetUnitLabel}
           expanded={props.expanded}
           onToggle={props.onToggleExpanded}
+          tags={tags}
         />
       )}
       trailing={(
@@ -58,7 +62,7 @@ export function DevotionalCard(props: DevotionalCardProps) {
         />
       )}
     >
-      <DevotionalDetails item={item} fontLevel={item.expandedArabicSize} onChangeFont={props.onChangeFont} actions={<CardActions title={display.text} onEdit={props.onEdit} onDelete={props.onDelete} />} />
+      <DevotionalDetails item={item} fontLevel={item.expandedArabicSize} onChangeFont={props.onChangeFont} tags={tags} actions={<CardActions title={display.text} onEdit={props.onEdit} onDelete={props.onDelete} />} />
     </TrackableCardShell>
   );
 }

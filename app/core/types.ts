@@ -1,10 +1,10 @@
 import type { TranslationKey } from "./i18n";
 
-export type ModuleId = "prayers" | "books" | "memorization" | "dhikr" | "poetry" | "games";
-export type TrackableModuleId = Exclude<ModuleId, "games">;
+export type ModuleId = "prayers" | "books" | "memorization" | "dhikr" | "poetry" | "bag" | "games";
+export type TrackableModuleId = Exclude<ModuleId, "bag" | "games">;
 export type DevotionalModuleId = Exclude<TrackableModuleId, "books">;
 export type ContentSpace = "library" | "discover";
-export type IconName = "prayer" | "book" | "memory" | "dhikr" | "poetry" | "game";
+export type IconName = "prayer" | "book" | "memory" | "dhikr" | "poetry" | "bag" | "game";
 export type TargetUnit = "count" | "custom";
 export type ArabicFontLevel = 0 | 1 | 2 | 3 | 4;
 export type DevotionalContext =
@@ -47,6 +47,11 @@ export type TrackableModuleDefinition = ModuleBase & {
 };
 
 export type ModuleDefinition = TrackableModuleDefinition | ModuleBase & {
+  id: "bag";
+  kind: "bag";
+  copy: ModuleCopy;
+  create: ModuleCreation;
+} | ModuleBase & {
   id: "games";
   kind: "games";
   copy: ModuleCopy;

@@ -33,9 +33,15 @@
 .context-chip.is-forgiveness { --chip-line: rgba(181, 149, 221, 0.28); --chip-surface: rgba(181, 149, 221, 0.06); --chip-text: #b7a0d2; }
 .context-chip.is-protection { --chip-line: rgba(104, 169, 207, 0.28); --chip-surface: rgba(104, 169, 207, 0.06); --chip-text: #80adca; }
 .context-chip.is-relief { --chip-line: rgba(213, 139, 132, 0.28); --chip-surface: rgba(213, 139, 132, 0.06); --chip-text: #ca918b; }
+.context-chip.is-bag-prayers { --chip-line: rgba(127, 190, 166, 0.28); --chip-surface: rgba(127, 190, 166, 0.06); --chip-text: #8ebba9; }
+.context-chip.is-bag-memorization { --chip-line: rgba(162, 151, 214, 0.28); --chip-surface: rgba(162, 151, 214, 0.06); --chip-text: #aaa1d0; }
+.context-chip.is-bag-surahs { --chip-line: rgba(104, 169, 207, 0.28); --chip-surface: rgba(104, 169, 207, 0.06); --chip-text: #80adca; }
+.context-chip.is-bag-poetry { --chip-line: rgba(229, 185, 112, 0.28); --chip-surface: rgba(229, 185, 112, 0.06); --chip-text: #c9ad7e; }
 .context-chip.is-selected { background: var(--chip-text); border-color: var(--chip-text); color: #111318; box-shadow: 0 0 1rem color-mix(in srgb, var(--chip-text) 22%, transparent); }
 
 .filter-empty { margin: 1.5rem 0; color: var(--muted); font-family: Iowan Old Style, Baskerville, Georgia, serif; font-size: 0.9rem; font-style: italic; text-align: center; }
 
 .field-group > .context-chips { margin-top: -0.1rem; }
 .field-group > small { color: var(--muted); font-size: 0.72rem; }
+.bag-toolbar { display: grid; gap: 0.45rem; margin: -1rem 0 1.25rem; }
+.bag-toolbar .context-chips { padding-bottom: 0.15rem; }

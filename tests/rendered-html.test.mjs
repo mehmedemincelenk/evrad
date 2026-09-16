@@ -68,7 +68,7 @@ test("devotional contexts are shared by editors, library filters, discovery, and
   assert.match(libraryLayoutText, /actionHref=\{module\.discoverRoute\}/);
   assert.match(discoveryText, /useDevotionalContextFilter/);
   assert.match(repositoriesText, /contexts: item\.contexts \?\? \[\]/);
-  assert.equal((cssText.match(/--chip-text:/g) ?? []).length, 7);
+  assert.equal((cssText.match(/--chip-text:/g) ?? []).length, 11);
   assert.match(overlaysCss, /storageBreath 1\.25s ease-in-out infinite/);
   assert.match(i18nText, /Hedef için 1 veya daha büyük bir tam sayı yazmalısın/);
 });
@@ -161,7 +161,7 @@ test("the compact menu and completion symbols keep interaction work lightweight"
     readFile(new URL("../app/styles/navigation.css", import.meta.url), "utf8"),
   ]);
   assert.doesNotMatch(menuText, /activityKey/);
-  assert.match(menuText, /trackableNavigationModules\.map/);
+  assert.match(menuText, /navigationModules\.map/);
   assert.match(menuText, /bottom-context-trigger/);
   assert.match(menuText, /bottom-space-segment/);
   assert.match(menuText, /aria-pressed=\{selected\}/);
@@ -283,13 +283,42 @@ test("PWA updates replace stale application shells instead of preserving a stuck
     readFile(new URL("../public/sw.js", import.meta.url), "utf8"),
     readFile(new URL("../app/hooks/usePwaUpdate.ts", import.meta.url), "utf8"),
   ]);
-  assert.match(serviceWorkerText, /zikirlerim-shell-v16/);
+  assert.match(serviceWorkerText, /zikirlerim-shell-v17/);
   assert.match(serviceWorkerText, /await fetch\(request\)[\s\S]*await caches\.match\(request\)/);
   assert.match(serviceWorkerText, /then\(\(\) => self\.skipWaiting\(\)\)/);
   assert.match(serviceWorkerText, /type === "SKIP_WAITING"/);
   assert.match(updateHookText, /updateViaCache: "none"/);
   assert.match(updateHookText, /visibilitychange/);
   assert.doesNotMatch(updateHookText, /icon-192|icon-512|NotoNaskhArabic/);
+});
+
+test("navigation exposes only Zikirler and Çanta while bag categories reuse existing stores", async () => {
+  const [registryText, bagText, bagDiscoveryText, tagsText] = await Promise.all([
+    readFile(new URL("../app/core/module-registry.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/features/bag/BagModuleApp.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/features/bag/BagDiscoveryApp.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/features/devotional/devotional-tags.ts", import.meta.url), "utf8"),
+  ]);
+  assert.match(registryText, /navigationModules:[\s\S]*"dhikr"[\s\S]*"bag"/);
+  assert.doesNotMatch(registryText.match(/navigationModules:[\s\S]*?\];/)?.[0] ?? "", /"prayers"|"memorization"|"poetry"|"books"/);
+  assert.match(bagText, /useDevotionalModule/);
+  assert.match(bagDiscoveryText, /useDiscoveryLibrary/);
+  assert.match(tagsText, /item\.contexts\.map/);
+});
+
+test("home prayer countdown calculates locally and requests location only on demand", async () => {
+  const [homeText, countdownText, hookText, utilityText] = await Promise.all([
+    readFile(new URL("../app/features/home/HomeScreen.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/features/prayer-times/PrayerCountdown.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/features/prayer-times/usePrayerCountdown.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/features/prayer-times/prayer-time-utils.ts", import.meta.url), "utf8"),
+  ]);
+  assert.match(homeText, /<PrayerCountdown/);
+  assert.match(countdownText, /requestLocation/);
+  assert.match(hookText, /navigator\.geolocation\.getCurrentPosition/);
+  assert.match(hookText, /localStorage\.setItem/);
+  assert.match(utilityText, /CalculationMethod\.Turkey\(\)/);
+  assert.match(utilityText, /new PrayerTimes/);
 });
 
 test("portable backups include every library and completion record", async () => {

@@ -6,6 +6,7 @@ const glyphs: Record<IconName, string> = {
   memory: "🧠",
   book: "📖",
   poetry: "❦",
+  bag: "◒",
   game: "✦",
 };
 

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { ContentSpace, ModuleId } from "../core/types";
 import { t } from "../core/i18n";
-import { getModule, trackableNavigationModules } from "../core/module-registry";
+import { getModule, navigationModules } from "../core/module-registry";
 import { PlusMinusIcon } from "./PlusMinusIcon";
 import { TransientMenuBackdrop } from "./TransientMenuBackdrop";
 import { ModuleGlyph } from "./ModuleGlyph";
@@ -63,7 +63,7 @@ export function TransientBottomBar({
         <div className={`bottom-context${contextOpen ? " is-open" : ""}`}>
           <div className="bottom-context-panel" aria-hidden={!contextOpen}>
             <div className="bottom-module-buttons" role="group" aria-label={t("menu.modulesLabel")}>
-              {trackableNavigationModules.map((id) => {
+              {navigationModules.map((id) => {
                 const definition = getModule(id);
                 const label = t(definition.copy.menu);
                 const selected = id === contextModule;

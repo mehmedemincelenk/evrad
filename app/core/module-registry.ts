@@ -7,6 +7,10 @@ export const modules = [
   createTrackableModule("dhikr", "devotional", "dhikr", "/zikirler", "menu.dhikr", "menu.addDhikr"),
   createTrackableModule("poetry", "devotional", "poetry", "/siirler", "menu.poetry", "menu.addPoetry"),
   {
+    id: "bag", kind: "bag", route: "/canta", discoverRoute: "/kesfet/canta", icon: "bag", create: { route: "/canta/yeni", label: "menu.addBag" },
+    copy: { menu: "menu.bag", title: "module.bag.title", eyebrow: "module.bag.eyebrow", tagline: "module.bag.tagline", discoverTitle: "discover.bag.title" },
+  },
+  {
     id: "games",
     kind: "games",
     route: "/oyunlar",
@@ -23,12 +27,9 @@ export const modules = [
   },
 ] as const satisfies readonly ModuleDefinition[];
 
-export const trackableNavigationModules: readonly TrackableModuleId[] = [
+export const navigationModules: readonly ModuleId[] = [
   "dhikr",
-  "prayers",
-  "memorization",
-  "poetry",
-  "books",
+  "bag",
 ];
 
 function createTrackableModule(

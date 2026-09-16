@@ -91,6 +91,13 @@
   text-align: right;
 }
 
+.card-summary-copy { display: flex; min-width: 0; flex: 1 1 auto; align-items: center; gap: 0.38rem; overflow: hidden; }
+.card-summary-copy > .arabic-preview,
+.card-summary-copy > .name-preview { flex: 1 1 auto; }
+.mini-tags { display: flex; min-width: 0; flex: 0 1 auto; gap: 0.2rem; overflow: hidden; }
+.mini-tags > span { flex: 0 0 auto; max-width: 5.25rem; overflow: hidden; padding: 0.13rem 0.28rem; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 0.2rem; color: var(--muted); font-size: 0.48rem; font-weight: 700; letter-spacing: 0.035em; line-height: 1.15; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
+.card-expanded-content > .mini-tags { margin: 0.55rem 0.35rem 0; }
+
 .arabic-preview {
   min-width: 0;
   flex: 1 1 auto;

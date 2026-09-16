@@ -7,6 +7,7 @@ import { DailySelectionCards } from "./DailySelectionCards";
 import { useDailySelection } from "./useDailySelection";
 import { useDailyCompletions } from "./useDailyCompletions";
 import { useExpandableItems } from "../../hooks/useExpandableItems";
+import { PrayerCountdown } from "../prayer-times/PrayerCountdown";
 
 export function HomeScreen() {
   const { ready, selection, refresh } = useDailySelection();
@@ -22,6 +23,7 @@ export function HomeScreen() {
             <span aria-hidden="true">↻</span>
           </button>
         </header>
+        <PrayerCountdown />
         {!ready || !completions.ready ? <StorageLoading label={t("home.loading")} /> : hasContent && selection ? (
           <div className="daily-selection">
             <DailySelectionCards items={selection.dhikr} moduleId="dhikr" completeIds={completions.completeIds.dhikr} expandedIds={expansion.expandedIds} onToggleComplete={completions.toggleComplete} onToggleExpanded={expansion.toggleExpanded} />

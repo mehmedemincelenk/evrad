@@ -115,3 +115,22 @@ h1 {
 }
 
 .dayline { margin: 0.35rem 0 0; color: var(--muted); font-size: 0.85rem; }
+
+.prayer-countdown {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.35rem 1rem;
+  align-items: center;
+  margin: -0.7rem 0 1.35rem;
+  padding: 0.85rem 0.95rem;
+  border: 1px solid var(--line);
+  border-radius: 0.7rem;
+  background: linear-gradient(135deg, rgba(255, 249, 220, 0.065), rgba(20, 22, 27, 0.5));
+}
+.prayer-countdown-copy { display: grid; gap: 0.16rem; min-width: 0; }
+.prayer-countdown-copy p { margin: 0; color: var(--light-warm); font-family: Iowan Old Style, Baskerville, Georgia, serif; font-size: 0.96rem; }
+.prayer-countdown-copy strong { font-size: clamp(1.55rem, 7vw, 2.1rem); font-weight: 450; letter-spacing: 0.06em; font-variant-numeric: tabular-nums; }
+.prayer-countdown-copy span { color: var(--muted); font-size: 0.76rem; line-height: 1.4; }
+.prayer-countdown button { min-height: 2.75rem; padding: 0 0.75rem; border-radius: 0.5rem; background: rgba(255, 255, 255, 0.065); color: var(--text-soft); font-size: 0.68rem; cursor: pointer; }
+.prayer-countdown button:disabled { opacity: 0.45; cursor: wait; }
+.prayer-countdown small { grid-column: 1 / -1; color: var(--muted-deep); font-size: 0.62rem; }

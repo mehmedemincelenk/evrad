@@ -1,13 +1,16 @@
-const CACHE_NAME = "zikirlerim-shell-v16";
+const CACHE_NAME = "zikirlerim-shell-v17";
 const CORE_URLS = [
   "/",
   "/zikirler",
+  "/canta",
+  "/canta/yeni",
   "/dualar",
   "/ezberler",
   "/siirler",
   "/kitaplar",
   "/oyunlar",
   "/kesfet/zikirler",
+  "/kesfet/canta",
   "/kesfet/dualar",
   "/kesfet/ezberler",
   "/kesfet/siirler",

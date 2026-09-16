@@ -50,6 +50,7 @@ function DevotionalScreen({ moduleId, editorMode }: { moduleId: DevotionalModule
         {contextFilter.filteredItems.length === 0 ? <p className="filter-empty">{t("filter.empty")}</p> : contextFilter.filteredItems.map((item) => (
           <DevotionalCard
             key={item.id}
+            moduleId={moduleId}
             item={item}
             complete={collection.completeIds.has(item.id)}
             expanded={collection.expandedIds.has(item.id)}

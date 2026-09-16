@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { DetailBlock, ExpandableCardContent } from "../../components/TrackerPrimitives";
+import { DetailBlock, ExpandableCardContent, MiniTags } from "../../components/TrackerPrimitives";
 import { t } from "../../core/i18n";
 import type { DevotionalItem } from "../../core/types";
 
@@ -12,14 +12,17 @@ export function DevotionalDetails({
   fontLevel,
   onChangeFont,
   actions,
+  tags = [],
 }: {
   item: Pick<DevotionalItem, "name" | "arabic" | "translation" | "details" | "source">;
   fontLevel: 0 | 1 | 2 | 3 | 4;
   onChangeFont: (direction: -1 | 1) => void;
   actions?: ReactNode;
+  tags?: string[];
 }) {
   return (
     <ExpandableCardContent>
+      <MiniTags tags={tags} />
       {item.name ? <DetailBlock label={t("detail.name")}><p>{item.name}</p></DetailBlock> : null}
       {item.arabic ? (
         <DetailBlock label={t("detail.arabic")} className="arabic-detail">
