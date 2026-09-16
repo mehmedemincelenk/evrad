@@ -80,18 +80,20 @@ function DiscoveryList<T extends TrackableEntity>({
 }
 
 function DevotionalDiscovery({ moduleId }: { moduleId: DevotionalModuleId }) {
-  const contextFilter = useDevotionalContextFilter(getDevotionalCatalog(moduleId));
+  const catalog = getDevotionalCatalog(moduleId);
+  const contextFilter = useDevotionalContextFilter(catalog);
   const selectedContexts = contextFilter.activeContext ? [contextFilter.activeContext] : [];
+  const hasContextFilter = moduleId !== "memorization";
   return (
     <DiscoveryList<DevotionalItem>
       moduleId={moduleId}
-      catalog={contextFilter.filteredItems}
+      catalog={hasContextFilter ? contextFilter.filteredItems : catalog}
       repository={devotionalRepositories[moduleId]}
-      toolbar={(
+      toolbar={hasContextFilter ? (
         <div className="context-filter">
           <DevotionalContextChips selected={selectedContexts} onToggle={contextFilter.toggleContext} label={t("filter.contexts")} />
         </div>
-      )}
+      ) : undefined}
       renderCard={(props) => <DiscoveryDevotionalCard {...props} />}
     />
   );

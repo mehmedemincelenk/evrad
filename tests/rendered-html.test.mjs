@@ -234,6 +234,22 @@ test("discovery cards toggle individual catalog items in the matching library", 
   assert.doesNotMatch(screenText, /tavsiye edilen tüm zikirler/i);
 });
 
+test("memorization discovery contains the complete requested collections", async () => {
+  const [catalogText, surahText, asmaText, hadithText, i18nText] = await Promise.all([
+    readFile(new URL("../app/features/discovery/catalogs/memorization.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/features/discovery/catalogs/short-surahs.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/features/discovery/catalogs/asma-al-husna.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/features/discovery/catalogs/short-hadiths.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/core/i18n.ts", import.meta.url), "utf8"),
+  ]);
+  assert.equal((surahText.match(/^ {2}\{"id":"surah-/gm) ?? []).length, 37);
+  assert.equal((asmaText.match(/^ {2}\["/gm) ?? []).length, 99);
+  assert.equal((hadithText.match(/^ {2}\["/gm) ?? []).length, 40);
+  assert.match(catalogText, /fatiha[\s\S]*shortSurahCatalog[\s\S]*asmaAlHusnaCatalog[\s\S]*shortHadithCatalog/);
+  assert.match(i18nText, /"module\.memorization\.title": "Ezberler"/);
+  assert.match(i18nText, /"discover\.memorization\.title": "Ezberleri keşfet"/);
+});
+
 test("IndexedDB access is centralized and destructive updates stay atomic", async () => {
   const [trackableText, completionText, indexedDbText] = await Promise.all([
     readFile(new URL("../app/data/trackable-repository.ts", import.meta.url), "utf8"),

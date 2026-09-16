@@ -3,7 +3,7 @@ import type { ContentSpace, ModuleDefinition, ModuleId, TrackableModuleDefinitio
 export const modules = [
   createTrackableModule("prayers", "devotional", "prayer", "/dualar", "menu.prayers", "menu.addPrayer"),
   createTrackableModule("books", "books", "book", "/kitaplar", "menu.books", "menu.addBook"),
-  createTrackableModule("memorization", "devotional", "memory", "/sureler", "menu.memorization", "menu.addMemorization"),
+  createTrackableModule("memorization", "devotional", "memory", "/ezberler", "menu.memorization", "menu.addMemorization"),
   createTrackableModule("dhikr", "devotional", "dhikr", "/zikirler", "menu.dhikr", "menu.addDhikr"),
   createTrackableModule("poetry", "devotional", "poetry", "/siirler", "menu.poetry", "menu.addPoetry"),
   {

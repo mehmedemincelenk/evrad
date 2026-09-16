@@ -41,7 +41,7 @@ function DevotionalScreen({ moduleId, editorMode }: { moduleId: DevotionalModule
         storageReady={collection.storageReady}
         hasItems={collection.items.length > 0}
         sorting={sorting}
-        toolbar={collection.items.length > 0 ? (
+        toolbar={collection.items.length > 0 && moduleId !== "memorization" ? (
           <div className="context-filter">
             <DevotionalContextChips selected={selectedContexts} onToggle={contextFilter.toggleContext} label={t("filter.contexts")} />
           </div>
