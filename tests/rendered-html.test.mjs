@@ -147,6 +147,8 @@ test("target units and long-press sorting remain modular", async () => {
   assert.match(hookText, /document\.elementsFromPoint/);
   assert.match(hookText, /requestAnimationFrame\(autoScroll\)/);
   assert.match(cssText, /text-overflow:\s*ellipsis/);
+  assert.match(cssText, /\.card-summary-copy\s*\{[\s\S]*display:\s*grid;[\s\S]*align-content:\s*center;/);
+  assert.match(cssText, /\.mini-tags\s*\{[\s\S]*justify-content:\s*center;/);
   const navigationCss = await readFile(new URL("../app/styles/navigation.css", import.meta.url), "utf8");
   assert.doesNotMatch(navigationCss.match(/\.menu-scrim\s*\{[^}]+\}/)?.[0] ?? "", /backdrop-filter/);
 });
