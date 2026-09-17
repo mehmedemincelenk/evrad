@@ -23,7 +23,8 @@ test("server-renders the Zikirlerim application", async () => {
   assert.match(html, /<title>Zikirlerim<\/title>/i);
   assert.match(html, /GÜNÜN VİRDİ/);
   assert.match(html, /Zikirlerim yükleniyor/);
-  assert.match(html, /aria-label="Zikirler, Kütüphane"/);
+  assert.match(html, /aria-label="Zikirler" aria-pressed="true"/);
+  assert.match(html, /aria-label="Kütüphane" aria-pressed="true"/);
   assert.match(html, /Kütüphane ve keşif menüsünü aç/);
   assert.match(html, /name="apple-mobile-web-app-capable" content="yes"/);
   assert.match(html, /name="mobile-web-app-capable" content="yes"/);
@@ -162,7 +163,8 @@ test("the compact menu and completion symbols keep interaction work lightweight"
   ]);
   assert.doesNotMatch(menuText, /activityKey/);
   assert.match(menuText, /navigationModules\.map/);
-  assert.match(menuText, /bottom-context-trigger/);
+  assert.doesNotMatch(menuText, /contextOpen|bottom-context-panel|bottom-context-trigger/);
+  assert.match(menuText, /bottom-base-row/);
   assert.match(menuText, /bottom-space-segment/);
   assert.match(menuText, /aria-pressed=\{selected\}/);
   assert.match(menuText, /<ModuleGlyph icon=\{definition\.icon\}/);
@@ -174,7 +176,7 @@ test("the compact menu and completion symbols keep interaction work lightweight"
   assert.match(primitiveText, /<span className="completion-core" aria-hidden="true" \/>/);
   assert.match(symbolText, /is-minus/);
   assert.doesNotMatch(navigationCss, /\.top-module-tabs/);
-  assert.match(navigationCss, /\.bottom-context-panel/);
+  assert.doesNotMatch(navigationCss, /\.bottom-context-panel/);
   assert.match(navigationCss, /min-height:\s*2\.75rem/);
   assert.match(navigationCss, /--menu-radius:[\s\S]*border-radius:\s*var\(--menu-radius\)/);
 });
@@ -207,7 +209,7 @@ test("new modules can reuse navigation, storage, layout, and collection behavior
     readFile(new URL("../app/hooks/usePwaUpdate.ts", import.meta.url), "utf8"),
   ]);
   assert.match(registryText, /discoverRoute/);
-  assert.match(bottomBarText, /chooseModule\(id\)/);
+  assert.match(bottomBarText, /onModule\(id\)/);
   assert.match(shellText, /getModuleRoute\(activeModule \?\? "dhikr", space\)/);
   assert.match(homeText, /useDailySelection/);
   assert.match(homeText, /pinnedNavigation/);
