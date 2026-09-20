@@ -1,13 +1,19 @@
-const CACHE_NAME = "zikirlerim-shell-v17";
+const CACHE_NAME = "zikirlerim-shell-v18";
 const CORE_URLS = [
   "/",
+  "/virdlerim",
   "/zikirler",
+  "/zikirler/yeni",
   "/canta",
   "/canta/yeni",
   "/dualar",
+  "/dualar/yeni",
   "/ezberler",
+  "/ezberler/yeni",
   "/siirler",
+  "/siirler/yeni",
   "/kitaplar",
+  "/kitaplar/yeni",
   "/oyunlar",
   "/kesfet/zikirler",
   "/kesfet/canta",
@@ -16,6 +22,9 @@ const CORE_URLS = [
   "/kesfet/siirler",
   "/kesfet/kitaplar",
   "/kesfet/oyunlar",
+  "/kesfet/sureler",
+  "/sureler",
+  "/sureler/yeni",
   "/manifest.webmanifest",
   "/icon-192.png",
   "/icon-512.png",
@@ -69,7 +78,10 @@ self.addEventListener("fetch", (event) => {
         }
         return response;
       } catch {
-        return (await caches.match(request)) ?? (await caches.match("/")) ?? Response.error();
+        return (await caches.match(request, { ignoreSearch: true }))
+          ?? (await caches.match("/virdlerim"))
+          ?? (await caches.match("/"))
+          ?? Response.error();
       }
     })());
     return;

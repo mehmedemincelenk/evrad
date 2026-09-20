@@ -16,6 +16,7 @@ export function TrackableCardShell({
   dragOffsetY = 0,
   summary,
   leading,
+  marker,
   trailing,
   children,
 }: {
@@ -26,15 +27,17 @@ export function TrackableCardShell({
   dragOffsetY?: number;
   summary: ReactNode;
   leading: ReactNode;
+  marker?: ReactNode;
   trailing: ReactNode;
   children?: ReactNode;
 }) {
   return (
     <article
-      className={`trackable-card${complete ? " is-complete" : ""}${expanded ? " is-expanded" : ""}${dragging ? " is-dragging" : ""}`}
+      className={`trackable-card${leading ? "" : " has-no-leading"}${marker ? " has-marker" : ""}${complete ? " is-complete" : ""}${expanded ? " is-expanded" : ""}${dragging ? " is-dragging" : ""}`}
       data-card-id={id}
       style={{ "--drag-offset-y": `${dragOffsetY}px` } as CSSProperties}
     >
+      {marker ? <span className="card-module-marker" aria-hidden="true">{marker}</span> : null}
       <div className="card-collapsed-row">
         {leading}
         {summary}

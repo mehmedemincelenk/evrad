@@ -15,7 +15,7 @@ export function HomeScreen() {
   const expansion = useExpandableItems();
   const hasContent = Boolean(selection && (selection.dhikr.length || selection.prayer || selection.surah || selection.poem));
   return (
-    <AppShell activeModule={null} activeSpace={null} pinnedNavigation>
+    <AppShell activeModule={null} activeSpace={null}>
       <section className="daily-home" aria-labelledby="home-title">
         <header className="daily-home-header">
           <div><p className="eyebrow">{t("home.eyebrow")}</p><h1 id="home-title">{t("home.title")}</h1></div>

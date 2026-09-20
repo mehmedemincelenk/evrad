@@ -22,7 +22,7 @@ async function createEnvelope(): Promise<BackupEnvelope> {
 
 function backupFilename(date = new Date()): string {
   const part = (value: number) => String(value).padStart(2, "0");
-  return `Zikirlerim-${date.getFullYear()}-${part(date.getMonth() + 1)}-${part(date.getDate())}-${part(date.getHours())}${part(date.getMinutes())}.zikirlerim`;
+  return `Virdlerim-${date.getFullYear()}-${part(date.getMonth() + 1)}-${part(date.getDate())}-${part(date.getHours())}${part(date.getMinutes())}.zikirlerim`;
 }
 
 function download(file: File): void {
@@ -37,7 +37,7 @@ function download(file: File): void {
 export async function saveBackup(): Promise<BackupSaveResult> {
   const envelope = await createEnvelope();
   const file = new File([JSON.stringify(envelope, null, 2)], backupFilename(), { type: MIME_TYPE });
-  const shareData = { files: [file], title: "Zikirlerim yedeği" };
+  const shareData = { files: [file], title: "Virdlerim yedeği" };
 
   if (navigator.share && navigator.canShare?.(shareData)) {
     try {

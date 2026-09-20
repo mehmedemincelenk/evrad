@@ -1,12 +1,12 @@
-.trackable-list { display: grid; gap: 0.55rem; }
+.trackable-list { display: grid; gap: 0.7rem; }
 
 .trackable-card {
   position: relative;
   border: 1px solid var(--line);
-  border-radius: var(--radius);
+  border-radius: 0.95rem;
   background: linear-gradient(145deg, rgba(24, 26, 32, 0.9), rgba(13, 15, 19, 0.94));
   box-shadow: 0 1.1rem 2.8rem -2rem var(--shadow);
-  overflow: hidden;
+  overflow: visible;
   transition: border-color 200ms ease, box-shadow 200ms ease, transform 200ms ease;
 }
 
@@ -50,6 +50,10 @@
   min-height: 4.7rem;
 }
 
+.trackable-card.has-no-leading .card-collapsed-row {
+  grid-template-columns: minmax(0, 1fr) 2.75rem;
+}
+
 .drag-handle,
 .card-main,
 .completion-light,
@@ -78,8 +82,24 @@
 
 .is-sorting .drag-handle { cursor: grabbing; opacity: 0.7; }
 .drag-handle i { display: block; width: 0.85rem; height: 1px; background: var(--muted); pointer-events: none; }
-.home-card-marker { display: grid; min-width: 2.1rem; place-items: center; color: var(--muted); opacity: 0.68; }
-.home-card-marker .module-glyph { width: 1rem; font-size: 0.9rem; }
+.card-module-marker {
+  position: absolute;
+  top: 0;
+  left: 0.9rem;
+  z-index: 3;
+  display: grid;
+  min-width: 1.1rem;
+  height: 0.9rem;
+  padding: 0 0.18rem;
+  place-items: center;
+  background: var(--surface, #101216);
+  color: var(--muted);
+  line-height: 1;
+  transform: translateY(-50%);
+}
+.card-module-marker .module-glyph.module-glyph { width: auto; font-size: 0.7rem; line-height: 1; }
+.card-module-marker .module-glyph.is-poetry,
+.card-module-marker .module-glyph.is-bag { font-size: 0.72rem; }
 
 .card-main {
   display: flex;
@@ -87,7 +107,7 @@
   gap: 0.65rem;
   width: 100%;
   min-width: 0;
-  padding: 0.65rem 0.45rem 0.65rem 0.25rem;
+  padding: 0.65rem 0.45rem 0.65rem 0.65rem;
   text-align: right;
 }
 
@@ -104,6 +124,18 @@
 .card-summary-copy > .name-preview { display: block; width: 100%; text-align: center; }
 .mini-tags { display: flex; min-width: 0; justify-content: center; gap: 0.2rem; overflow: hidden; }
 .mini-tags > span { flex: 0 0 auto; max-width: 5.25rem; overflow: hidden; padding: 0.13rem 0.28rem; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 0.2rem; color: var(--muted); font-size: 0.48rem; font-weight: 700; letter-spacing: 0.035em; line-height: 1.15; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
+.card-summary-copy > .mini-tags {
+  position: absolute;
+  top: 0;
+  left: 3.15rem;
+  z-index: 2;
+  max-width: calc(100% - 6.5rem);
+  padding: 0 0.25rem;
+  background: var(--surface, #101216);
+  transform: translateY(-50%);
+}
+.trackable-card.has-no-leading .card-summary-copy > .mini-tags { left: 1.15rem; }
+.trackable-card.has-marker .card-summary-copy > .mini-tags { left: 2.45rem; }
 .card-expanded-content > .mini-tags { margin: 0.55rem 0.35rem 0; }
 
 .arabic-preview {
@@ -111,7 +143,7 @@
   flex: 1 1 auto;
   overflow: hidden;
   font-family: var(--font-arabic);
-  font-size: clamp(1.55rem, 6.5vw, 1.95rem);
+  font-size: clamp(1.38rem, 5.8vw, 1.78rem);
   line-height: 1.35;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -123,7 +155,7 @@
   overflow: hidden;
   color: var(--text);
   font-family: Iowan Old Style, Baskerville, Georgia, serif;
-  font-size: clamp(1.05rem, 4.8vw, 1.35rem);
+  font-size: clamp(0.98rem, 4.3vw, 1.22rem);
   line-height: 1.25;
   text-align: left;
   text-overflow: ellipsis;

@@ -5,10 +5,8 @@ import type { ContentSpace, ModuleId } from "./core/types";
 import { t } from "./core/i18n";
 import { TransientBottomBar } from "./components/TransientBottomBar";
 import { AppNotifications } from "./components/AppNotifications";
-import { EdgeMenuLauncher } from "./components/EdgeMenuLauncher";
 import { AppRuntimeContext } from "./core/AppRuntimeContext";
 import { usePwaUpdate } from "./hooks/usePwaUpdate";
-import { useTransientMenu } from "./hooks/useTransientMenu";
 import { getModule, getModuleRoute } from "./core/module-registry";
 import { useBackupExport } from "./features/backup/useBackupExport";
 import { usePersistentStorage } from "./hooks/usePersistentStorage";
@@ -19,16 +17,13 @@ export function AppShell({
   children,
   activeModule,
   activeSpace = "library",
-  pinnedNavigation = false,
 }: {
   children: ReactNode;
   activeModule: ModuleId | null;
   activeSpace?: ContentSpace | null;
-  pinnedNavigation?: boolean;
 }) {
   const activeDefinition = activeModule ? getModule(activeModule) : null;
   const router = useRouter();
-  const bottomMenu = useTransientMenu();
   const { updateReady, activateUpdate } = usePwaUpdate();
   const [toast, setToast] = useState<string | null>(null);
   const showToast = useCallback((message: string) => setToast(message), []);
@@ -43,33 +38,24 @@ export function AppShell({
   }, [toast]);
 
   const handleSpace = (space: ContentSpace) => {
-    bottomMenu.closeMenu();
-    if (space !== activeSpace || !activeModule) router.push(getModuleRoute(activeModule ?? "dhikr", space));
+    if (space === "discover") router.push("/kesfet/canta");
+    else router.push("/virdlerim");
   };
 
   const handleAdd = () => {
-    if (!activeDefinition?.create) return;
-    bottomMenu.closeMenu();
-    router.push(activeDefinition.create.route);
+    router.push(activeDefinition?.create?.route ?? "/canta/yeni");
   };
 
   const handleModule = (moduleId: ModuleId) => {
-    bottomMenu.closeMenu();
-    if (moduleId !== activeModule) router.push(getModuleRoute(moduleId, activeSpace ?? "library"));
+    if (moduleId === "dhikr") router.push("/virdlerim");
+    else if (moduleId === "bag") router.push("/canta");
+    else if (moduleId !== activeModule) router.push(getModuleRoute(moduleId, activeSpace ?? "library"));
   };
 
-  const handleHome = () => {
-    bottomMenu.closeMenu();
-    if (activeModule !== null) router.push("/");
-  };
+  const handleHome = () => router.push("/");
 
   const handleBackup = () => {
-    bottomMenu.closeMenu();
     void backup.exportBackup();
-  };
-
-  const openBottomMenu = () => {
-    bottomMenu.openMenu();
   };
 
   return (
@@ -79,23 +65,13 @@ export function AppShell({
         <div className="ambient ambient-two" />
         {children}
         <AppFooter label={t("backup.save")} saving={backup.saving} onBackup={handleBackup} />
-        {!pinnedNavigation && !bottomMenu.open ? (
-          <EdgeMenuLauncher
-            label={t("menu.openSpaces")}
-            onClick={openBottomMenu}
-          />
-        ) : null}
         <TransientBottomBar
-          open={pinnedNavigation || bottomMenu.open}
           activeSpace={activeSpace}
           activeModule={activeModule}
-          pinned={pinnedNavigation}
-          onClose={bottomMenu.closeMenu}
-          onActivity={bottomMenu.registerActivity}
           onSpace={handleSpace}
           onHome={handleHome}
           onModule={handleModule}
-          addLabel={activeDefinition?.create ? t(activeDefinition.create.label) : null}
+          addLabel={activeDefinition?.create ? t(activeDefinition.create.label) : t("menu.addBag")}
           onAdd={handleAdd}
         />
         <AppNotifications message={toast} updateReady={updateReady} onActivateUpdate={activateUpdate} />

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFile, readdir } from "node:fs/promises";
 import test from "node:test";
 
-async function render(pathname = "/zikirler") {
+async function render(pathname = "/virdlerim") {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
   workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}-${pathname}`);
   const { default: worker } = await import(workerUrl.href);
@@ -14,18 +14,18 @@ async function render(pathname = "/zikirler") {
   );
 }
 
-test("server-renders the Zikirlerim application", async () => {
+test("server-renders the Virdlerim application", async () => {
   const response = await render();
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
-  assert.match(html, /<title>Zikirlerim<\/title>/i);
-  assert.match(html, /GÜNÜN VİRDİ/);
-  assert.match(html, /Zikirlerim yükleniyor/);
-  assert.match(html, /aria-label="Zikirler" aria-pressed="true"/);
-  assert.match(html, /aria-label="Kütüphane" aria-pressed="true"/);
-  assert.match(html, /Kütüphane ve keşif menüsünü aç/);
+  assert.match(html, /<title>Virdlerim<\/title>/i);
+  assert.match(html, /VİRD TERTİBİM/);
+  assert.match(html, /Virdlerim yükleniyor/);
+  assert.match(html, /aria-label="Virdlerim" aria-pressed="true"/);
+  assert.match(html, /transient-bottom-bar is-open is-pinned/);
+  assert.doesNotMatch(html, />Virdlerim<\/span>|>Çanta<\/span>|>Keşfet<\/span>/);
   assert.match(html, /name="apple-mobile-web-app-capable" content="yes"/);
   assert.match(html, /name="mobile-web-app-capable" content="yes"/);
   assert.equal((html.match(/name="mobile-web-app-capable"/g) ?? []).length, 1);
@@ -79,7 +79,7 @@ test("root route renders the pinned daily page", async () => {
   assert.equal(response.status, 200);
   const html = await response.text();
   assert.match(html, /Günün Sayfası/);
-  assert.match(html, /aria-label="Kütüphane"/);
+  assert.match(html, /aria-label="Virdlerim"/);
   assert.match(html, /aria-label="Keşfet"/);
   assert.match(html, /transient-bottom-bar is-open is-pinned/);
   assert.match(html, /Günün sayfasını yenile/);
@@ -118,13 +118,16 @@ test("PWA manifest and architecture declarations stay aligned", async () => {
     readFile(new URL("../public/sw.js", import.meta.url), "utf8"),
   ]);
   const manifest = JSON.parse(manifestText);
-  assert.equal(manifest.name, "Zikirlerim");
+  assert.equal(manifest.name, "Virdlerim");
   assert.equal(manifest.id, "/");
   assert.equal(manifest.start_url, "/");
   assert.equal(manifest.display, "standalone");
   assert.equal(manifest.scope, "/");
   assert.match(workerText, /await fetch\(request\)/);
   assert.match(workerText, /await caches\.match\(request\)/);
+  for (const pathname of ["/virdlerim", "/zikirler/yeni", "/dualar/yeni", "/ezberler/yeni", "/siirler/yeni", "/kitaplar/yeni", "/sureler", "/sureler/yeni", "/kesfet/sureler"]) {
+    assert.match(workerText, new RegExp(`"${pathname}"`), pathname);
+  }
   assert.match(workerText, /self\.skipWaiting\(\)/);
   assert.doesNotMatch(workerText, /cached \?\? \(await networkResponse\)/);
   assert.equal((registryText.match(/createTrackableModule\(/g) ?? []).length, 6);
@@ -164,12 +167,12 @@ test("the compact menu and completion symbols keep interaction work lightweight"
     readFile(new URL("../app/styles/navigation.css", import.meta.url), "utf8"),
   ]);
   assert.doesNotMatch(menuText, /activityKey/);
-  assert.match(menuText, /navigationModules\.map/);
+  assert.match(menuText, /onModule\("dhikr"\)/);
   assert.doesNotMatch(menuText, /contextOpen|bottom-context-panel|bottom-context-trigger/);
   assert.match(menuText, /bottom-base-row/);
   assert.match(menuText, /bottom-space-segment/);
-  assert.match(menuText, /aria-pressed=\{selected\}/);
-  assert.match(menuText, /<ModuleGlyph icon=\{definition\.icon\}/);
+  assert.match(menuText, /onModule\("bag"\)/);
+  assert.match(menuText, /onSpace\("discover"\)/);
   assert.match(moduleGlyphText, /Record<IconName, string>/);
   assert.match(menuHookText, /timeoutRef/);
   assert.doesNotMatch(menuHookText, /setActivityKey/);
@@ -211,10 +214,10 @@ test("new modules can reuse navigation, storage, layout, and collection behavior
     readFile(new URL("../app/hooks/usePwaUpdate.ts", import.meta.url), "utf8"),
   ]);
   assert.match(registryText, /discoverRoute/);
-  assert.match(bottomBarText, /onModule\(id\)/);
-  assert.match(shellText, /getModuleRoute\(activeModule \?\? "dhikr", space\)/);
+  assert.match(bottomBarText, /onModule\("dhikr"\)/);
+  assert.match(shellText, /router\.push\("\/kesfet\/canta"\)/);
   assert.match(homeText, /useDailySelection/);
-  assert.match(homeText, /pinnedNavigation/);
+  assert.match(homeText, /<AppShell activeModule=\{null\} activeSpace=\{null\}>/);
   assert.doesNotMatch(homeText, /next\/link/);
   assert.match(repositoryText, /createTrackableRepository/);
   assert.match(completionText, /loadIds\(itemType: TrackableModuleId/);
@@ -273,13 +276,14 @@ test("IndexedDB access is centralized and destructive updates stay atomic", asyn
   assert.match(indexedDbText, /database\.onversionchange/);
 });
 
-test("the v6 store upgrade preserves the one-time legacy dhikr cleanup", async () => {
+test("the v7 store upgrade preserves data and promotes legacy dhikr into Virdlerim", async () => {
   const indexedDbText = await readFile(new URL("../app/data/indexed-db.ts", import.meta.url), "utf8");
-  assert.match(indexedDbText, /DB_VERSION = 6/);
+  assert.match(indexedDbText, /DB_VERSION = 7/);
   assert.match(indexedDbText, /poetry: "poetry"/);
   assert.match(indexedDbText, /event\.oldVersion > 0 && event\.oldVersion < 5/);
   assert.match(indexedDbText, /objectStore\(ENTITY_STORES\.dhikr\)\.clear\(\)/);
   assert.match(indexedDbText, /cursor\.value\.itemType === "dhikr"/);
+  assert.match(indexedDbText, /inVirds: true/);
 });
 
 test("PWA updates replace stale application shells instead of preserving a stuck client", async () => {
@@ -287,7 +291,7 @@ test("PWA updates replace stale application shells instead of preserving a stuck
     readFile(new URL("../public/sw.js", import.meta.url), "utf8"),
     readFile(new URL("../app/hooks/usePwaUpdate.ts", import.meta.url), "utf8"),
   ]);
-  assert.match(serviceWorkerText, /zikirlerim-shell-v17/);
+  assert.match(serviceWorkerText, /zikirlerim-shell-v18/);
   assert.match(serviceWorkerText, /await fetch\(request\)[\s\S]*await caches\.match\(request\)/);
   assert.match(serviceWorkerText, /then\(\(\) => self\.skipWaiting\(\)\)/);
   assert.match(serviceWorkerText, /type === "SKIP_WAITING"/);
@@ -296,15 +300,16 @@ test("PWA updates replace stale application shells instead of preserving a stuck
   assert.doesNotMatch(updateHookText, /icon-192|icon-512|NotoNaskhArabic/);
 });
 
-test("navigation exposes only Zikirler and Çanta while bag categories reuse existing stores", async () => {
-  const [registryText, bagText, bagDiscoveryText, tagsText] = await Promise.all([
-    readFile(new URL("../app/core/module-registry.ts", import.meta.url), "utf8"),
+test("navigation exposes Virdlerim, Çanta, and Keşfet while bag categories reuse existing stores", async () => {
+  const [navigationText, bagText, bagDiscoveryText, tagsText] = await Promise.all([
+    readFile(new URL("../app/components/TransientBottomBar.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/features/bag/BagModuleApp.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/features/bag/BagDiscoveryApp.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/features/devotional/devotional-tags.ts", import.meta.url), "utf8"),
   ]);
-  assert.match(registryText, /navigationModules:[\s\S]*"dhikr"[\s\S]*"bag"/);
-  assert.doesNotMatch(registryText.match(/navigationModules:[\s\S]*?\];/)?.[0] ?? "", /"prayers"|"memorization"|"poetry"|"books"/);
+  assert.match(navigationText, /menu\.virds/);
+  assert.match(navigationText, /menu\.bag/);
+  assert.match(navigationText, /menu\.discover/);
   assert.match(bagText, /useDevotionalModule/);
   assert.match(bagDiscoveryText, /useDiscoveryLibrary/);
   assert.match(tagsText, /item\.contexts\.map/);

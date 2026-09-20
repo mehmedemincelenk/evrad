@@ -3,7 +3,7 @@ import type { DevotionalItem, DevotionalModuleId } from "../../core/types";
 
 export function getDevotionalTags(moduleId: DevotionalModuleId, item: Pick<DevotionalItem, "name" | "source" | "contexts">): string[] {
   const type = moduleId === "dhikr"
-    ? t("menu.dhikr")
+    ? t("bag.dhikr")
     : moduleId === "prayers"
       ? t("bag.prayers")
       : moduleId === "poetry"

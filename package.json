@@ -1,5 +1,5 @@
 {
-  "name": "zikirlerim-pwa",
+  "name": "virdlerim-pwa",
   "version": "0.1.0",
   "private": true,
   "engines": {
@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "adhan": "^4.4.3",
+    "lucide-react": "^1.47.0",
     "react": "19.2.6",
     "react-dom": "19.2.6"
   },

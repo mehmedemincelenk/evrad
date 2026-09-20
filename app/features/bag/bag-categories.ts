@@ -1,8 +1,8 @@
 import type { DevotionalItem, DevotionalModuleId } from "../../core/types";
 
-export type BagCategory = "prayers" | "memorization" | "surahs" | "poetry";
+export type BagCategory = "dhikr" | "prayers" | "memorization" | "surahs" | "poetry";
 
-export const bagCategories: BagCategory[] = ["prayers", "memorization", "surahs", "poetry"];
+export const bagCategories: BagCategory[] = ["dhikr", "prayers", "memorization", "surahs", "poetry"];
 
 export function bagCategoryModule(category: BagCategory): DevotionalModuleId {
   return category === "surahs" ? "memorization" : category;

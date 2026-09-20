@@ -24,7 +24,12 @@ export function useDailySelection() {
       devotionalRepositories.poetry.load(),
     ]).then(([dhikr, prayers, memorization, poetry]) => {
       if (!active) return;
-      const libraries = { dhikr, prayers, memorization, poetry };
+      const libraries = {
+        dhikr: dhikr.filter((item) => item.inVirds),
+        prayers: prayers.filter((item) => item.inVirds),
+        memorization: memorization.filter((item) => item.inVirds),
+        poetry: poetry.filter((item) => item.inVirds),
+      };
       librariesRef.current = libraries;
       const stored = readStoredSelection();
       const restored = stored?.date === date ? restoreSelection(stored, libraries) : null;

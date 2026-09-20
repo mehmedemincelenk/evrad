@@ -66,10 +66,7 @@
 .bottom-nav-button { display: grid; width: 2.75rem; place-items: center; border-radius: calc(var(--menu-radius) - 0.12rem); }
 .bottom-nav-button.is-selected { background: var(--light); color: #15171c; box-shadow: 0 0 1rem rgba(255, 253, 240, 0.1); }
 .bottom-add { color: var(--light); }
-.navigation-glyph { display: grid; width: 1.2rem; height: 1.2rem; place-items: center; font-size: 1.15rem; line-height: 1; }
-.navigation-glyph.is-home { font-size: 1.35rem; transform: translateY(-0.05rem); }
-.navigation-glyph.is-library { font-size: 1.05rem; letter-spacing: -0.1em; }
-.navigation-glyph.is-discover { font-size: 1.05rem; }
+.navigation-glyph { display: block; width: 1.22rem; height: 1.22rem; }
 .bottom-module-buttons { display: flex; justify-content: center; gap: 0.05rem; }
 .bottom-module-button { display: grid; place-items: center; border-radius: calc(var(--menu-radius) - 0.12rem); opacity: 0.58; }
 .bottom-module-button.is-selected { background: var(--light); color: #15171c; box-shadow: 0 0 1rem rgba(255, 253, 240, 0.1); opacity: 1; }
@@ -100,3 +97,5 @@
 @media (prefers-reduced-motion: reduce) {
   .transient-bottom-bar { transition: none; }
 }
+.bottom-primary-segment { flex: 1; }
+.bottom-primary-segment .bottom-space-option { width: 2.75rem; min-width: 2.75rem; padding: 0; }

@@ -20,6 +20,9 @@
 
 .confirmation-modal h2 { margin: 0; font-family: Iowan Old Style, Baskerville, Georgia, serif; font-size: 1.45rem; font-weight: 500; }
 .confirmation-copy > p { margin: 0.7rem 0 0; color: var(--text-soft); font-size: 0.9rem; line-height: 1.65; }
+.collection-choice-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.55rem; margin-top: 1rem; }
+.collection-choice-actions button { min-height: 2.75rem; }
+.collection-choice-actions button:last-child { grid-column: 1 / -1; }
 @keyframes confirmationIn { from { opacity: 0; } }
 
 .storage-loading {

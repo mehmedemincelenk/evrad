@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 import "./globals.css";
 
-const title = "Zikirlerim";
+const title = "Virdlerim";
 const description = "Zikir, dua, ezber, şiir ve okumalarını takip et; her gün yeni bir sayfa aç.";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -32,7 +32,7 @@ export async function generateMetadata(): Promise<Metadata> {
       type: "website",
       locale: "tr_TR",
       url: origin,
-      images: [{ url: `${origin}/og-v2.png`, width: 1672, height: 941, alt: "Zikirlerim — Kütüphanen, keşiflerin, günlük ışığın" }],
+      images: [{ url: `${origin}/og-v2.png`, width: 1672, height: 941, alt: "Virdlerim — Çantan, keşiflerin, günlük tertibin" }],
     },
     twitter: {
       card: "summary_large_image",
@@ -55,6 +55,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="tr">
       <head>
         <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="mobile-web-app-capable" content="yes" />
       </head>
       <body data-theme="dark" data-palette="default">{children}</body>
     </html>

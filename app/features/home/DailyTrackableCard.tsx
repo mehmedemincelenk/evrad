@@ -31,7 +31,8 @@ export function DailyTrackableCard({ item, moduleId, complete, expanded, onToggl
       id={item.id}
       complete={complete}
       expanded={expanded}
-      leading={<span className="home-card-marker" aria-hidden="true"><ModuleGlyph icon={definition.icon} /></span>}
+      leading={undefined}
+      marker={<ModuleGlyph icon={definition.icon} />}
       summary={<CollapsedCardSummary title={display.text} arabic={display.arabic} targetCount={item.targetCount} targetUnit={item.targetUnit} targetUnitLabel={item.targetUnitLabel} expanded={expanded} onToggle={onToggleExpanded} tags={tags} />}
       trailing={<CompletionLight complete={complete} onToggle={onToggleComplete} label={t(complete ? "card.undoCompleteGeneric" : "card.completeGeneric", { title: display.text })} />}
     >

@@ -93,6 +93,9 @@ export interface DevotionalItem extends TrackableEntity {
   listDisplay: "arabic" | "name";
   expandedArabicSize: ArabicFontLevel;
   contexts: DevotionalContext[];
+  /** Virdlerim, Çanta'daki kayıtların işaretlenmiş alt kümesidir. */
+  inVirds?: boolean;
+  virdSortOrder?: number;
 }
 
 export interface DevotionalDraft extends TargetDraft {

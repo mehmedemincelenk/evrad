@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { AppShell } from "../../AppShell";
-import { DeleteConfirmation } from "../../components/DeleteConfirmation";
 import { ModuleScreenHeader } from "../../components/ModuleScreenHeader";
 import { SortStatus } from "../../components/SortStatus";
 import { StorageLoading } from "../../components/StorageLoading";
@@ -11,14 +10,13 @@ import { TrackableModuleLayout } from "../../components/TrackableModuleLayout";
 import { t } from "../../core/i18n";
 import { DevotionalCard } from "../devotional/DevotionalCard";
 import { DevotionalContextChips } from "../devotional/DevotionalContextChips";
-import { getDevotionalDisplay } from "../devotional/devotional-utils";
 import { useDevotionalContextFilter } from "../devotional/useDevotionalContextFilter";
 import { useDevotionalModule } from "../devotional/useDevotionalModule";
 import { BagCategoryChips } from "./BagCategoryChips";
 import { bagCategoryModule, matchesBagCategory, type BagCategory } from "./bag-categories";
 
 export function BagModuleApp() {
-  const [category, setCategory] = useState<BagCategory>("prayers");
+  const [category, setCategory] = useState<BagCategory>("dhikr");
   return (
     <AppShell activeModule="bag" activeSpace="library">
       <BagCategoryList key={category} category={category} onCategory={setCategory} />
@@ -63,6 +61,10 @@ function BagCategoryList({ category, onCategory }: { category: BagCategory; onCa
             position={collection.items.findIndex((candidate) => candidate.id === item.id) + 1}
             onToggleExpanded={() => collection.toggleExpanded(item.id)}
             onToggleComplete={() => collection.toggleComplete(item.id)}
+            mode="bag"
+            inVirds={Boolean(item.inVirds)}
+            onToggleVird={() => state.updateItem({ ...item, inVirds: !item.inVirds, updatedAt: new Date().toISOString() })}
+            onRemoveFromCollections={() => void state.removeItem(item.id)}
             onChangeFont={(direction) => state.changeFont(item, direction)}
             onEdit={() => state.editItem(item.id)}
             onDelete={() => state.setDeleteTarget(item)}
@@ -70,7 +72,6 @@ function BagCategoryList({ category, onCategory }: { category: BagCategory; onCa
           />
         ))}
       </TrackableModuleLayout>
-      {state.deleteTarget ? <DeleteConfirmation title={getDevotionalDisplay(state.deleteTarget).text} itemLabel={state.itemLabel} onCancel={() => state.setDeleteTarget(null)} onConfirm={state.confirmDelete} /> : null}
     </>
   );
 }

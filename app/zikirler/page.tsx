@@ -1,5 +1,5 @@
-import { DevotionalModuleApp } from "../features/devotional/DevotionalModuleApp";
+import { redirect } from "next/navigation";
 
 export default function DhikrPage() {
-  return <DevotionalModuleApp moduleId="dhikr" />;
+  redirect("/canta");
 }

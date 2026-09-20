@@ -22,7 +22,7 @@ import { useDevotionalContextFilter } from "../devotional/useDevotionalContextFi
 export function DiscoveryModuleApp({ moduleId }: { moduleId: ModuleId }) {
   return (
     <AppShell activeModule={moduleId} activeSpace="discover">
-      {moduleId === "games" ? <DiscoveryLayout moduleId="games" loading={false} hasItems={false} /> : moduleId === "books" ? <BookDiscovery /> : <DevotionalDiscovery moduleId={moduleId} />}
+      {moduleId === "games" || moduleId === "bag" ? <DiscoveryLayout moduleId={moduleId} loading={false} hasItems={false} /> : moduleId === "books" ? <BookDiscovery /> : <DevotionalDiscovery moduleId={moduleId} />}
     </AppShell>
   );
 }
@@ -52,7 +52,7 @@ function DiscoveryList<T extends TrackableEntity>({
   renderCard,
 }: {
   moduleId: ModuleId;
-  catalog: EntityTemplate<T>[];
+  catalog: readonly EntityTemplate<T>[];
   repository: TrackableRepository<T>;
   toolbar?: ReactNode;
   renderCard: (props: { item: EntityTemplate<T>; expanded: boolean; added: boolean; onToggle: () => void; onAdd: () => void }) => ReactNode;

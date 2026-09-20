@@ -1,7 +1,7 @@
 import type { TrackableModuleId } from "../core/types";
 
 const DB_NAME = "zikirlerim";
-const DB_VERSION = 6;
+const DB_VERSION = 7;
 
 export const ENTITY_STORES: Record<TrackableModuleId, string> = {
   dhikr: "dhikrs",
@@ -75,6 +75,16 @@ export function openDatabase(): Promise<IDBDatabase> {
           const cursor = cursorRequest.result;
           if (!cursor) return;
           if (cursor.value.itemType === "dhikr") cursor.delete();
+          cursor.continue();
+        };
+      }
+      if (event.oldVersion > 0 && event.oldVersion < 7 && request.transaction) {
+        const dhikrStore = request.transaction.objectStore(ENTITY_STORES.dhikr);
+        const cursorRequest = dhikrStore.openCursor();
+        cursorRequest.onsuccess = () => {
+          const cursor = cursorRequest.result;
+          if (!cursor) return;
+          cursor.update({ ...cursor.value, inVirds: true, virdSortOrder: cursor.value.sortOrder });
           cursor.continue();
         };
       }

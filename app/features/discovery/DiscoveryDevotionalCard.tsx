@@ -6,7 +6,8 @@ import {
   CollapsedCardSummary,
   TrackableCardShell,
 } from "../../components/TrackerPrimitives";
-import { t } from "../../core/i18n";
+import { ModuleGlyph } from "../../components/ModuleGlyph";
+import { getModule } from "../../core/module-registry";
 import { DevotionalDetails } from "../devotional/DevotionalDetails";
 import { getDevotionalDisplay } from "../devotional/devotional-utils";
 import type { DevotionalTemplate } from "./discovery-types";
@@ -38,7 +39,8 @@ export function DiscoveryDevotionalCard({
     <TrackableCardShell
       id={item.id}
       expanded={expanded}
-      leading={<span className="discovery-mark" aria-label={t("discover.mark")}>✦</span>}
+      leading={undefined}
+      marker={<ModuleGlyph icon={getModule(moduleId).icon} />}
       summary={<CollapsedCardSummary title={display.text} arabic={display.arabic} targetCount={item.targetCount} targetUnit={item.targetUnit} targetUnitLabel={item.targetUnitLabel} expanded={expanded} onToggle={onToggle} tags={tags} />}
       trailing={<AddToLibraryButton title={display.text} added={added} onAdd={onAdd} />}
     >
