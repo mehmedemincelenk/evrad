@@ -4,6 +4,8 @@ import type { ReactNode } from "react";
 import { DetailBlock, ExpandableCardContent, MiniTags } from "../../components/TrackerPrimitives";
 import { t } from "../../core/i18n";
 import type { DevotionalItem } from "../../core/types";
+import { useAppRuntime } from "../../core/AppRuntimeContext";
+import { formatArabicDiacritics } from "../../core/arabic-fonts";
 
 const fontSizes = ["1.75rem", "2.1rem", "2.5rem", "2.95rem", "3.45rem"];
 
@@ -20,6 +22,8 @@ export function DevotionalDetails({
   actions?: ReactNode;
   tags?: string[];
 }) {
+  const { showDiacritics, showTranslations } = useAppRuntime();
+
   return (
     <ExpandableCardContent>
       <MiniTags tags={tags} />
@@ -31,10 +35,12 @@ export function DevotionalDetails({
             <span>{t("detail.fontLevel", { level: fontLevel + 1 })}</span>
             <button type="button" onClick={() => onChangeFont(1)} aria-label={t("detail.fontLarger")} disabled={fontLevel === 4}>A+</button>
           </div>
-          <p className="expanded-arabic" dir="auto" style={{ fontSize: fontSizes[fontLevel] }}>{item.arabic}</p>
+          <p className="expanded-arabic" dir="auto" style={{ fontSize: `calc(${fontSizes[fontLevel]} * var(--text-scale, 1))`, lineHeight: "var(--arabic-line-height, 1.72)" }}>
+            {formatArabicDiacritics(item.arabic, showDiacritics)}
+          </p>
         </DetailBlock>
       ) : null}
-      {item.translation ? <DetailBlock label={t("detail.translation")}><p>{item.translation}</p></DetailBlock> : null}
+      {item.translation && showTranslations ? <DetailBlock label={t("detail.translation")}><p>{item.translation}</p></DetailBlock> : null}
       {item.details ? <DetailBlock label={t("detail.details")}><p className="details-copy">{item.details}</p></DetailBlock> : null}
       {item.source ? <DetailBlock label={t("detail.source")}><p>{item.source}</p></DetailBlock> : null}
       {actions}

@@ -2,10 +2,12 @@ import type { CSSProperties, KeyboardEventHandler, PointerEventHandler, ReactNod
 import { t } from "../core/i18n";
 import type { TargetUnit } from "../core/types";
 import { PlusMinusIcon } from "./PlusMinusIcon";
+import { useAppRuntime } from "../core/AppRuntimeContext";
+import { formatArabicDiacritics } from "../core/arabic-fonts";
 
 export interface SortHandleHandlers {
-  onPointerDown: PointerEventHandler<HTMLButtonElement>;
-  onKeyDown: KeyboardEventHandler<HTMLButtonElement>;
+  onPointerDown: PointerEventHandler<HTMLElement>;
+  onKeyDown: KeyboardEventHandler<HTMLElement>;
 }
 
 export function TrackableCardShell({
@@ -26,7 +28,7 @@ export function TrackableCardShell({
   dragging?: boolean;
   dragOffsetY?: number;
   summary: ReactNode;
-  leading: ReactNode;
+  leading?: ReactNode;
   marker?: ReactNode;
   trailing: ReactNode;
   children?: ReactNode;
@@ -39,7 +41,7 @@ export function TrackableCardShell({
     >
       {marker ? <span className="card-module-marker" aria-hidden="true">{marker}</span> : null}
       <div className="card-collapsed-row">
-        {leading}
+        {leading ?? <div className="card-leading-spacer" aria-hidden="true" />}
         {summary}
         {trailing}
       </div>
@@ -49,35 +51,41 @@ export function TrackableCardShell({
 }
 
 export function CollapsedCardSummary({
+  sortId,
+  sortProps,
   title,
   arabic,
-  targetCount,
-  targetUnit,
-  targetUnitLabel,
   expanded,
   onToggle,
   tags = [],
 }: {
+  sortId?: string;
+  sortProps?: SortHandleHandlers;
   title: string;
   arabic: boolean;
-  targetCount: number | null;
-  targetUnit: TargetUnit;
-  targetUnitLabel: string | null;
+  targetCount?: number | null;
+  targetUnit?: TargetUnit;
+  targetUnitLabel?: string | null;
   expanded: boolean;
   onToggle: () => void;
   tags?: string[];
 }) {
+  const { showDiacritics } = useAppRuntime();
+  const displayTitle = arabic ? formatArabicDiacritics(title, showDiacritics) : title;
+
   return (
     <button
       className="card-main"
       type="button"
+      data-sort-id={sortId}
+      onPointerDown={sortProps?.onPointerDown}
+      onKeyDown={sortProps?.onKeyDown}
       onClick={onToggle}
       aria-expanded={expanded}
       aria-label={t(expanded ? "card.close" : "card.open", { title })}
     >
-      <TargetBadge count={targetCount} unit={targetUnit} unitLabel={targetUnitLabel} />
       <span className="card-summary-copy">
-        <span className={arabic ? "arabic-preview" : "name-preview"} dir="auto">{title}</span>
+        <span className={arabic ? "arabic-preview" : "name-preview"} dir="auto">{displayTitle}</span>
         <MiniTags tags={tags} />
       </span>
     </button>
@@ -89,19 +97,22 @@ export function MiniTags({ tags }: { tags: string[] }) {
   return <span className="mini-tags" aria-label={tags.join(", ")}>{tags.map((tag) => <span key={tag}>{tag}</span>)}</span>;
 }
 
-export function TargetBadge({ count, unit, unitLabel }: { count: number | null; unit: TargetUnit; unitLabel: string | null }) {
-  if (count === null) {
-    return (
-      <span className="target-preview infinity-target" aria-label={t("card.infinityLabel")} title={t("card.infinityLabel")}>
-        {t("card.infinity")}
-      </span>
-    );
-  }
+export function TargetBadge({ count, unit, unitLabel }: { count?: number | null; unit?: TargetUnit; unitLabel?: string | null }) {
+  if (count === null || count === undefined || count <= 0) return null;
   return (
     <span className="target-preview">
       {unit === "custom" && unitLabel ? t("card.customTarget", { count, unit: unitLabel }) : t("card.target", { count })}
     </span>
   );
+}
+
+export function triggerHaptic(enabled = true, durationMs = 15): void {
+  if (!enabled || typeof navigator === "undefined" || !("vibrate" in navigator)) return;
+  try {
+    navigator.vibrate(durationMs);
+  } catch {
+    // vibrate kısıtı
+  }
 }
 
 export function CompletionLight({
@@ -113,11 +124,18 @@ export function CompletionLight({
   onToggle: () => void;
   label: string;
 }) {
+  const { hapticEnabled } = useAppRuntime();
+
+  const handleToggle = () => {
+    triggerHaptic(hapticEnabled, 15);
+    onToggle();
+  };
+
   return (
     <button
       className="completion-light"
       type="button"
-      onClick={onToggle}
+      onClick={handleToggle}
       aria-label={label}
       aria-pressed={complete}
     >

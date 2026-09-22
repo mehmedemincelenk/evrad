@@ -7,6 +7,7 @@ import { StorageLoading } from "../../components/StorageLoading";
 import { useAppRuntime } from "../../core/AppRuntimeContext";
 import { devotionalContentFromDraft } from "../../core/devotional";
 import { getSectionRoute } from "../../core/module-registry";
+import { getDefaultRecordCategory } from "../../core/record-categories";
 import { t } from "../../core/i18n";
 import type { DevotionalDraft, DevotionalModuleId } from "../../core/types";
 import { collectionRepository } from "../../data/collection-repository";
@@ -31,5 +32,5 @@ function RecordEditScreen({ moduleId, itemId }: { moduleId: DevotionalModuleId; 
   };
   if (!library.ready) return <StorageLoading label={t("loading.generic", { module: t("bag.record") })} />;
   if (!entry || library.failed) return <section className="module-screen"><p role="alert">{t(library.failed ? "toast.storageError" : "editor.notFoundGeneric", { item: t("bag.record") })}</p><button className="secondary-button" onClick={close}>{t("action.cancel")}</button></section>;
-  return <DevotionalEditor item={entry.item} itemLabel={t("bag.record")} defaultCategory={entry.item.bagCategories?.[0] ?? moduleId} onClose={close} onSave={save} />;
+  return <DevotionalEditor item={entry.item} itemLabel={t("bag.record")} defaultCategory={getDefaultRecordCategory(entry.item, moduleId)} onClose={close} onSave={save} />;
 }

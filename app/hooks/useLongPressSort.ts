@@ -85,11 +85,15 @@ export function useLongPressSort<T extends SortableItem>({
     document.body.classList.remove("is-sorting");
   }, []);
 
-  const pointerDown = useCallback<PointerEventHandler<HTMLButtonElement>>((event) => {
+  const pointerDown = useCallback<PointerEventHandler<HTMLElement>>((event) => {
     if (event.button !== 0 || pressRef.current) return;
-    const id = event.currentTarget.dataset.sortId;
+    const target = event.target as HTMLElement | null;
+    if (target?.closest(".completion-light, .discovery-actions, .card-actions, .font-controls, a, input, textarea, select")) {
+      return;
+    }
+    const cardEl = event.currentTarget.dataset.sortId ? event.currentTarget : target?.closest<HTMLElement>("[data-sort-id]");
+    const id = cardEl?.dataset.sortId;
     if (!id) return;
-    event.preventDefault();
 
     const press = {} as ActivePress;
     press.id = id;
@@ -145,7 +149,18 @@ export function useLongPressSort<T extends SortableItem>({
       moveOverTarget();
     };
     press.onEnd = (endEvent) => {
-      if (endEvent.pointerId === press.pointerId) finish(press, true);
+      if (endEvent.pointerId === press.pointerId) {
+        if (press.active) {
+          const suppressClick = (e: MouseEvent) => {
+            e.stopPropagation();
+            e.preventDefault();
+            window.removeEventListener("click", suppressClick, true);
+          };
+          window.addEventListener("click", suppressClick, true);
+          window.setTimeout(() => window.removeEventListener("click", suppressClick, true), 120);
+        }
+        finish(press, true);
+      }
     };
     press.timer = window.setTimeout(() => {
       if (pressRef.current !== press) return;
@@ -162,7 +177,7 @@ export function useLongPressSort<T extends SortableItem>({
     window.addEventListener("pointercancel", press.onEnd, true);
   }, [finish, onChange]);
 
-  const keyDown = useCallback<KeyboardEventHandler<HTMLButtonElement>>((event) => {
+  const keyDown = useCallback<KeyboardEventHandler<HTMLElement>>((event) => {
     if (!["ArrowUp", "ArrowDown", "Home", "End"].includes(event.key)) return;
     const id = event.currentTarget.dataset.sortId;
     if (!id) return;

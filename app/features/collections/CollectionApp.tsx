@@ -12,7 +12,7 @@ import { TrackableModuleLayout } from "../../components/TrackableModuleLayout";
 import type { CollectionEntry, CollectionId } from "../../core/collections";
 import { t } from "../../core/i18n";
 import { getSectionRoute } from "../../core/module-registry";
-import { bagCategories, matchesBagCategory } from "../../core/record-categories";
+import { getDefaultRecordCategory } from "../../core/record-categories";
 import type { ArabicFontLevel, DevotionalDraft } from "../../core/types";
 import { useCollection } from "../../hooks/useCollection";
 import { useRecordFilters } from "../../hooks/useRecordFilters";
@@ -61,21 +61,21 @@ function CollectionScreen({ collection }: { collection: CollectionId }) {
       footer={<p className="quiet-note">{t("app.lightNote")}</p>}
     >
       {state.failed ? <p role="alert">{t("toast.storageError")}</p> : visible.length ? visible.map((entry) => (
-        <DevotionalCard key={entry.id} cardId={entry.id} mode={collection === "favorites" ? "bag" : "virds"}
+        <DevotionalCard key={entry.id} cardId={entry.id} collection={collection}
           moduleId={entry.moduleId} item={entry.item} complete={state.completeKeys.has(entry.id)}
           expanded={state.expansion.expandedIds.has(entry.id)} dragging={state.sorting.draggingId === entry.id}
           dragOffsetY={state.sorting.draggingId === entry.id ? state.sorting.dragOffsetY : 0}
           position={state.entries.findIndex((item) => item.id === entry.id) + 1}
           onToggleExpanded={() => state.expansion.toggleExpanded(entry.id)} onToggleComplete={() => state.toggleComplete(entry)}
           onChangeFont={(direction) => void state.update(entry, { expandedArabicSize: Math.max(0, Math.min(4, entry.item.expandedArabicSize + direction)) as ArabicFontLevel })}
-          onEdit={() => setEditTarget(entry)} onDelete={() => setRemoveTarget(entry)}
+          onEdit={() => setEditTarget(entry)}
           onRemoveFromCollections={() => collection === "favorites" ? void state.update(entry, { liked: false }) : setRemoveTarget(entry)}
           inVirds={Boolean(entry.item.inVirds)} onToggleVird={() => void state.toggleMembership(entry, "virds")}
           sortHandleProps={state.sorting.handleProps} />
       )) : <p className="filter-empty">{t("filter.empty")}</p>}
     </TrackableModuleLayout>
     {editTarget ? <DevotionalEditor key={editTarget.id} item={editTarget.item} itemLabel={t("bag.record")}
-      defaultCategory={editTarget.item.bagCategories?.[0] ?? bagCategories.find((category) => matchesBagCategory(editTarget.item, category, editTarget.moduleId))}
+      defaultCategory={getDefaultRecordCategory(editTarget.item, editTarget.moduleId)}
       onClose={() => setEditTarget(null)} onSave={save} /> : null}
     {removeTarget ? <CollectionChoiceModal title={t("collection.removeQuestion")} body={t("collection.removeBody")}
       choices={["virds", "bag", "both"]} onCancel={() => setRemoveTarget(null)} onChoose={remove} /> : null}

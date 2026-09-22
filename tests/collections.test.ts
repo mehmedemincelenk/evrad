@@ -7,6 +7,8 @@ import { readBackupPayload } from "../app/data/backup-repository";
 import { ENTITY_STORES, openDatabase, requestResult, runTransaction } from "../app/data/indexed-db";
 import { collectionEntry, selectCollection } from "../app/core/collections";
 import { getLocalDateKey } from "../app/core/date";
+import { matchesRecordFilters, toggleSelection } from "../app/core/record-filters";
+import { getDefaultRecordCategory, getRecordIcon } from "../app/core/record-categories";
 import { discoveryCatalog } from "../app/features/discovery/discovery-catalog";
 import type { DevotionalItem } from "../app/core/types";
 
@@ -99,4 +101,24 @@ test("collection order is deterministic and completion dates use local calendar"
   const b = collectionEntry("prayers", { ...legacy, inVirds: true }, "virds");
   assert.deepEqual(selectCollection([b, a], "virds").map((entry) => entry.id), ["dhikr:same-id", "prayers:same-id"]);
   assert.equal(getLocalDateKey(new Date(2026, 8, 22, 0, 1)), "2026-09-22");
+});
+
+test("record filters combine selected types with selected contexts without mutating input", () => {
+  const item = { ...legacy, bagCategories: ["poetry" as const], contexts: ["morning" as const] };
+  assert.equal(matchesRecordFilters(item, "dhikr", { categories: [], contexts: [] }), true);
+  assert.equal(matchesRecordFilters(item, "dhikr", { categories: ["prayers", "poetry"], contexts: ["morning", "relief"] }), true);
+  assert.equal(matchesRecordFilters(item, "dhikr", { categories: ["poetry"], contexts: ["relief"] }), false);
+  assert.equal(matchesRecordFilters(item, "dhikr", { categories: ["dhikr"], contexts: [] }), false);
+  const selected = Object.freeze(["poetry"]);
+  assert.deepEqual(toggleSelection(selected, "poetry"), []);
+  assert.deepEqual(toggleSelection(selected, "prayers"), ["poetry", "prayers"]);
+  assert.deepEqual(selected, ["poetry"]);
+});
+
+test("legacy surah category is identical in cards and both editor entry points", () => {
+  const item = { ...legacy, name: "Nâs Sûresi", source: null };
+  assert.equal(getDefaultRecordCategory(item, "memorization"), "surahs");
+  assert.equal(getRecordIcon(item, "memorization"), "surah");
+  assert.equal(getDefaultRecordCategory({ ...item, bagCategories: ["poetry"] }, "memorization"), "poetry");
+  assert.equal(getDefaultRecordCategory({ ...item, name: "My text" }, "memorization"), "memorization");
 });

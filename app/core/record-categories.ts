@@ -17,3 +17,7 @@ export function getRecordIcon(item: Pick<DevotionalItem, "name" | "source" | "ba
   if (category === "surahs" || (!category && matchesBagCategory(item, "surahs", moduleId))) return "surah";
   return getModule(category ?? moduleId).icon;
 }
+
+export function getDefaultRecordCategory(item: Pick<DevotionalItem, "name" | "source" | "bagCategories">, moduleId: DevotionalModuleId) {
+  return item.bagCategories?.[0] ?? bagCategories.find((category) => matchesBagCategory(item, category, moduleId));
+}

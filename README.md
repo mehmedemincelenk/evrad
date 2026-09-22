@@ -44,6 +44,8 @@ Kitap kayıtları ayrı alan modeline sahip olduğu için eski kitap ekranları 
 - `hooks/useCompletionState.ts`: ortak günlük tamamlama, hata geri alma ve yerel gün değişimi.
 - `features/collections/CollectionApp.tsx`: iki koleksiyonun ortak ekranı.
 - `components/RecordFilters.tsx`: ekranlar arası ortak çoklu filtreler.
+- `core/record-filters.ts`: saf filtre ve çoklu seçim kuralları; filtre bileşeni hook tipine bağımlı değildir.
+- `hooks/useDialogFocus.ts`: onay dialoglarının ortak odak, Escape ve Tab yaşam döngüsü.
 - `core/module-registry.ts`: görünen bölümler ve eski depoların tek kayıt kaynağı.
 
 IndexedDB v8 yükseltmesi kayıt silmez. Önceki sürümlerdeki yıkıcı temizlik kaldırılmıştır.

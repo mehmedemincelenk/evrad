@@ -49,8 +49,11 @@
   text-decoration: none;
   touch-action: manipulation;
 }
-.bottom-space-option.is-selected { background: var(--light); color: #15171c; }
+.bottom-space-option.is-selected,
+.bottom-settings.is-selected { background: var(--light); color: #15171c; }
 .bottom-add { color: var(--light); }
+.bottom-settings { color: var(--muted); }
+.bottom-settings:hover { color: var(--text); }
 .navigation-glyph { display: block; width: 1.22rem; height: 1.22rem; }
 .navigation-heart { font-size: 1.22rem; filter: grayscale(1); }
 .bottom-space-option.is-selected .navigation-heart { filter: none; }

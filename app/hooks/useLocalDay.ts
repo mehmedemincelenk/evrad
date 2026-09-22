@@ -1,15 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getLocalDateKey } from "../core/date";
+import { getDayResetTime, getLocalDateKey } from "../core/date";
 
 export function useLocalDay() {
-  const [dateKey, setDateKey] = useState(() => getLocalDateKey());
+  const [dateKey, setDateKey] = useState(() => getLocalDateKey(new Date(), getDayResetTime()));
 
   useEffect(() => {
     const checkDate = () => {
       const nextDate = new Date();
-      setDateKey(getLocalDateKey(nextDate));
+      setDateKey(getLocalDateKey(nextDate, getDayResetTime()));
     };
     checkDate();
     const interval = window.setInterval(checkDate, 60_000);

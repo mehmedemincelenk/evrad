@@ -61,6 +61,25 @@ test("PWA identity stays stable while launch points at the current collection", 
   assert.equal(manifest.display, "standalone");
 });
 
+test("settings screen renders arabic typography options and basmala preview", async () => {
+  const response = await render("/ayarlar");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /Arapça Yazı Tipi/);
+  assert.match(html, /Arapça Harekeler/);
+  assert.match(html, /Yazı Boyutu/);
+  assert.match(html, /Arapça Satır Aralığı/);
+  assert.match(html, /Dokunma (&amp;|&) Hissiyat/);
+  assert.match(html, /Günlük Tertip/);
+  assert.match(html, /mehmedcelenk@gmail\.com/);
+  assert.match(html, /Noto Naskh Arabic/);
+  assert.match(html, /Readex Pro/);
+  assert.match(html, /Almarai/);
+  assert.match(html, /Amiri/);
+  assert.match(html, /Scheherazade New/);
+  assert.match(html, /الْحَمْدُ لِلَّهِ/);
+});
+
 test("source responsibilities stay bounded and core/data never import UI features", async () => {
   const paths = (await readdir(new URL("../app/", import.meta.url), { recursive: true })).filter((path) => /\.(css|ts|tsx)$/.test(path));
   for (const path of paths) {

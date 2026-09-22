@@ -5,6 +5,7 @@ import {
   AddToLibraryButton,
   LikeButton,
   CollapsedCardSummary,
+  TargetBadge,
   TrackableCardShell,
 } from "../../components/TrackerPrimitives";
 import { ModuleGlyph } from "../../components/ModuleGlyph";
@@ -42,10 +43,15 @@ export function DiscoveryDevotionalCard({
     <TrackableCardShell
       id={item.id}
       expanded={expanded}
-      leading={undefined}
-      marker={<ModuleGlyph icon={getRecordIcon(item, moduleId)} />}
-      summary={<CollapsedCardSummary title={display.text} arabic={display.arabic} targetCount={item.targetCount} targetUnit={item.targetUnit} targetUnitLabel={item.targetUnitLabel} expanded={expanded} onToggle={onToggle} />}
-      trailing={<div className="discovery-actions"><LikeButton title={display.text} liked={liked} onToggle={onLike} /><AddToLibraryButton title={display.text} added={added} onAdd={onAdd} /></div>}
+      leading={<LikeButton title={display.text} liked={liked} onToggle={onLike} />}
+      marker={(
+        <span className="card-status-cluster">
+          <ModuleGlyph icon={getRecordIcon(item, moduleId)} />
+          <TargetBadge count={item.targetCount} unit={item.targetUnit} unitLabel={item.targetUnitLabel} />
+        </span>
+      )}
+      summary={<CollapsedCardSummary title={display.text} arabic={display.arabic} expanded={expanded} onToggle={onToggle} />}
+      trailing={<AddToLibraryButton title={display.text} added={added} onAdd={onAdd} />}
     >
       <DevotionalDetails item={item} fontLevel={fontLevel} onChangeFont={changeFont} />
     </TrackableCardShell>

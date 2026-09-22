@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { useCallback, useId, useRef, useState, type ReactNode } from "react";
+import { useDialogFocus } from "../hooks/useDialogFocus";
 
 export function ConfirmationModal({
   title,
@@ -20,7 +21,6 @@ export function ConfirmationModal({
   onConfirm: () => void | Promise<void>;
 }) {
   const titleId = useId();
-  const panelRef = useRef<HTMLDivElement>(null);
   const pendingRef = useRef(false);
   const [pending, setPending] = useState(false);
 
@@ -29,7 +29,7 @@ export function ConfirmationModal({
   }, [onCancel]);
 
   const confirm = async () => {
-    if (pending) return;
+    if (pendingRef.current) return;
     pendingRef.current = true;
     setPending(true);
     try {
@@ -40,31 +40,7 @@ export function ConfirmationModal({
     }
   };
 
-  useEffect(() => {
-    const previousFocus = document.activeElement as HTMLElement | null;
-    document.body.classList.add("confirmation-open");
-    panelRef.current?.querySelector<HTMLButtonElement>("button")?.focus();
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") cancel();
-      if (event.key !== "Tab" || !panelRef.current) return;
-      const buttons = Array.from(panelRef.current.querySelectorAll<HTMLButtonElement>("button"));
-      const first = buttons[0];
-      const last = buttons.at(-1);
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last?.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first?.focus();
-      }
-    };
-    document.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.body.classList.remove("confirmation-open");
-      document.removeEventListener("keydown", onKeyDown);
-      previousFocus?.focus();
-    };
-  }, [cancel]);
+  const panelRef = useDialogFocus(cancel);
 
   return (
     <div className="confirmation-layer" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && cancel()}>

@@ -1,0 +1,226 @@
+.settings-screen {
+  width: min(100%, 42rem);
+  min-height: 100svh;
+  margin: 0 auto;
+  padding: max(1.2rem, calc(0.8rem + env(safe-area-inset-top))) 1rem calc(7.25rem + env(safe-area-inset-bottom));
+}
+
+.settings-back-bar { display: flex; align-items: center; margin-bottom: 0.6rem; }
+.settings-back-link {
+  display: inline-flex; align-items: center; gap: 0.35rem; min-height: 2.75rem;
+  padding: 0 0.65rem 0 0.35rem; border-radius: 0.6rem; color: var(--muted);
+  font-size: 0.85rem; text-decoration: none; transition: color 150ms ease, background 150ms ease;
+}
+.settings-back-link:hover, .settings-back-link:focus-visible { color: var(--text); background: rgba(255, 255, 255, 0.04); }
+
+.settings-stack { display: flex; flex-direction: column; gap: 1.4rem; }
+
+/* Flat Ayar Satırları — Doğrudan Arka Plan */
+.settings-flat-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.settings-flat-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 3.4rem;
+  padding: 0.5rem 0.2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.settings-flat-label {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text);
+  user-select: none;
+}
+
+/* Sayı Doğrusu / Slider Stili */
+.settings-slider-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: min(100%, 12.5rem);
+  min-height: 2.75rem;
+}
+
+.settings-slider {
+  width: 100%;
+  height: 2.75rem;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.settings-slider::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  transition: background 150ms ease;
+}
+
+.settings-slider:hover::-webkit-slider-runnable-track,
+.settings-slider:focus-visible::-webkit-slider-runnable-track {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.settings-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: calc(-0.625rem + 2px);
+  border-radius: 999px;
+  background: var(--light-warm);
+  border: 2px solid var(--surface, #101216);
+  box-shadow: 0 0 10px var(--aura);
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 150ms ease;
+}
+
+.settings-slider:hover::-webkit-slider-thumb,
+.settings-slider:active::-webkit-slider-thumb {
+  transform: scale(1.18);
+  box-shadow: 0 0 14px var(--light-warm);
+}
+
+.settings-slider::-moz-range-track {
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.settings-slider::-moz-range-thumb {
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 999px;
+  background: var(--light-warm);
+  border: 2px solid var(--surface, #101216);
+  box-shadow: 0 0 10px var(--aura);
+  cursor: pointer;
+}
+
+/* Toggle Switch */
+.settings-toggle-switch {
+  position: relative; display: inline-flex; align-items: center; width: 3.1rem;
+  min-width: 3.1rem; min-height: 2.75rem; padding: 0; border: 0;
+  background: transparent; cursor: pointer; outline: none; -webkit-tap-highlight-color: transparent;
+}
+.settings-toggle-switch::before {
+  content: ""; display: block; width: 3.1rem; height: 1.75rem; border-radius: 999px;
+  border: 1px solid var(--line); background: rgba(255, 255, 255, 0.08); transition: all 180ms ease;
+}
+.settings-toggle-switch .toggle-thumb {
+  position: absolute; left: 0.25rem; width: 1.35rem; height: 1.35rem; border-radius: 999px;
+  background: var(--muted); box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+  transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1), background 180ms ease;
+}
+.settings-toggle-switch:focus-visible::before { border-color: var(--light-warm); box-shadow: 0 0 0 2px var(--aura); }
+.settings-toggle-switch.is-active::before { border-color: var(--line-strong); background: rgba(255, 250, 220, 0.18); }
+.settings-toggle-switch.is-active .toggle-thumb { transform: translateX(1.25rem); background: var(--light-warm); box-shadow: 0 0 10px var(--aura); }
+
+/* Saat Seçici */
+.settings-time-wrap { display: flex; align-items: center; }
+.settings-time-input {
+  min-height: 2.75rem; padding: 0.35rem 0.75rem; border: 1px solid var(--line);
+  border-radius: 0.65rem; background: rgba(255, 255, 255, 0.04); color: var(--light-warm);
+  font-family: inherit; font-size: 1.02rem; font-weight: 550; letter-spacing: 0.05em;
+  outline: none; cursor: pointer; transition: border-color 160ms ease, background 160ms ease;
+}
+.settings-time-input:focus-visible { border-color: var(--light-warm); box-shadow: 0 0 0 2px var(--aura); }
+
+/* Arapça Yazı Tipi Bölümü */
+.settings-fonts-section { margin-top: 0.4rem; }
+.settings-section-header { margin-bottom: 0.85rem; }
+.settings-section-title { margin: 0; font-size: 1.05rem; font-weight: 550; color: var(--text); letter-spacing: -0.01em; }
+
+.font-row-list { display: flex; flex-direction: column; }
+.font-row-item {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.85rem;
+  width: 100%; min-height: 3.25rem; padding: 0.65rem 0.2rem; border: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07); background: transparent;
+  color: var(--text); text-align: left; cursor: pointer; outline: none;
+  transition: background 150ms ease; -webkit-tap-highlight-color: transparent;
+}
+.font-row-item:hover { background: rgba(255, 255, 255, 0.02); }
+.font-row-item:focus-visible { outline: 2px solid var(--light-warm); outline-offset: -2px; }
+.font-row-item.is-selected .font-row-name { color: var(--light-warm); }
+.font-row-item.is-loading { cursor: wait; opacity: 0.8; }
+
+.font-row-info {
+  display: flex; flex-direction: column; gap: 0.15rem; min-width: 0; flex: 1 1 auto;
+}
+.font-row-name {
+  font-size: 0.94rem; font-weight: 550; color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.font-row-style {
+  font-size: 0.72rem; color: var(--muted-deep);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.font-row-end {
+  display: flex; align-items: center; gap: 0.9rem; flex-shrink: 0;
+}
+
+.font-row-sample {
+  font-size: clamp(1.2rem, 4.2vw, 1.38rem); line-height: 1; color: var(--light-warm);
+  text-align: right; direction: rtl; unicode-bidi: isolate; text-rendering: optimizeLegibility;
+  font-feature-settings: "kern" 1; transition: opacity 200ms ease, filter 200ms ease;
+}
+.font-row-sample.is-preview-loading { opacity: 0.55; filter: blur(0.5px); }
+
+.font-row-checkbox {
+  display: flex; align-items: center; justify-content: center; width: 1.35rem; height: 1.35rem;
+}
+.font-checkbox-box {
+  width: 1.25rem; height: 1.25rem; border-radius: 0.35rem;
+  border: 1.5px solid var(--line); background: transparent;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 160ms ease;
+}
+.font-checkbox-box.is-checked {
+  border-color: var(--light-warm); background: var(--light-warm);
+  box-shadow: 0 0 8px var(--aura);
+}
+.font-checkbox-box.is-checked::after {
+  content: ""; display: block; width: 0.45rem; height: 0.45rem;
+  border-radius: 0.1rem; background: #07080b;
+}
+
+.font-loading-spinner {
+  width: 0.9rem; height: 0.9rem; border: 2px solid var(--muted-deep);
+  border-top-color: var(--light-warm); border-radius: 999px; animation: fontSpin 0.7s linear infinite;
+}
+@keyframes fontSpin { to { transform: rotate(360deg); } }
+
+/* İletişim Footer — Doğrudan Arka Plan */
+.settings-contact-footer {
+  margin-top: 0.5rem; padding: 1.25rem 0; text-align: center;
+}
+.settings-contact-link {
+  display: inline-flex; align-items: center; justify-content: center; min-height: 2.75rem;
+  padding: 0 1rem; color: var(--muted); font-size: 0.88rem; font-weight: 500;
+  text-decoration: none; border-radius: 0.6rem; transition: all 160ms ease;
+}
+.settings-contact-link:hover, .settings-contact-link:focus-visible {
+  color: var(--light-warm); text-decoration: underline;
+}
+
+.footer-nav-row { display: flex; align-items: center; justify-content: center; gap: 0.85rem; margin-bottom: 0.45rem; }
+.footer-settings-button {
+  display: inline-flex; min-height: 2.75rem; align-items: center; justify-content: center;
+  gap: 0.45rem; padding: 0 0.9rem; border: 0; border-radius: 0.55rem; background: transparent;
+  color: var(--muted-deep); text-decoration: none; font-size: 0.72rem; cursor: pointer;
+  transition: color 150ms ease, background 150ms ease;
+}
+.footer-settings-button:hover, .footer-settings-button:focus-visible { color: var(--text-soft); background: rgba(255, 255, 255, 0.035); }

@@ -1,9 +1,16 @@
 import { t } from "../core/i18n";
 import { RecordCategoryChips } from "./RecordCategoryChips";
 import { DevotionalContextChips } from "./DevotionalContextChips";
-import type { useRecordFilters } from "../hooks/useRecordFilters";
+import type { RecordFilterSelection } from "../core/record-filters";
+import type { BagCategory } from "../core/record-categories";
+import type { DevotionalContext } from "../core/types";
 
-export function RecordFilters({ filters }: { filters: ReturnType<typeof useRecordFilters> }) {
+interface RecordFilterControls extends RecordFilterSelection {
+  toggleCategory: (category: BagCategory) => void;
+  toggleContext: (context: DevotionalContext) => void;
+}
+
+export function RecordFilters({ filters }: { filters: RecordFilterControls }) {
   return (
     <div className="bag-toolbar">
       <RecordCategoryChips selected={filters.categories} onToggle={filters.toggleCategory} />
