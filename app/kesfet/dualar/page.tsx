@@ -1,5 +1,6 @@
-import { DiscoveryModuleApp } from "../../features/discovery/DiscoveryModuleApp";
+import { redirect } from "next/navigation";
+import { getSectionRoute } from "../../core/module-registry";
 
-export default function DiscoverPrayersPage() {
-  return <DiscoveryModuleApp moduleId="prayers" />;
+export default function LegacyDiscoverPage() {
+  redirect(getSectionRoute("discover"));
 }

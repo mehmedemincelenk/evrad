@@ -27,14 +27,13 @@ export function LibraryModuleLayout({
   const title = t(module.copy.title);
   return (
     <TrackableModuleLayout
-      header={<ModuleScreenHeader eyebrow={t(module.copy.eyebrow)} title={title} tagline={t(module.copy.tagline)} />}
+      header={<ModuleScreenHeader eyebrow={t(module.copy.eyebrow)} title={title} tagline={t(module.copy.tagline)} filters={toolbar} />}
       loading={!storageReady}
       hasItems={hasItems}
       loadingState={<StorageLoading label={t("loading.generic", { module: title })} />}
       emptyState={<TrackableEmptyState title={t("empty.libraryTitle")} body={t("empty.libraryBody", { item: itemLabel })} actionLabel={t("empty.discover", { item: itemLabel })} actionHref={module.discoverRoute} />}
       status={<SortStatus active={Boolean(sorting.draggingId)} announcement={sorting.announcement} activeLabel={t("card.sorting")} />}
       footer={<p className="quiet-note">{t("app.lightNote")}</p>}
-      toolbar={toolbar}
     >
       {children}
     </TrackableModuleLayout>

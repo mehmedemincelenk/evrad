@@ -1,21 +1,22 @@
 import type { DevotionalModuleId } from "../../core/types";
-import { bookCatalog } from "./catalogs/books";
-import { dhikrCatalog } from "./catalogs/dhikr";
-import { memorizationCatalog } from "./catalogs/memorization";
-import { prayerCatalog } from "./catalogs/prayers";
-import { poetryCatalog } from "./catalogs/poetry";
-
 import type { DevotionalTemplate } from "./discovery-types";
 
-const devotionalCatalogs: Record<DevotionalModuleId, DevotionalTemplate[]> = {
-  dhikr: dhikrCatalog,
-  prayers: prayerCatalog,
-  memorization: memorizationCatalog,
-  poetry: poetryCatalog,
-};
+const sourceNote = "Kaynak: İslam ve İhsan — En Faziletli Zikirler.";
 
-export function getDevotionalCatalog(moduleId: DevotionalModuleId): DevotionalTemplate[] {
-  return devotionalCatalogs[moduleId];
-}
-
-export { bookCatalog };
+export const discoveryCatalog: { moduleId: DevotionalModuleId; item: DevotionalTemplate }[] = [{
+  moduleId: "dhikr",
+  item: {
+    id: "recommended-la-ilaha-illallah",
+    name: "Lâ ilâhe illallah",
+    arabic: "لَا إِلٰهَ إِلَّا اللَّهُ",
+    translation: "Allah’tan başka ilâh yoktur.",
+    details: `Tevhid sözü olan bu zikrin ölüm anında ferahlık, kıyamette nur olacağı aktarılır. İmanı yenilemek için çokça söylenmesi tavsiye edilir (İbn Hanbel, II, 359; Hâkim, IV, 285/7657). İhlâsla söylendiğinde Allah’ın rahmetine vesile olacağına dair rivayet de aktarılır (Tirmizî, Deavât, 86). Son sözü bu olan mümin için cennet müjdesine yer verilir (Ebû Dâvûd, Cenâiz, 15-16).\n\n${sourceNote}`,
+    source: "İslam ve İhsan — En Faziletli Zikirler",
+    targetCount: null,
+    targetUnit: "count",
+    targetUnitLabel: null,
+    listDisplay: "arabic",
+    expandedArabicSize: 1,
+    contexts: ["relief"],
+  },
+}];

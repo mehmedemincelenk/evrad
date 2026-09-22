@@ -6,12 +6,15 @@ import { TargetFields } from "../../components/TargetFields";
 import { t } from "../../core/i18n";
 import { validateTarget } from "../../core/target";
 import type { DevotionalDraft, DevotionalItem } from "../../core/types";
-import { DevotionalContextChips } from "./DevotionalContextChips";
+import { DevotionalContextChips } from "../../components/DevotionalContextChips";
+import { RecordCategoryChips } from "../../components/RecordCategoryChips";
+import type { BagCategory } from "../../core/record-categories";
 
 const emptyDraft: DevotionalDraft = {
   name: "", arabic: "", translation: "", details: "", source: "", targetCount: "",
   targetUnit: "count", targetUnitLabel: "", listDisplay: "arabic",
   contexts: [],
+  bagCategories: [],
 };
 
 function createDraft(item: DevotionalItem | null): DevotionalDraft {
@@ -21,22 +24,24 @@ function createDraft(item: DevotionalItem | null): DevotionalDraft {
     details: item.details ?? "", source: item.source ?? "", targetCount: item.targetCount?.toString() ?? "",
     targetUnit: item.targetUnit, targetUnitLabel: item.targetUnitLabel ?? "", listDisplay: item.listDisplay,
     contexts: item.contexts,
+    bagCategories: item.bagCategories ?? [],
   };
 }
 
 export function DevotionalEditor({
-  item, itemLabel, onClose, onSave, beforeFields,
+  item, itemLabel, onClose, onSave, beforeFields, defaultCategory,
 }: {
   item: DevotionalItem | null;
   itemLabel: string;
   onClose: () => void;
   onSave: (draft: DevotionalDraft) => Promise<void>;
   beforeFields?: ReactNode;
+  defaultCategory?: BagCategory;
 }) {
-  const [draft, setDraft] = useState(() => createDraft(item));
+  const [draft, setDraft] = useState(() => ({ ...createDraft(item), bagCategories: item?.bagCategories ?? (defaultCategory ? [defaultCategory] : []) }));
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const canChooseName = Boolean(draft.name.trim() && draft.arabic.trim());
+  const displayChoice = !draft.arabic.trim() ? "name" : !draft.name.trim() ? "arabic" : draft.listDisplay;
   const update = (patch: Partial<DevotionalDraft>) => {
     setDraft((current) => ({ ...current, ...patch }));
     setError(null);
@@ -64,7 +69,6 @@ export function DevotionalEditor({
   return (
     <EntityEditorPage
       title={t(item ? "editor.editGeneric" : "editor.addGeneric", { item: itemLabel })}
-      subtitle={t("editor.subtitleGeneric")}
       closeLabel={t("editor.close")}
       onClose={onClose}
     >
@@ -72,20 +76,27 @@ export function DevotionalEditor({
         {beforeFields}
         <label className="field-group"><span>{t("editor.name")}</span><input value={draft.name} onChange={(event) => update({ name: event.target.value })} placeholder={t("editor.namePlaceholder")} autoComplete="off" /></label>
         <label className="field-group"><span>{t("editor.arabic")}</span><textarea className="arabic-field" value={draft.arabic} onChange={(event) => update({ arabic: event.target.value })} placeholder={t("editor.arabicPlaceholder")} dir="auto" rows={4} /></label>
+        <fieldset className="display-choice">
+          <legend>{t("editor.displayQuestion")}</legend>
+          <label><input type="radio" name="listDisplay" checked={displayChoice === "name"} disabled={!draft.name.trim()} onChange={() => update({ listDisplay: "name" })} /><span>{t("editor.displayName")}</span></label>
+          <label><input type="radio" name="listDisplay" checked={displayChoice === "arabic"} disabled={!draft.arabic.trim()} onChange={() => update({ listDisplay: "arabic" })} /><span>{t("editor.displayOriginal")}</span></label>
+        </fieldset>
         <label className="field-group"><span>{t("editor.translation")}</span><textarea value={draft.translation} onChange={(event) => update({ translation: event.target.value })} placeholder={t("editor.translationPlaceholder")} rows={3} /></label>
         <label className="field-group"><span>{t("editor.details")}</span><textarea value={draft.details} onChange={(event) => update({ details: event.target.value })} placeholder={t("editor.detailsPlaceholder")} rows={5} /></label>
         <label className="field-group"><span>{t("editor.source")}</span><input value={draft.source} onChange={(event) => update({ source: event.target.value })} placeholder={t("editor.sourcePlaceholder")} autoComplete="off" /></label>
         <section className="field-group">
           <span>{t("editor.contexts")}</span>
+          <div className="editor-category-box">
+          {defaultCategory ? <RecordCategoryChips selected={draft.bagCategories ?? []} onToggle={(category) => update({ bagCategories: draft.bagCategories?.includes(category) ? draft.bagCategories.filter((item) => item !== category) : [...(draft.bagCategories ?? []), category] })} /> : null}
           <DevotionalContextChips
             selected={draft.contexts}
             label={t("editor.contexts")}
             onToggle={(context) => update({ contexts: draft.contexts.includes(context) ? draft.contexts.filter((item) => item !== context) : [...draft.contexts, context] })}
           />
+          </div>
           <small>{t("editor.contextsHint")}</small>
         </section>
         <TargetFields value={draft} showHint onChange={update} />
-        {canChooseName ? <label className="choice-row"><input type="checkbox" checked={draft.listDisplay === "name"} onChange={(event) => update({ listDisplay: event.target.checked ? "name" : "arabic" })} /><span className="choice-control" aria-hidden="true"><i /></span><span>{t("editor.showName")}</span></label> : null}
         {error ? <p className="form-error" role="alert">{error}</p> : null}
         <footer className="form-actions"><button className="secondary-button" type="button" onClick={onClose} disabled={saving}>{t("action.cancel")}</button><button className="primary-button" type="submit" disabled={saving}>{t("action.save")}</button></footer>
       </form>

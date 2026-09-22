@@ -1,5 +1,5 @@
-import { VirdsModuleApp } from "../features/devotional/VirdsModuleApp";
+import { CollectionApp } from "../features/collections/CollectionApp";
 
 export default function VirdsPage() {
-  return <VirdsModuleApp />;
+  return <CollectionApp collection="virds" />;
 }

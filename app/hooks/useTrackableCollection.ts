@@ -1,107 +1,66 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { recordKey } from "../core/collections";
 import type { TrackableEntity, TrackableRepository } from "../core/types";
-import { completionRepository } from "../data/completion-repository";
+import { useCompletionState } from "./useCompletionState";
 import { useExpandableItems } from "./useExpandableItems";
-import { useLocalDay } from "./useLocalDay";
 import { useLongPressSort } from "./useLongPressSort";
 
 export function useTrackableCollection<T extends TrackableEntity>({
-  repository,
-  getReorderAnnouncement,
-  onStorageError,
+  repository, getReorderAnnouncement, onStorageError,
 }: {
   repository: TrackableRepository<T>;
   getReorderAnnouncement: (item: T, position: number) => string;
   onStorageError: () => void;
 }) {
   const [items, setItems] = useState<T[]>([]);
-  const [completeIds, setCompleteIds] = useState<Set<string>>(() => new Set());
   const [itemsReady, setItemsReady] = useState(false);
-  const [completionsReady, setCompletionsReady] = useState(false);
   const itemsRef = useRef(items);
-  const completeIdsRef = useRef(completeIds);
-  const dateKey = useLocalDay();
+  const committed = useRef(items);
+  const completions = useCompletionState(onStorageError);
   const { expandedIds, toggleExpanded, forgetExpanded } = useExpandableItems();
-
   const replaceItems = useCallback((next: T[]) => {
     itemsRef.current = next;
+    committed.current = next;
     setItems(next);
   }, []);
-
-  const replaceCompleteIds = useCallback((next: Set<string>) => {
-    completeIdsRef.current = next;
-    setCompleteIds(next);
-  }, []);
-
+  const previewOrder = (next: T[]) => {
+    itemsRef.current = next;
+    setItems(next);
+  };
+  const persistOrder = async (next: T[]) => {
+    try {
+      await repository.saveOrder(next);
+      replaceItems(next);
+    } catch (error) {
+      replaceItems(committed.current);
+      throw error;
+    }
+  };
   const sorting = useLongPressSort({
-    items,
-    onChange: replaceItems,
-    onPersist: repository.saveOrder,
-    getAnnouncement: getReorderAnnouncement,
-    onError: onStorageError,
+    items, onChange: previewOrder, onPersist: persistOrder,
+    getAnnouncement: getReorderAnnouncement, onError: onStorageError,
   });
 
   useEffect(() => {
     let active = true;
-    repository.load()
-      .then((storedItems) => {
-        if (!active) return;
-        replaceItems(storedItems);
-        setItemsReady(true);
-      })
-      .catch(() => {
-        if (!active) return;
-        setItemsReady(true);
-        onStorageError();
-      });
+    repository.load().then((stored) => {
+      if (!active) return;
+      replaceItems(stored);
+      setItemsReady(true);
+    }).catch(() => {
+      if (active) { setItemsReady(true); onStorageError(); }
+    });
     return () => { active = false; };
   }, [onStorageError, replaceItems, repository]);
 
-  useEffect(() => {
-    let active = true;
-    completionRepository.loadIds(repository.moduleId, dateKey)
-      .then((storedCompletions) => {
-        if (!active) return;
-        replaceCompleteIds(storedCompletions);
-        setCompletionsReady(true);
-      })
-      .catch(() => {
-        if (!active) return;
-        replaceCompleteIds(new Set());
-        setCompletionsReady(true);
-        onStorageError();
-      });
-    return () => { active = false; };
-  }, [dateKey, onStorageError, replaceCompleteIds, repository.moduleId]);
-
-  const toggleComplete = useCallback((id: string) => {
-    const complete = !completeIdsRef.current.has(id);
-    const next = new Set(completeIdsRef.current);
-    if (complete) next.add(id);
-    else next.delete(id);
-    replaceCompleteIds(next);
-    completionRepository.set(repository.moduleId, id, dateKey, complete).catch(onStorageError);
-  }, [dateKey, onStorageError, replaceCompleteIds, repository.moduleId]);
-
-  const forgetItemState = useCallback((id: string) => {
-    forgetExpanded(id);
-    const next = new Set(completeIdsRef.current);
-    next.delete(id);
-    replaceCompleteIds(next);
-  }, [forgetExpanded, replaceCompleteIds]);
-
   return {
-    items,
-    itemsRef,
-    replaceItems,
-    completeIds,
-    expandedIds,
-    toggleExpanded,
-    toggleComplete,
-    forgetItemState,
-    storageReady: itemsReady && completionsReady,
+    items, itemsRef, replaceItems, expandedIds, toggleExpanded,
+    completeIds: new Set(items.filter((item) => completions.keys.has(recordKey(repository.moduleId, item.id))).map((item) => item.id)),
+    toggleComplete: (id: string) => void completions.toggle(repository.moduleId, id),
+    forgetItemState: forgetExpanded,
+    storageReady: itemsReady && completions.ready,
     sorting,
   };
 }

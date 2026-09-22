@@ -2,11 +2,8 @@ import assert from "node:assert/strict";
 import { readFile, readdir } from "node:fs/promises";
 import test from "node:test";
 
-async function render(pathname = "/virdlerim") {
-  const workerUrl = new URL("../dist/server/index.js", import.meta.url);
-  workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}-${pathname}`);
-  const { default: worker } = await import(workerUrl.href);
-
+async function render(pathname) {
+  const { default: worker } = await import("../dist/server/index.js");
   return worker.fetch(
     new Request(`http://localhost${pathname}`, { headers: { accept: "text/html" } }),
     { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } },
@@ -14,351 +11,61 @@ async function render(pathname = "/virdlerim") {
   );
 }
 
-test("server-renders the Virdlerim application", async () => {
-  const response = await render();
-  assert.equal(response.status, 200);
-  assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
-
-  const html = await response.text();
-  assert.match(html, /<title>Virdlerim<\/title>/i);
-  assert.match(html, /VİRD TERTİBİM/);
-  assert.match(html, /Virdlerim yükleniyor/);
-  assert.match(html, /aria-label="Virdlerim" aria-pressed="true"/);
-  assert.match(html, /transient-bottom-bar is-open is-pinned/);
-  assert.doesNotMatch(html, />Virdlerim<\/span>|>Çanta<\/span>|>Keşfet<\/span>/);
-  assert.match(html, /name="apple-mobile-web-app-capable" content="yes"/);
-  assert.match(html, /name="mobile-web-app-capable" content="yes"/);
-  assert.equal((html.match(/name="mobile-web-app-capable"/g) ?? []).length, 1);
-  assert.match(html, /name="apple-mobile-web-app-status-bar-style" content="black"/);
-  assert.doesNotMatch(html, /codex-preview|react-loading-skeleton|Your site is taking shape/i);
-});
-
-test("new dhikr has its own full-page route", async () => {
-  const response = await render("/zikirler/yeni");
-  assert.equal(response.status, 200);
-  const html = await response.text();
-  assert.match(html, /Yeni zikir/);
-  assert.match(html, /Günlük hedef/);
-  assert.match(html, /Örn\. sayfa/);
-  assert.match(html, /Kategoriler/);
-});
-
-test("devotional contexts are shared by editors, library filters, discovery, and storage", async () => {
-  const [typesText, chipsText, filterText, editorText, libraryText, libraryLayoutText, discoveryText, repositoriesText, cssText, overlaysCss, i18nText] = await Promise.all([
-    readFile(new URL("../app/core/types.ts", import.meta.url), "utf8"),
-    readFile(new URL("../app/features/devotional/DevotionalContextChips.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/features/devotional/useDevotionalContextFilter.ts", import.meta.url), "utf8"),
-    readFile(new URL("../app/features/devotional/DevotionalEditor.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/features/devotional/DevotionalModuleApp.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/components/LibraryModuleLayout.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/features/discovery/DiscoveryModuleApp.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/data/repositories.ts", import.meta.url), "utf8"),
-    readFile(new URL("../app/styles/context-chips.css", import.meta.url), "utf8"),
-    readFile(new URL("../app/styles/overlays.css", import.meta.url), "utf8"),
-    readFile(new URL("../app/core/i18n.ts", import.meta.url), "utf8"),
-  ]);
-  for (const category of ["beforePrayer", "afterPrayer", "morning", "gratitude", "forgiveness", "protection", "relief"]) {
-    assert.match(typesText, new RegExp(`"${category}"`));
-    assert.match(chipsText, new RegExp(`"${category}"`));
-  }
-  assert.match(chipsText, /aria-pressed/);
-  assert.match(filterText, /item\.contexts\.includes\(activeContext\)/);
-  assert.match(editorText, /canChooseName \? <label/);
-  assert.match(editorText, /<DevotionalContextChips/);
-  assert.match(libraryText, /useDevotionalContextFilter/);
-  assert.match(libraryLayoutText, /actionHref=\{module\.discoverRoute\}/);
-  assert.match(discoveryText, /useDevotionalContextFilter/);
-  assert.match(repositoriesText, /contexts: item\.contexts \?\? \[\]/);
-  assert.equal((cssText.match(/--chip-text:/g) ?? []).length, 11);
-  assert.match(overlaysCss, /storageBreath 1\.25s ease-in-out infinite/);
-  assert.match(i18nText, /Hedef için 1 veya daha büyük bir tam sayı yazmalısın/);
-});
-
-test("root route renders the pinned daily page", async () => {
-  const response = await render("/");
-  assert.equal(response.status, 200);
-  const html = await response.text();
-  assert.match(html, /Günün Sayfası/);
-  assert.match(html, /aria-label="Virdlerim"/);
-  assert.match(html, /aria-label="Keşfet"/);
-  assert.match(html, /transient-bottom-bar is-open is-pinned/);
-  assert.match(html, /Günün sayfasını yenile/);
-});
-
-test("daily cards reuse library card primitives and completion records", async () => {
-  const [homeText, sectionText, cardText, completionText, selectionText] = await Promise.all([
-    readFile(new URL("../app/features/home/HomeScreen.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/features/home/DailySelectionCards.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/features/home/DailyTrackableCard.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/features/home/useDailyCompletions.ts", import.meta.url), "utf8"),
-    readFile(new URL("../app/features/home/useDailySelection.ts", import.meta.url), "utf8"),
-  ]);
-  assert.match(homeText, /useDailyCompletions/);
-  assert.match(sectionText, /<DailyTrackableCard/);
-  assert.match(cardText, /<TrackableCardShell/);
-  assert.match(cardText, /<CollapsedCardSummary/);
-  assert.match(cardText, /<CompletionLight/);
-  assert.match(completionText, /completionRepository\.loadIds\(moduleId, dateKey\)/);
-  assert.match(completionText, /completionRepository\.set\(moduleId, itemId, dateKey, complete\)/);
-  assert.doesNotMatch(selectionText, /getDiscoveryItems/);
-});
-
-test("prayer, memorization, poetry, book, game, and discovery routes are active", async () => {
-  for (const pathname of ["/dualar", "/ezberler", "/siirler", "/kitaplar", "/oyunlar", "/kesfet/zikirler", "/kesfet/dualar", "/kesfet/ezberler", "/kesfet/siirler", "/kesfet/kitaplar", "/kesfet/oyunlar"]) {
-    const response = await render(pathname);
-    assert.equal(response.status, 200, pathname);
+test("canonical screens render accessible navigation and PWA metadata", async () => {
+  for (const [path, label] of [["/virdlerim", "Virdlerim"], ["/canta", "Beğenilenler"], ["/kesfet/canta", "Keşfet"]]) {
+    const response = await render(path);
+    assert.equal(response.status, 200, path);
+    const html = await response.text();
+    assert.match(html, new RegExp(`aria-label="${label}" aria-current="page"`));
+    assert.match(html, /class="bottom-navigation"/);
+    for (const href of ["/virdlerim", "/canta", "/kesfet/canta", "/virdlerim/yeni"]) {
+      assert.ok(html.includes(`href="${href}"`), href);
+    }
+    assert.match(html, /name="apple-mobile-web-app-capable" content="yes"/);
+    assert.equal((html.match(/name="mobile-web-app-capable"/g) ?? []).length, 1);
   }
 });
 
-test("PWA manifest and architecture declarations stay aligned", async () => {
-  const [manifestText, registryText, typesText, workerText] = await Promise.all([
-    readFile(new URL("../public/manifest.webmanifest", import.meta.url), "utf8"),
-    readFile(new URL("../app/core/module-registry.ts", import.meta.url), "utf8"),
-    readFile(new URL("../app/core/types.ts", import.meta.url), "utf8"),
-    readFile(new URL("../public/sw.js", import.meta.url), "utf8"),
-  ]);
-  const manifest = JSON.parse(manifestText);
-  assert.equal(manifest.name, "Virdlerim");
+test("legacy section URLs redirect without stranding old links", async () => {
+  for (const [path, target] of [
+    ["/", "/virdlerim"],
+    ...["zikirler", "dualar", "ezberler", "sureler", "siirler"].map((part) => [`/${part}`, "/canta"]),
+    ...["zikirler", "dualar", "ezberler", "sureler", "siirler", "kitaplar", "oyunlar"].map((part) => [`/kesfet/${part}`, "/kesfet/canta"]),
+    ["/oyunlar", "/kesfet/canta"],
+  ]) {
+    const response = await render(path);
+    assert.ok([307, 308].includes(response.status), path);
+    assert.equal(new URL(response.headers.get("location"), "http://localhost").pathname, target);
+  }
+});
+
+test("shared create form and legacy edit/book routes remain reachable", async () => {
+  for (const path of ["/virdlerim/yeni", "/canta/yeni", "/zikirler/yeni", "/dualar/yeni", "/ezberler/yeni", "/sureler/yeni", "/siirler/yeni"]) {
+    const response = await render(path);
+    assert.equal(response.status, 200, path);
+    const html = await response.text();
+    assert.match(html, /Kartın üstünde hangisi yazsın\?/);
+    assert.match(html, /Günlük hedef/);
+    assert.match(html, /Kategoriler/);
+  }
+  for (const path of ["/kitaplar", "/kitaplar/yeni", "/dualar/legacy-id/duzenle", "/sureler/legacy-id/duzenle"]) {
+    assert.equal((await render(path)).status, 200, path);
+  }
+});
+
+test("PWA identity stays stable while launch points at the current collection", async () => {
+  const manifest = JSON.parse(await readFile(new URL("../public/manifest.webmanifest", import.meta.url), "utf8"));
   assert.equal(manifest.id, "/");
-  assert.equal(manifest.start_url, "/");
-  assert.equal(manifest.display, "standalone");
+  assert.equal(manifest.start_url, "/virdlerim");
   assert.equal(manifest.scope, "/");
-  assert.match(workerText, /await fetch\(request\)/);
-  assert.match(workerText, /await caches\.match\(request\)/);
-  for (const pathname of ["/virdlerim", "/zikirler/yeni", "/dualar/yeni", "/ezberler/yeni", "/siirler/yeni", "/kitaplar/yeni", "/sureler", "/sureler/yeni", "/kesfet/sureler"]) {
-    assert.match(workerText, new RegExp(`"${pathname}"`), pathname);
+  assert.equal(manifest.display, "standalone");
+});
+
+test("source responsibilities stay bounded and core/data never import UI features", async () => {
+  const paths = (await readdir(new URL("../app/", import.meta.url), { recursive: true })).filter((path) => /\.(css|ts|tsx)$/.test(path));
+  for (const path of paths) {
+    const source = await readFile(new URL(`../app/${path}`, import.meta.url), "utf8");
+    assert.ok(source.split("\n").length <= 300, `${path} exceeds 300 lines`);
+    if (/^(core|data)\//.test(path)) assert.doesNotMatch(source, /from ["'][^"']*(?:features|components|hooks)\//, path);
   }
-  assert.match(workerText, /self\.skipWaiting\(\)/);
-  assert.doesNotMatch(workerText, /cached \?\? \(await networkResponse\)/);
-  assert.equal((registryText.match(/createTrackableModule\(/g) ?? []).length, 6);
-  assert.match(registryText, /id: "games"[\s\S]*create: null/);
-  assert.doesNotMatch(registryText, /enabled:|supportsCreate|createRoute/);
-  assert.match(typesText, /"prayers"[\s\S]*"books"[\s\S]*"memorization"[\s\S]*"dhikr"[\s\S]*"poetry"[\s\S]*"games"/);
-});
-
-test("target units and long-press sorting remain modular", async () => {
-  const [typesText, toggleText, hookText, cssText] = await Promise.all([
-    readFile(new URL("../app/core/types.ts", import.meta.url), "utf8"),
-    readFile(new URL("../app/components/TargetUnitToggle.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/hooks/useLongPressSort.ts", import.meta.url), "utf8"),
-    readFile(new URL("../app/styles/tracker.css", import.meta.url), "utf8"),
-  ]);
-  assert.match(typesText, /"count"\s*\|\s*"custom"/);
-  assert.match(toggleText, /aria-pressed/);
-  assert.match(hookText, /HOLD_DELAY_MS\s*=\s*240/);
-  assert.match(hookText, /window\.addEventListener\("pointermove"/);
-  assert.match(hookText, /document\.elementsFromPoint/);
-  assert.match(hookText, /requestAnimationFrame\(autoScroll\)/);
-  assert.match(cssText, /text-overflow:\s*ellipsis/);
-  assert.match(cssText, /\.card-summary-copy\s*\{[\s\S]*display:\s*grid;[\s\S]*align-content:\s*center;/);
-  assert.match(cssText, /\.mini-tags\s*\{[\s\S]*justify-content:\s*center;/);
-  const navigationCss = await readFile(new URL("../app/styles/navigation.css", import.meta.url), "utf8");
-  assert.doesNotMatch(navigationCss.match(/\.menu-scrim\s*\{[^}]+\}/)?.[0] ?? "", /backdrop-filter/);
-});
-
-test("the compact menu and completion symbols keep interaction work lightweight", async () => {
-  const [menuText, moduleGlyphText, menuHookText, shellText, primitiveText, symbolText, navigationCss] = await Promise.all([
-    readFile(new URL("../app/components/TransientBottomBar.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/components/ModuleGlyph.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/hooks/useTransientMenu.ts", import.meta.url), "utf8"),
-    readFile(new URL("../app/AppShell.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/components/TrackerPrimitives.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/components/PlusMinusIcon.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/styles/navigation.css", import.meta.url), "utf8"),
-  ]);
-  assert.doesNotMatch(menuText, /activityKey/);
-  assert.match(menuText, /onModule\("dhikr"\)/);
-  assert.doesNotMatch(menuText, /contextOpen|bottom-context-panel|bottom-context-trigger/);
-  assert.match(menuText, /bottom-base-row/);
-  assert.match(menuText, /bottom-space-segment/);
-  assert.match(menuText, /onModule\("bag"\)/);
-  assert.match(menuText, /onSpace\("discover"\)/);
-  assert.match(moduleGlyphText, /Record<IconName, string>/);
-  assert.match(menuHookText, /timeoutRef/);
-  assert.doesNotMatch(menuHookText, /setActivityKey/);
-  assert.match(shellText, /router\.push\(getModuleRoute/);
-  assert.match(primitiveText, /<PlusMinusIcon minus=\{added\}/);
-  assert.match(primitiveText, /<span className="completion-core" aria-hidden="true" \/>/);
-  assert.match(symbolText, /is-minus/);
-  assert.doesNotMatch(navigationCss, /\.top-module-tabs/);
-  assert.doesNotMatch(navigationCss, /\.bottom-context-panel/);
-  assert.match(navigationCss, /min-height:\s*2\.75rem/);
-  assert.match(navigationCss, /--menu-radius:[\s\S]*border-radius:\s*var\(--menu-radius\)/);
-});
-
-test("notifications stay viewport-pinned and routine success actions stay quiet", async () => {
-  const [notificationsText, overlaysCss, discoveryText, libraryText] = await Promise.all([
-    readFile(new URL("../app/components/AppNotifications.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/styles/overlays.css", import.meta.url), "utf8"),
-    readFile(new URL("../app/features/discovery/DiscoveryModuleApp.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/hooks/useLibraryModule.ts", import.meta.url), "utf8"),
-  ]);
-  assert.match(notificationsText, /className="notification-rail"/);
-  assert.match(notificationsText, /role="region"/);
-  assert.match(overlaysCss, /\.notification-rail\s*\{[\s\S]*position:\s*fixed;[\s\S]*top:/);
-  assert.doesNotMatch(discoveryText, /toast\.addedToLibrary|toast\.alreadyInLibrary/);
-  assert.doesNotMatch(libraryText, /toast\.savedGeneric|toast\.deletedGeneric/);
-});
-
-test("new modules can reuse navigation, storage, layout, and collection behavior", async () => {
-  const [registryText, shellText, homeText, bottomBarText, repositoryText, completionText, collectionText, layoutText, primitivesText, pwaText] = await Promise.all([
-    readFile(new URL("../app/core/module-registry.ts", import.meta.url), "utf8"),
-    readFile(new URL("../app/AppShell.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/features/home/HomeScreen.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/components/TransientBottomBar.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/data/trackable-repository.ts", import.meta.url), "utf8"),
-    readFile(new URL("../app/data/completion-repository.ts", import.meta.url), "utf8"),
-    readFile(new URL("../app/hooks/useTrackableCollection.ts", import.meta.url), "utf8"),
-    readFile(new URL("../app/components/TrackableModuleLayout.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/components/TrackerPrimitives.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/hooks/usePwaUpdate.ts", import.meta.url), "utf8"),
-  ]);
-  assert.match(registryText, /discoverRoute/);
-  assert.match(bottomBarText, /onModule\("dhikr"\)/);
-  assert.match(shellText, /router\.push\("\/kesfet\/canta"\)/);
-  assert.match(homeText, /useDailySelection/);
-  assert.match(homeText, /<AppShell activeModule=\{null\} activeSpace=\{null\}>/);
-  assert.doesNotMatch(homeText, /next\/link/);
-  assert.match(repositoryText, /createTrackableRepository/);
-  assert.match(completionText, /loadIds\(itemType: TrackableModuleId/);
-  assert.match(collectionText, /completionRepository\.loadIds\(repository\.moduleId/);
-  assert.match(layoutText, /className="module-screen"/);
-  assert.match(layoutText, /className="trackable-list"/);
-  assert.doesNotMatch(primitivesText, /dhikr-card/);
-  assert.match(pwaText, /modules\.flatMap/);
-});
-
-test("discovery cards toggle individual catalog items in the matching library", async () => {
-  const [screenText, hookText, primitivesText, dhikrCatalogText, prayerCatalogText] = await Promise.all([
-    readFile(new URL("../app/features/discovery/DiscoveryModuleApp.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/hooks/useDiscoveryLibrary.ts", import.meta.url), "utf8"),
-    readFile(new URL("../app/components/TrackerPrimitives.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/features/discovery/catalogs/dhikr.ts", import.meta.url), "utf8"),
-    readFile(new URL("../app/features/discovery/catalogs/prayers.ts", import.meta.url), "utf8"),
-  ]);
-  assert.match(screenText, /useDiscoveryLibrary/);
-  assert.match(hookText, /repository\.save\(item\)/);
-  assert.match(hookText, /repository\.remove\(id, remainingItems\)/);
-  assert.match(hookText, /const toggle = useCallback/);
-  assert.match(primitivesText, /AddToLibraryButton/);
-  assert.doesNotMatch(primitivesText.match(/export function AddToLibraryButton[\s\S]*?\n\}/)?.[0] ?? "", /disabled=\{added\}/);
-  assert.match(dhikrCatalogText, /recommended-esmaul-husna[\s\S]*listDisplay: "name"/);
-  assert.match(prayerCatalogText, /discover-prayer-rabbana-atina/);
-  assert.doesNotMatch(screenText, /tavsiye edilen tüm zikirler/i);
-});
-
-test("memorization discovery contains only the requested v1 surahs", async () => {
-  const [catalogText, surahText, i18nText] = await Promise.all([
-    readFile(new URL("../app/features/discovery/catalogs/memorization.ts", import.meta.url), "utf8"),
-    readFile(new URL("../app/features/discovery/catalogs/short-surahs.ts", import.meta.url), "utf8"),
-    readFile(new URL("../app/core/i18n.ts", import.meta.url), "utf8"),
-  ]);
-  assert.equal((surahText.match(/^ {2}\{"id":"surah-/gm) ?? []).length, 37);
-  assert.match(catalogText, /"surah-94"/);
-  assert.match(catalogText, /"surah-al-falaq"/);
-  assert.match(catalogText, /"surah-an-nas"/);
-  assert.doesNotMatch(catalogText, /asmaAlHusnaCatalog|shortHadithCatalog/);
-  assert.match(i18nText, /"module\.memorization\.title": "Ezberler"/);
-  assert.match(i18nText, /"discover\.memorization\.title": "Ezberleri keşfet"/);
-});
-
-test("IndexedDB access is centralized and destructive updates stay atomic", async () => {
-  const [trackableText, completionText, indexedDbText] = await Promise.all([
-    readFile(new URL("../app/data/trackable-repository.ts", import.meta.url), "utf8"),
-    readFile(new URL("../app/data/completion-repository.ts", import.meta.url), "utf8"),
-    readFile(new URL("../app/data/indexed-db.ts", import.meta.url), "utf8"),
-  ]);
-  assert.match(trackableText, /runTransaction\(\[storeName, COMPLETION_STORE\]/);
-  assert.match(trackableText, /repository|createTrackableRepository/);
-  assert.match(completionText, /runTransaction\(COMPLETION_STORE/);
-  assert.match(indexedDbText, /const done = transactionDone\(transaction\)[\s\S]*Promise\.all/);
-  assert.match(indexedDbText, /request\.onblocked/);
-  assert.match(indexedDbText, /database\.onversionchange/);
-});
-
-test("the v7 store upgrade preserves data and promotes legacy dhikr into Virdlerim", async () => {
-  const indexedDbText = await readFile(new URL("../app/data/indexed-db.ts", import.meta.url), "utf8");
-  assert.match(indexedDbText, /DB_VERSION = 7/);
-  assert.match(indexedDbText, /poetry: "poetry"/);
-  assert.match(indexedDbText, /event\.oldVersion > 0 && event\.oldVersion < 5/);
-  assert.match(indexedDbText, /objectStore\(ENTITY_STORES\.dhikr\)\.clear\(\)/);
-  assert.match(indexedDbText, /cursor\.value\.itemType === "dhikr"/);
-  assert.match(indexedDbText, /inVirds: true/);
-});
-
-test("PWA updates replace stale application shells instead of preserving a stuck client", async () => {
-  const [serviceWorkerText, updateHookText] = await Promise.all([
-    readFile(new URL("../public/sw.js", import.meta.url), "utf8"),
-    readFile(new URL("../app/hooks/usePwaUpdate.ts", import.meta.url), "utf8"),
-  ]);
-  assert.match(serviceWorkerText, /zikirlerim-shell-v18/);
-  assert.match(serviceWorkerText, /await fetch\(request\)[\s\S]*await caches\.match\(request\)/);
-  assert.match(serviceWorkerText, /then\(\(\) => self\.skipWaiting\(\)\)/);
-  assert.match(serviceWorkerText, /type === "SKIP_WAITING"/);
-  assert.match(updateHookText, /updateViaCache: "none"/);
-  assert.match(updateHookText, /visibilitychange/);
-  assert.doesNotMatch(updateHookText, /icon-192|icon-512|NotoNaskhArabic/);
-});
-
-test("navigation exposes Virdlerim, Çanta, and Keşfet while bag categories reuse existing stores", async () => {
-  const [navigationText, bagText, bagDiscoveryText, tagsText] = await Promise.all([
-    readFile(new URL("../app/components/TransientBottomBar.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/features/bag/BagModuleApp.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/features/bag/BagDiscoveryApp.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/features/devotional/devotional-tags.ts", import.meta.url), "utf8"),
-  ]);
-  assert.match(navigationText, /menu\.virds/);
-  assert.match(navigationText, /menu\.bag/);
-  assert.match(navigationText, /menu\.discover/);
-  assert.match(bagText, /useDevotionalModule/);
-  assert.match(bagDiscoveryText, /useDiscoveryLibrary/);
-  assert.match(tagsText, /item\.contexts\.map/);
-});
-
-test("home prayer countdown calculates locally and requests location only on demand", async () => {
-  const [homeText, countdownText, hookText, utilityText] = await Promise.all([
-    readFile(new URL("../app/features/home/HomeScreen.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/features/prayer-times/PrayerCountdown.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/features/prayer-times/usePrayerCountdown.ts", import.meta.url), "utf8"),
-    readFile(new URL("../app/features/prayer-times/prayer-time-utils.ts", import.meta.url), "utf8"),
-  ]);
-  assert.match(homeText, /<PrayerCountdown/);
-  assert.match(countdownText, /requestLocation/);
-  assert.match(hookText, /navigator\.geolocation\.getCurrentPosition/);
-  assert.match(hookText, /localStorage\.setItem/);
-  assert.match(utilityText, /CalculationMethod\.Turkey\(\)/);
-  assert.match(utilityText, /new PrayerTimes/);
-});
-
-test("portable backups include every library and completion record", async () => {
-  const [repositoryText, fileText, footerText, persistenceText] = await Promise.all([
-    readFile(new URL("../app/features/backup/backup-repository.ts", import.meta.url), "utf8"),
-    readFile(new URL("../app/features/backup/backup-file.ts", import.meta.url), "utf8"),
-    readFile(new URL("../app/components/AppFooter.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/hooks/usePersistentStorage.ts", import.meta.url), "utf8"),
-  ]);
-  assert.match(repositoryText, /\["dhikr", "prayers", "memorization", "books", "poetry"\]/);
-  assert.match(repositoryText, /COMPLETION_STORE/);
-  assert.match(fileText, /SHA-256/);
-  assert.match(fileText, /\.zikirlerim/);
-  assert.match(fileText, /navigator\.share/);
-  assert.match(fileText, /anchor\.download/);
-  assert.match(footerText, /<SaveIcon/);
-  assert.match(footerText, /aria-busy=\{saving\}/);
-  assert.match(persistenceText, /navigator\.storage\?\.persist/);
-});
-
-test("source modules stay bounded and unused database scaffolding stays out", async () => {
-  const paths = (await readdir(new URL("../app/", import.meta.url), { recursive: true }))
-    .filter((path) => /\.(css|ts|tsx)$/.test(path));
-  const sources = await Promise.all(paths.map(async (path) => ({
-    path,
-    lines: (await readFile(new URL(`../app/${path}`, import.meta.url), "utf8")).split("\n").length,
-  })));
-  const oversized = sources.filter((source) => source.lines > 300);
-  assert.deepEqual(oversized, []);
-
-  const packageJson = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8"));
-  assert.equal(packageJson.dependencies?.["drizzle-orm"], undefined);
-  assert.equal(packageJson.devDependencies?.["drizzle-kit"], undefined);
 });

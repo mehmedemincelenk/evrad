@@ -1,4 +1,16 @@
-import type { ContentSpace, ModuleDefinition, ModuleId, TrackableModuleDefinition, TrackableModuleId } from "./types";
+import type { DevotionalModuleId, TrackableModuleDefinition, TrackableModuleId } from "./types";
+
+export const appSections = [
+  { id: "virds", route: "/virdlerim", label: "menu.virds", icon: "virds" },
+  { id: "favorites", route: "/canta", label: "menu.bag", icon: "favorites" },
+  { id: "discover", route: "/kesfet/canta", label: "menu.discover", icon: "discover" },
+] as const;
+export type AppSection = typeof appSections[number]["id"];
+export const createRecordRoute = "/virdlerim/yeni";
+
+export function getSectionRoute(section: AppSection) {
+  return appSections.find((item) => item.id === section)!.route;
+}
 
 export const modules = [
   createTrackableModule("prayers", "devotional", "prayer", "/dualar", "menu.prayers", "menu.addPrayer"),
@@ -6,26 +18,11 @@ export const modules = [
   createTrackableModule("memorization", "devotional", "memory", "/ezberler", "menu.memorization", "menu.addMemorization"),
   createTrackableModule("dhikr", "devotional", "dhikr", "/zikirler", "menu.dhikr", "menu.addDhikr"),
   createTrackableModule("poetry", "devotional", "poetry", "/siirler", "menu.poetry", "menu.addPoetry"),
-  {
-    id: "bag", kind: "bag", route: "/canta", discoverRoute: "/kesfet/canta", icon: "bag", create: { route: "/canta/yeni", label: "menu.addBag" },
-    copy: { menu: "menu.bag", title: "module.bag.title", eyebrow: "module.bag.eyebrow", tagline: "module.bag.tagline", discoverTitle: "discover.bag.title" },
-  },
-  {
-    id: "games",
-    kind: "games",
-    route: "/oyunlar",
-    discoverRoute: "/kesfet/oyunlar",
-    icon: "game",
-    create: null,
-    copy: {
-      menu: "menu.games",
-      title: "module.games.title",
-      eyebrow: "module.games.eyebrow",
-      tagline: "module.games.tagline",
-      discoverTitle: "discover.games.title",
-    },
-  },
-] as const satisfies readonly ModuleDefinition[];
+] as const satisfies readonly TrackableModuleDefinition[];
+
+// Storage identities stay stable even when the visible navigation changes.
+export const devotionalModuleIds = modules.filter((module) => module.kind === "devotional").map((module) => module.id as DevotionalModuleId);
+export const trackableModuleIds = modules.filter((module) => module.kind === "devotional" || module.kind === "books").map((module) => module.id as TrackableModuleId);
 
 function createTrackableModule(
   id: TrackableModuleId,
@@ -38,6 +35,7 @@ function createTrackableModule(
   const copyPrefix = `module.${id}` as const;
   return {
     id,
+    storeName: id === "dhikr" ? "dhikrs" : id,
     kind,
     icon,
     route,
@@ -54,17 +52,12 @@ function createTrackableModule(
   } as TrackableModuleDefinition;
 }
 
-export function getModule(id: ModuleId): ModuleDefinition {
+export function getModule(id: TrackableModuleId): TrackableModuleDefinition {
   const definition = modules.find((candidate) => candidate.id === id);
   if (!definition) throw new Error(`Unknown module: ${id}`);
   return definition;
 }
 
 export function getTrackableModule(id: TrackableModuleId): TrackableModuleDefinition {
-  return getModule(id) as TrackableModuleDefinition;
-}
-
-export function getModuleRoute(id: ModuleId, space: ContentSpace): string {
-  const definition = getModule(id);
-  return space === "library" ? definition.route : definition.discoverRoute;
+  return getModule(id);
 }

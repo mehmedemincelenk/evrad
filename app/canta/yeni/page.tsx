@@ -1,5 +1,5 @@
-import { BagCreateApp } from "../../features/bag/BagCreateApp";
+import { RecordCreateApp } from "../../features/collections/RecordCreateApp";
 
-export default function NewBagItemPage() {
-  return <BagCreateApp />;
+export default function NewRecordPage() {
+  return <RecordCreateApp category="dhikr" />;
 }

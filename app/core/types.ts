@@ -1,10 +1,8 @@
 import type { TranslationKey } from "./i18n";
 
-export type ModuleId = "prayers" | "books" | "memorization" | "dhikr" | "poetry" | "bag" | "games";
-export type TrackableModuleId = Exclude<ModuleId, "bag" | "games">;
+export type TrackableModuleId = "prayers" | "books" | "memorization" | "dhikr" | "poetry";
 export type DevotionalModuleId = Exclude<TrackableModuleId, "books">;
-export type ContentSpace = "library" | "discover";
-export type IconName = "prayer" | "book" | "memory" | "dhikr" | "poetry" | "bag" | "game";
+export type IconName = "prayer" | "book" | "memory" | "surah" | "dhikr" | "poetry" | "bag" | "game";
 export type TargetUnit = "count" | "custom";
 export type ArabicFontLevel = 0 | 1 | 2 | 3 | 4;
 export type DevotionalContext =
@@ -41,21 +39,10 @@ export interface ModuleCreation {
 
 export type TrackableModuleDefinition = ModuleBase & {
   id: TrackableModuleId;
+  storeName: string;
   kind: "devotional" | "books";
   copy: TrackableModuleCopy;
   create: ModuleCreation;
-};
-
-export type ModuleDefinition = TrackableModuleDefinition | ModuleBase & {
-  id: "bag";
-  kind: "bag";
-  copy: ModuleCopy;
-  create: ModuleCreation;
-} | ModuleBase & {
-  id: "games";
-  kind: "games";
-  copy: ModuleCopy;
-  create: null;
 };
 
 export interface TrackableEntity {
@@ -93,8 +80,11 @@ export interface DevotionalItem extends TrackableEntity {
   listDisplay: "arabic" | "name";
   expandedArabicSize: ArabicFontLevel;
   contexts: DevotionalContext[];
-  /** Virdlerim, Çanta'daki kayıtların işaretlenmiş alt kümesidir. */
+  bagCategories?: Array<"dhikr" | "prayers" | "memorization" | "surahs" | "poetry">;
+  /** Virdlerim ve Beğenilenler birbirinden bağımsız koleksiyonlardır. */
   inVirds?: boolean;
+  /** Eski kayıtlarda yoksa beğenilmiş kabul edilir. */
+  liked?: boolean;
   virdSortOrder?: number;
 }
 
@@ -106,6 +96,7 @@ export interface DevotionalDraft extends TargetDraft {
   source: string;
   listDisplay: "arabic" | "name";
   contexts: DevotionalContext[];
+  bagCategories?: Array<"dhikr" | "prayers" | "memorization" | "surahs" | "poetry">;
 }
 
 export interface BookItem extends TrackableEntity {

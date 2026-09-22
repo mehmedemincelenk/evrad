@@ -1,12 +1,6 @@
 import type { DailyCompletion, TrackableModuleId } from "../core/types";
+import { recordKey } from "../core/collections";
 import { COMPLETION_STORE, requestResult, runTransaction } from "./indexed-db";
-
-async function loadIds(itemType: TrackableModuleId, localDate: string): Promise<Set<string>> {
-  const records = await runTransaction(COMPLETION_STORE, "readonly", (transaction) => (
-    requestResult(transaction.objectStore(COMPLETION_STORE).index("localDate").getAll(localDate) as IDBRequest<DailyCompletion[]>)
-  ));
-  return new Set(records.filter((record) => record.itemType === itemType).map((record) => record.itemId));
-}
 
 async function set(
   itemType: TrackableModuleId,
@@ -23,6 +17,11 @@ async function set(
 }
 
 export const completionRepository = {
-  loadIds,
+  async loadKeys(localDate: string): Promise<Set<string>> {
+    const records = await runTransaction(COMPLETION_STORE, "readonly", (transaction) => requestResult(
+      transaction.objectStore(COMPLETION_STORE).index("localDate").getAll(localDate) as IDBRequest<DailyCompletion[]>,
+    ));
+    return new Set(records.map((record) => recordKey(record.itemType, record.itemId)));
+  },
   set,
 };

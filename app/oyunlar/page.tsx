@@ -1,5 +1,6 @@
-import { EmptyModuleApp } from "../features/modules/EmptyModuleApp";
+import { redirect } from "next/navigation";
+import { getSectionRoute } from "../core/module-registry";
 
 export default function GamesPage() {
-  return <EmptyModuleApp />;
+  redirect(getSectionRoute("discover"));
 }

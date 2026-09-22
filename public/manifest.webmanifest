@@ -5,7 +5,7 @@
   "description": "Zikir, dua, ezber, şiir ve okumalarını takip et; her gün yeni bir sayfa aç.",
   "lang": "tr",
   "dir": "ltr",
-  "start_url": "/",
+  "start_url": "/virdlerim",
   "scope": "/",
   "display": "standalone",
   "display_override": ["standalone"],

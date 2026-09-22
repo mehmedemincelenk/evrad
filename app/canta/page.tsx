@@ -1,5 +1,5 @@
-import { BagModuleApp } from "../features/bag/BagModuleApp";
+import { CollectionApp } from "../features/collections/CollectionApp";
 
-export default function BagPage() {
-  return <BagModuleApp />;
+export default function FavoritesPage() {
+  return <CollectionApp collection="favorites" />;
 }

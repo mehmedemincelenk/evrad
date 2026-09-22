@@ -1,5 +1,5 @@
-import { DevotionalModuleApp } from "../../features/devotional/DevotionalModuleApp";
+import { RecordCreateApp } from "../../features/collections/RecordCreateApp";
 
-export default function NewPoetryPage() {
-  return <DevotionalModuleApp moduleId="poetry" editorMode={{ type: "new" }} />;
+export default function NewRecordPage() {
+  return <RecordCreateApp category="poetry" />;
 }

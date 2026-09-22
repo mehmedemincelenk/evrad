@@ -55,7 +55,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="tr">
       <head>
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="mobile-web-app-capable" content="yes" />
       </head>
       <body data-theme="dark" data-palette="default">{children}</body>
     </html>

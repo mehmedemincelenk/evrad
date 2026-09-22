@@ -4,6 +4,7 @@ import {
   CollapsedCardSummary,
   CompletionLight,
   AddToLibraryButton,
+  LikeButton,
   SortHandle,
   TrackableCardShell,
   type SortHandleHandlers,
@@ -11,13 +12,13 @@ import {
 import { CardActions } from "../../components/CardActions";
 import { ModuleGlyph } from "../../components/ModuleGlyph";
 import { t } from "../../core/i18n";
-import { getModule } from "../../core/module-registry";
 import type { DevotionalItem, DevotionalModuleId } from "../../core/types";
-import { getDevotionalDisplay } from "./devotional-utils";
+import { getDevotionalDisplay } from "../../core/devotional";
 import { DevotionalDetails } from "./DevotionalDetails";
-import { getDevotionalTags } from "./devotional-tags";
+import { getRecordIcon } from "../../core/record-categories";
 
 interface DevotionalCardProps {
+  cardId?: string;
   item: DevotionalItem;
   moduleId: DevotionalModuleId;
   complete: boolean;
@@ -40,16 +41,15 @@ interface DevotionalCardProps {
 export function DevotionalCard(props: DevotionalCardProps) {
   const { item } = props;
   const display = getDevotionalDisplay(item);
-  const tags = getDevotionalTags(props.moduleId, item);
   return (
     <TrackableCardShell
-      id={item.id}
+      id={props.cardId ?? item.id}
       complete={props.complete}
       expanded={props.expanded}
       dragging={props.dragging}
       dragOffsetY={props.dragOffsetY}
-      leading={<SortHandle sortId={props.mode === "virds" ? `${props.moduleId}:${item.id}` : item.id} label={t("card.reorderGeneric", { position: props.position ?? 1 })} {...props.sortHandleProps!} />}
-      marker={props.mode === "bag" || props.mode === "virds" ? <ModuleGlyph icon={getModule(props.moduleId).icon} /> : undefined}
+      leading={props.sortHandleProps ? <SortHandle sortId={props.cardId ?? item.id} label={t("card.reorderGeneric", { position: props.position ?? 1 })} {...props.sortHandleProps} /> : null}
+      marker={<ModuleGlyph icon={getRecordIcon(item, props.moduleId)} />}
       summary={(
         <CollapsedCardSummary
           title={display.text}
@@ -59,12 +59,11 @@ export function DevotionalCard(props: DevotionalCardProps) {
           targetUnitLabel={item.targetUnitLabel}
           expanded={props.expanded}
           onToggle={props.onToggleExpanded}
-          tags={tags}
         />
       )}
       trailing={(
         props.mode === "bag" ? (
-          <AddToLibraryButton title={display.text} added={Boolean(props.inVirds)} onAdd={() => props.onToggleVird?.()} />
+          <div className="discovery-actions"><LikeButton title={display.text} liked onToggle={() => props.onRemoveFromCollections?.()} /><AddToLibraryButton title={display.text} added={Boolean(props.inVirds)} onAdd={() => props.onToggleVird?.()} /></div>
         ) : (
           <CompletionLight
             complete={props.complete}
@@ -78,7 +77,6 @@ export function DevotionalCard(props: DevotionalCardProps) {
         item={item}
         fontLevel={item.expandedArabicSize}
         onChangeFont={props.onChangeFont}
-        tags={tags}
         actions={props.mode === "standard" || !props.mode ? (
           <CardActions title={display.text} onEdit={props.onEdit} onDelete={props.onDelete} />
         ) : (

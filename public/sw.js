@@ -1,33 +1,8 @@
-const CACHE_NAME = "zikirlerim-shell-v18";
+const CACHE_NAME = "zikirlerim-shell-v20";
 const CORE_URLS = [
-  "/",
-  "/virdlerim",
-  "/zikirler",
-  "/zikirler/yeni",
-  "/canta",
-  "/canta/yeni",
-  "/dualar",
-  "/dualar/yeni",
-  "/ezberler",
-  "/ezberler/yeni",
-  "/siirler",
-  "/siirler/yeni",
-  "/kitaplar",
-  "/kitaplar/yeni",
-  "/oyunlar",
-  "/kesfet/zikirler",
-  "/kesfet/canta",
-  "/kesfet/dualar",
-  "/kesfet/ezberler",
-  "/kesfet/siirler",
-  "/kesfet/kitaplar",
-  "/kesfet/oyunlar",
-  "/kesfet/sureler",
-  "/sureler",
-  "/sureler/yeni",
-  "/manifest.webmanifest",
-  "/icon-192.png",
-  "/icon-512.png",
+  "/", "/virdlerim", "/virdlerim/yeni", "/canta", "/kesfet/canta",
+  "/kitaplar", "/kitaplar/yeni",
+  "/manifest.webmanifest", "/icon-192.png", "/icon-512.png",
 ];
 
 self.addEventListener("install", (event) => {

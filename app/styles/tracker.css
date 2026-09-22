@@ -45,7 +45,7 @@
 
 .card-collapsed-row {
   display: grid;
-  grid-template-columns: 2.1rem minmax(0, 1fr) 2.75rem;
+  grid-template-columns: 2.75rem minmax(0, 1fr) 2.75rem;
   align-items: stretch;
   min-height: 4.7rem;
 }
@@ -53,12 +53,15 @@
 .trackable-card.has-no-leading .card-collapsed-row {
   grid-template-columns: minmax(0, 1fr) 2.75rem;
 }
+.trackable-card.has-no-leading:has(.discovery-actions) .card-collapsed-row { grid-template-columns: minmax(0, 1fr) 5.5rem; }
+.trackable-card:has(.discovery-actions) .card-collapsed-row { grid-template-columns: 2.75rem minmax(0, 1fr) 5.5rem; }
+.discovery-actions { display: flex; align-items: stretch; }
+.discovery-like span { font-size: 1.15rem; filter: grayscale(1); opacity: 0.55; transition: filter 160ms ease, opacity 160ms ease; }
+.discovery-like.is-liked span { filter: none; opacity: 1; }
 
 .drag-handle,
 .card-main,
 .completion-light,
-.edge-menu-launcher,
-.module-button,
 .round-icon-button,
 .font-controls button,
 .edit-button,
@@ -73,7 +76,7 @@
   gap: 0.25rem;
   align-content: center;
   justify-content: center;
-  min-width: 2.1rem;
+  min-width: 2.75rem;
   min-height: 3rem;
   opacity: 0.42;
   cursor: grab;
@@ -92,7 +95,7 @@
   height: 0.9rem;
   padding: 0 0.18rem;
   place-items: center;
-  background: var(--surface, #101216);
+  background: transparent;
   color: var(--muted);
   line-height: 1;
   transform: translateY(-50%);
@@ -191,7 +194,7 @@
   position: relative;
   display: grid;
   place-items: center;
-  width: 2.05rem;
+  width: 1.6rem;
   aspect-ratio: 1;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 50%;

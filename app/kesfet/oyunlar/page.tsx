@@ -1,5 +1,6 @@
-import { DiscoveryModuleApp } from "../../features/discovery/DiscoveryModuleApp";
+import { redirect } from "next/navigation";
+import { getSectionRoute } from "../../core/module-registry";
 
-export default function DiscoverGamesPage() {
-  return <DiscoveryModuleApp moduleId="games" />;
+export default function LegacyDiscoverPage() {
+  redirect(getSectionRoute("discover"));
 }

@@ -1,8 +1,7 @@
-import { Backpack, Compass, House, ListChecks } from "lucide-react";
+import { Compass, ListChecks } from "lucide-react";
 
-const glyphs = { home: House, virds: ListChecks, bag: Backpack, discover: Compass } as const;
-
-export function NavigationGlyph({ name }: { name: keyof typeof glyphs }) {
-  const Glyph = glyphs[name];
+export function NavigationGlyph({ name }: { name: "virds" | "favorites" | "discover" }) {
+  if (name === "favorites") return <span className="navigation-heart" aria-hidden="true">🫀</span>;
+  const Glyph = name === "virds" ? ListChecks : Compass;
   return <Glyph className={`navigation-glyph is-${name}`} aria-hidden="true" strokeWidth={1.8} />;
 }

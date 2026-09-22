@@ -1,5 +1,5 @@
-import { DevotionalModuleApp } from "../../features/devotional/DevotionalModuleApp";
+import { RecordCreateApp } from "../../features/collections/RecordCreateApp";
 
-export default function NewSurahPage() {
-  return <DevotionalModuleApp moduleId="memorization" editorMode={{ type: "new" }} />;
+export default function NewRecordPage() {
+  return <RecordCreateApp category="surahs" />;
 }

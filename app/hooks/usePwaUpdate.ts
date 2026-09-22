@@ -1,10 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { modules } from "../core/module-registry";
+import { appSections, createRecordRoute } from "../core/module-registry";
 
 const moduleUrls = [
-  ...modules.flatMap((module) => [module.route, module.discoverRoute, module.create?.route].filter((route): route is string => Boolean(route))),
+  ...appSections.map((section) => section.route), createRecordRoute,
 ];
 
 export function usePwaUpdate() {

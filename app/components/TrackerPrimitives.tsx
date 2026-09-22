@@ -140,6 +140,10 @@ export function AddToLibraryButton({ title, added, onAdd }: { title: string; add
   );
 }
 
+export function LikeButton({ title, liked, onToggle }: { title: string; liked: boolean; onToggle: () => void }) {
+  return <button className={`completion-light discovery-like${liked ? " is-liked" : ""}`} type="button" onClick={onToggle} aria-label={t(liked ? "discover.unlike" : "discover.like", { title })} aria-pressed={liked}><span aria-hidden="true">🫀</span></button>;
+}
+
 export function SortHandle({
   sortId,
   label,

@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
+import { getSectionRoute } from "../core/module-registry";
 
-export default function DhikrPage() {
-  redirect("/canta");
+export default function LegacyLibraryPage() {
+  redirect(getSectionRoute("favorites"));
 }

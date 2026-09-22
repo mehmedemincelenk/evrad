@@ -1,4 +1,5 @@
 import { SaveIcon } from "./SaveIcon";
+import { t } from "../core/i18n";
 
 export function AppFooter({ label, saving, onBackup }: {
   label: string;
@@ -11,6 +12,7 @@ export function AppFooter({ label, saving, onBackup }: {
         <SaveIcon />
         <span>{label}</span>
       </button>
+      <p className="beta-note">{t("app.betaNote")}</p>
     </footer>
   );
 }

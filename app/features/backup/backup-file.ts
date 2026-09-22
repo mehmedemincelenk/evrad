@@ -1,5 +1,5 @@
-import { readBackupPayload } from "./backup-repository";
-import type { BackupEnvelope, BackupSaveResult } from "./backup-types";
+import { readBackupPayload } from "../../data/backup-repository";
+import type { BackupEnvelope, BackupSaveResult } from "../../core/backup";
 
 const MIME_TYPE = "application/json";
 

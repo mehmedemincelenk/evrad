@@ -47,7 +47,7 @@ export function BookEditor({ item, onClose, onSave }: { item: BookItem | null; o
         <label className="field-group"><span>{t("editor.bookTitle")}</span><input value={draft.title} onChange={(event) => update({ title: event.target.value })} placeholder={t("editor.bookTitlePlaceholder")} autoComplete="off" /></label>
         <label className="field-group"><span>{t("editor.bookAuthor")}</span><input value={draft.author} onChange={(event) => update({ author: event.target.value })} placeholder={t("editor.bookAuthorPlaceholder")} autoComplete="off" /></label>
         <label className="field-group"><span>{t("editor.bookDetails")}</span><textarea value={draft.details} onChange={(event) => update({ details: event.target.value })} placeholder={t("editor.bookDetailsPlaceholder")} rows={5} /></label>
-        <TargetFields value={draft} onChange={update} />
+        <TargetFields value={draft} showHint onChange={update} />
         {error ? <p className="form-error" role="alert">{error}</p> : null}
         <footer className="form-actions"><button className="secondary-button" type="button" onClick={onClose} disabled={saving}>{t("action.cancel")}</button><button className="primary-button" type="submit" disabled={saving}>{t("action.save")}</button></footer>
       </form>

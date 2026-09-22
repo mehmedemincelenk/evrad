@@ -1,5 +1,6 @@
-import { DevotionalModuleApp } from "../features/devotional/DevotionalModuleApp";
+import { redirect } from "next/navigation";
+import { getSectionRoute } from "../core/module-registry";
 
-export default function PrayersPage() {
-  return <DevotionalModuleApp moduleId="prayers" />;
+export default function LegacyLibraryPage() {
+  redirect(getSectionRoute("favorites"));
 }

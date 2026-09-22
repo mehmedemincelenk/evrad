@@ -1,5 +1,5 @@
-import { BagDiscoveryApp } from "../../features/bag/BagDiscoveryApp";
+import { DiscoveryApp } from "../../features/discovery/DiscoveryApp";
 
-export default function DiscoverBagPage() {
-  return <BagDiscoveryApp />;
+export default function DiscoverPage() {
+  return <DiscoveryApp />;
 }
