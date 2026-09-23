@@ -63,6 +63,21 @@ export function MainSectionsView({ initialSection }: { initialSection: MainSecti
     [getSectionIndex],
   );
 
+  const rafId = useRef<number | null>(null);
+
+  const updateVisualEffects = useCallback(() => {
+    const viewport = viewportRef.current;
+    if (!viewport || viewport.clientWidth === 0) return;
+    const width = viewport.clientWidth;
+    const scrollLeft = viewport.scrollLeft;
+    const pages = viewport.querySelectorAll<HTMLElement>(".main-swipe-page");
+    for (let i = 0; i < pages.length; i++) {
+      const distance = Math.abs(scrollLeft - i * width);
+      const ratio = Math.min(1, distance / width);
+      pages[i].style.setProperty("--page-dist", ratio.toFixed(3));
+    }
+  }, []);
+
   useEffect(() => {
     const initialIndex = getSectionIndex(initialActive);
     const viewport = viewportRef.current;
@@ -72,6 +87,7 @@ export function MainSectionsView({ initialSection }: { initialSection: MainSecti
       const width = viewport.clientWidth;
       if (width > 0) {
         viewport.scrollLeft = initialIndex * width;
+        updateVisualEffects();
       }
     };
 
@@ -82,9 +98,16 @@ export function MainSectionsView({ initialSection }: { initialSection: MainSecti
       cancelAnimationFrame(raf);
       window.clearTimeout(timer);
     };
-  }, [getSectionIndex, initialActive]);
+  }, [getSectionIndex, initialActive, updateVisualEffects]);
 
   const handleScroll = useCallback(() => {
+    if (rafId.current === null) {
+      rafId.current = requestAnimationFrame(() => {
+        updateVisualEffects();
+        rafId.current = null;
+      });
+    }
+
     if (isProgrammaticScroll.current) return;
     const viewport = viewportRef.current;
     if (!viewport || viewport.clientWidth === 0) return;
@@ -104,7 +127,7 @@ export function MainSectionsView({ initialSection }: { initialSection: MainSecti
         }
       }
     }
-  }, [activeSection]);
+  }, [activeSection, updateVisualEffects]);
 
   useEffect(() => {
     const onResize = () => {

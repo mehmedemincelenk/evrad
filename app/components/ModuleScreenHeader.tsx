@@ -16,11 +16,6 @@ export function ModuleScreenHeader({
   filters?: ReactNode;
 }) {
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [hasRendered, setHasRendered] = useState(false);
-
-  if (filtersOpen && !hasRendered) {
-    setHasRendered(true);
-  }
 
   return (
     <header className="screen-heading">
@@ -43,7 +38,7 @@ export function ModuleScreenHeader({
       {filters ? (
         <div className={`header-filters-accordion${filtersOpen ? " is-open" : ""}`} aria-hidden={!filtersOpen}>
           <div className="header-filters-inner">
-            {hasRendered ? filters : null}
+            {filters}
           </div>
         </div>
       ) : null}
