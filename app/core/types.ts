@@ -6,6 +6,7 @@ export type IconName = "prayer" | "book" | "memory" | "surah" | "dhikr" | "poetr
 export type TargetUnit = "count" | "custom";
 export type ArabicFontLevel = 0 | 1 | 2 | 3 | 4;
 export type DevotionalContext =
+  | "general"
   | "beforePrayer"
   | "afterPrayer"
   | "morning"

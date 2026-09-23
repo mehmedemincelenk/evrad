@@ -44,12 +44,8 @@ export function DiscoveryDevotionalCard({
       id={item.id}
       expanded={expanded}
       leading={<LikeButton title={display.text} liked={liked} onToggle={onLike} />}
-      marker={(
-        <span className="card-status-cluster">
-          <ModuleGlyph icon={getRecordIcon(item, moduleId)} />
-          <TargetBadge count={item.targetCount} unit={item.targetUnit} unitLabel={item.targetUnitLabel} />
-        </span>
-      )}
+      marker={<ModuleGlyph icon={getRecordIcon(item, moduleId)} />}
+      targetBadge={<TargetBadge count={item.targetCount} unit={item.targetUnit} unitLabel={item.targetUnitLabel} />}
       summary={<CollapsedCardSummary title={display.text} arabic={display.arabic} expanded={expanded} onToggle={onToggle} />}
       trailing={<AddToLibraryButton title={display.text} added={added} onAdd={onAdd} />}
     >

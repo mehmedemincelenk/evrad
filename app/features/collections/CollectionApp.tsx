@@ -29,7 +29,7 @@ export function CollectionApp({ collection }: { collection: CollectionId }) {
   return <AppShell section={collection}><CollectionScreen collection={collection} /></AppShell>;
 }
 
-function CollectionScreen({ collection }: { collection: CollectionId }) {
+export function CollectionScreen({ collection }: { collection: CollectionId }) {
   const state = useCollection(collection);
   const filters = useRecordFilters();
   const labels = copy[collection];

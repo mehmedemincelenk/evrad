@@ -26,13 +26,47 @@
 @keyframes confirmationIn { from { opacity: 0; } }
 
 .storage-loading {
-  display: grid;
-  place-items: center;
-  align-content: center;
-  gap: 1rem;
-  min-height: 12rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  min-height: clamp(16rem, 50vh, 28rem);
+  width: 100%;
+  padding: 2rem 1rem;
   color: var(--muted);
   font-size: 0.82rem;
+  text-align: center;
+}
+
+.app-screen-loading {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-canvas, #07080b);
+}
+
+.loading-basmala {
+  font-family: "Noto Kufi Arabic", "Reem Kufi", sans-serif;
+  font-size: clamp(1.2rem, 4.5vw, 1.75rem);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1.6;
+  color: var(--light, #fffdff);
+  text-shadow: 0 0 20px rgba(255, 253, 239, 0.2);
+  animation: basmalaBreath 2.2s ease-in-out infinite;
+}
+
+@keyframes basmalaBreath {
+  0%, 100% {
+    opacity: 0.82;
+    transform: scale(0.99);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.01);
+  }
 }
 
 .loading-orb {

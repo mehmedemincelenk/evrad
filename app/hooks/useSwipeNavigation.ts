@@ -8,12 +8,13 @@ const MIN_SWIPE_DISTANCE = 50;
 const MAX_VERTICAL_DEVIATION = 45;
 const MAX_SWIPE_TIME_MS = 600;
 
-export function useSwipeNavigation(section: AppSection | "settings") {
+export function useSwipeNavigation(section: AppSection | "settings", enabled = true) {
   const router = useRouter();
   const pathname = usePathname();
   const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
 
   useEffect(() => {
+    if (!enabled) return;
     const isSectionRoot = appSections.some((item) => item.route === pathname);
     if (!isSectionRoot) return;
 
@@ -24,7 +25,7 @@ export function useSwipeNavigation(section: AppSection | "settings") {
       }
       if (
         document.body.classList.contains("is-sorting") ||
-        (event.target as HTMLElement | null)?.closest("input, textarea, select, [role='dialog'], .collection-choice-overlay")
+        (event.target as HTMLElement | null)?.closest("input, textarea, select, [role='dialog'], .collection-choice-overlay, .bottom-navigation")
       ) {
         touchStartRef.current = null;
         return;
@@ -68,6 +69,6 @@ export function useSwipeNavigation(section: AppSection | "settings") {
       window.removeEventListener("touchstart", onTouchStart);
       window.removeEventListener("touchend", onTouchEnd);
     };
-  }, [pathname, router, section]);
+  }, [enabled, pathname, router, section]);
 }
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useIsHydrated } from "./useIsHydrated";
 import {
   ARABIC_FONT_STORAGE_KEY,
   DEFAULT_ARABIC_FONT_ID,
@@ -98,19 +99,19 @@ export function applyStoredArabicFont(): void {
 }
 
 export function useArabicFont(showToast?: (message: string) => void) {
-  const [activeFontId, setActiveFontId] = useState<string>(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem(ARABIC_FONT_STORAGE_KEY) ?? DEFAULT_ARABIC_FONT_ID;
-    }
-    return DEFAULT_ARABIC_FONT_ID;
-  });
+  const isHydrated = useIsHydrated();
+  const [selectedFontId, setSelectedFontId] = useState<string | null>(null);
   const [loadingFontId, setLoadingFontId] = useState<string | null>(null);
+
+  const activeFontId = isHydrated
+    ? (selectedFontId ?? (typeof window !== "undefined" ? localStorage.getItem(ARABIC_FONT_STORAGE_KEY) ?? DEFAULT_ARABIC_FONT_ID : DEFAULT_ARABIC_FONT_ID))
+    : DEFAULT_ARABIC_FONT_ID;
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     const onStorage = (event: StorageEvent) => {
       if (event.key === ARABIC_FONT_STORAGE_KEY && event.newValue) {
-        setActiveFontId(event.newValue);
+        setSelectedFontId(event.newValue);
       }
     };
     window.addEventListener("storage", onStorage);
@@ -129,7 +130,7 @@ export function useArabicFont(showToast?: (message: string) => void) {
         } catch {
           // localStorage kısıtı
         }
-        setActiveFontId(targetFont.id);
+        setSelectedFontId(targetFont.id);
         return;
       }
 
@@ -147,7 +148,7 @@ export function useArabicFont(showToast?: (message: string) => void) {
         } catch {
           // localStorage kısıtı
         }
-        setActiveFontId(targetFont.id);
+        setSelectedFontId(targetFont.id);
         return;
       }
 
@@ -160,7 +161,7 @@ export function useArabicFont(showToast?: (message: string) => void) {
         } catch {
           // localStorage kısıtı
         }
-        setActiveFontId(targetFont.id);
+        setSelectedFontId(targetFont.id);
       } catch {
         showToast?.(t("settings.fontLoadError"));
         const current = getArabicFont(activeFontId);

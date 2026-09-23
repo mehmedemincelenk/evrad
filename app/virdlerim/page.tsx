@@ -1,5 +1,5 @@
-import { CollectionApp } from "../features/collections/CollectionApp";
+import { MainSectionsView } from "../components/MainSectionsView";
 
 export default function VirdsPage() {
-  return <CollectionApp collection="virds" />;
+  return <MainSectionsView initialSection="virds" />;
 }

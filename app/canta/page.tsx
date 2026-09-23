@@ -1,5 +1,5 @@
-import { CollectionApp } from "../features/collections/CollectionApp";
+import { MainSectionsView } from "../components/MainSectionsView";
 
 export default function FavoritesPage() {
-  return <CollectionApp collection="favorites" />;
+  return <MainSectionsView initialSection="favorites" />;
 }

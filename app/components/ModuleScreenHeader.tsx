@@ -16,6 +16,12 @@ export function ModuleScreenHeader({
   filters?: ReactNode;
 }) {
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [hasRendered, setHasRendered] = useState(false);
+
+  if (filtersOpen && !hasRendered) {
+    setHasRendered(true);
+  }
+
   return (
     <header className="screen-heading">
       <p className="eyebrow">{eyebrow}</p>
@@ -23,8 +29,24 @@ export function ModuleScreenHeader({
         <h1 id="page-title">{title}</h1>
         <p className="dayline">{tagline}</p>
       </div>
-      {filters ? <button className="filter-toggle" type="button" aria-label={t("filter.contexts")} aria-expanded={filtersOpen} onClick={() => setFiltersOpen((open) => !open)}><ChevronDown aria-hidden="true" /></button> : null}
-      {filtersOpen ? <div className="header-filters">{filters}</div> : null}
+      {filters ? (
+        <button
+          className="filter-toggle"
+          type="button"
+          aria-label={t("filter.contexts")}
+          aria-expanded={filtersOpen}
+          onClick={() => setFiltersOpen((open) => !open)}
+        >
+          <ChevronDown aria-hidden="true" />
+        </button>
+      ) : null}
+      {filters ? (
+        <div className={`header-filters-accordion${filtersOpen ? " is-open" : ""}`} aria-hidden={!filtersOpen}>
+          <div className="header-filters-inner">
+            {hasRendered ? filters : null}
+          </div>
+        </div>
+      ) : null}
     </header>
   );
 }

@@ -51,12 +51,8 @@ export function DevotionalCard(props: DevotionalCardProps) {
           <LikeButton title={display.text} liked onToggle={props.onRemoveFromCollections} />
         ) : undefined
       )}
-      marker={(
-        <span className="card-status-cluster">
-          <ModuleGlyph icon={getRecordIcon(item, props.moduleId)} />
-          <TargetBadge count={item.targetCount} unit={item.targetUnit} unitLabel={item.targetUnitLabel} />
-        </span>
-      )}
+      marker={<ModuleGlyph icon={getRecordIcon(item, props.moduleId)} />}
+      targetBadge={<TargetBadge count={item.targetCount} unit={item.targetUnit} unitLabel={item.targetUnitLabel} />}
       summary={(
         <CollapsedCardSummary
           sortId={props.cardId ?? item.id}

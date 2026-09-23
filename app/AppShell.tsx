@@ -12,52 +12,84 @@ import { usePersistentStorage } from "./hooks/usePersistentStorage";
 import { AppFooter } from "./components/AppFooter";
 import { useSwipeNavigation } from "./hooks/useSwipeNavigation";
 import { applyStoredArabicFont } from "./hooks/useArabicFont";
+import { QuickAddModal } from "./components/QuickAddModal";
+import { useScrollDirection } from "./hooks/useScrollDirection";
+import { useIsHydrated } from "./hooks/useIsHydrated";
 
 import { ARABIC_DIACRITICS_STORAGE_KEY } from "./core/arabic-fonts";
 import { DAY_RESET_TIME_STORAGE_KEY } from "./core/date";
 
 
-export function AppShell({ children, section }: { children: ReactNode; section: AppSection | "settings" }) {
+import type { DevotionalItem } from "./core/types";
+
+export function AppShell({
+  children,
+  section,
+  onSelectSection,
+  onOpenDetailed,
+}: {
+  children: ReactNode;
+  section: AppSection | "settings" | "create";
+  onSelectSection?: (section: AppSection | "settings" | "create") => void;
+  onOpenDetailed?: (item: DevotionalItem | null) => void;
+}) {
   const { updateReady, activateUpdate } = usePwaUpdate();
   const [toast, setToast] = useState<string | null>(null);
+  const [quickAddOpen, setQuickAddOpen] = useState(false);
+  const isScrolledDown = useScrollDirection();
+  const isHydrated = useIsHydrated();
 
-  const [showDiacritics, setShowDiacriticsState] = useState<boolean>(() => {
-    if (typeof window === "undefined") return true;
-    return localStorage.getItem(ARABIC_DIACRITICS_STORAGE_KEY) !== "false";
-  });
+  const [customDiacritics, setCustomDiacritics] = useState<boolean | null>(null);
+  const [customTranslations, setCustomTranslations] = useState<boolean | null>(null);
+  const [customHaptic, setCustomHaptic] = useState<boolean | null>(null);
+  const [customDayResetTime, setCustomDayResetTime] = useState<string | null>(null);
+  const [customFontSizeScale, setCustomFontSizeScale] = useState<number | null>(null);
+  const [customLineHeight, setCustomLineHeight] = useState<number | null>(null);
 
-  const [showTranslations, setShowTranslationsState] = useState<boolean>(() => {
-    if (typeof window === "undefined") return true;
-    return localStorage.getItem("evrad_show_translations") !== "false";
-  });
+  const showDiacritics = isHydrated
+    ? (customDiacritics ?? (typeof window !== "undefined" && localStorage.getItem(ARABIC_DIACRITICS_STORAGE_KEY) === "false" ? false : true))
+    : true;
 
-  const [hapticEnabled, setHapticEnabledState] = useState<boolean>(() => {
-    if (typeof window === "undefined") return true;
-    return localStorage.getItem("evrad_haptic_feedback") !== "false";
-  });
+  const showTranslations = isHydrated
+    ? (customTranslations ?? (typeof window !== "undefined" && localStorage.getItem("evrad_show_translations") === "false" ? false : true))
+    : true;
 
-  const [dayResetTime, setDayResetTimeState] = useState<string>(() => {
-    if (typeof window === "undefined") return "00:00";
-    return localStorage.getItem(DAY_RESET_TIME_STORAGE_KEY) ?? "00:00";
-  });
+  const hapticEnabled = isHydrated
+    ? (customHaptic ?? (typeof window !== "undefined" && localStorage.getItem("evrad_haptic_feedback") === "false" ? false : true))
+    : true;
 
-  const [fontSizeScale, setFontSizeScaleState] = useState<number>(() => {
-    if (typeof window === "undefined") return 100;
-    const stored = Number(localStorage.getItem("evrad_font_size_scale"));
-    return Number.isFinite(stored) && stored >= 75 && stored <= 140 ? stored : 100;
-  });
+  const dayResetTime = isHydrated
+    ? (customDayResetTime ?? (typeof window !== "undefined" ? localStorage.getItem(DAY_RESET_TIME_STORAGE_KEY) ?? "00:00" : "00:00"))
+    : "00:00";
 
-  const [lineHeight, setLineHeightState] = useState<number>(() => {
-    if (typeof window === "undefined") return 1.75;
-    const stored = Number(localStorage.getItem("evrad_line_height_scale"));
-    return Number.isFinite(stored) && stored >= 1.2 && stored <= 2.5 ? stored : 1.75;
-  });
+  const fontSizeScale = isHydrated
+    ? (customFontSizeScale ?? (() => {
+        if (typeof window === "undefined") return 100;
+        const stored = Number(localStorage.getItem("evrad_font_size_scale"));
+        return Number.isFinite(stored) && stored >= 75 && stored <= 140 ? stored : 100;
+      })())
+    : 100;
+
+  const lineHeight = isHydrated
+    ? (customLineHeight ?? (() => {
+        if (typeof window === "undefined") return 1.75;
+        const stored = Number(localStorage.getItem("evrad_line_height_scale"));
+        return Number.isFinite(stored) && stored >= 1.2 && stored <= 2.5 ? stored : 1.75;
+      })())
+    : 1.75;
 
   const showToast = useCallback((message: string) => setToast(message), []);
 
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    document.documentElement.style.setProperty("--text-scale", String(fontSizeScale / 100));
+    document.documentElement.style.setProperty("--arabic-line-height", String(lineHeight));
+  }, [fontSizeScale, lineHeight]);
+
   const setShowDiacritics = useCallback((val: boolean | ((prev: boolean) => boolean)) => {
-    setShowDiacriticsState((prev) => {
-      const next = typeof val === "function" ? val(prev) : val;
+    setCustomDiacritics((prevCustom) => {
+      const current = prevCustom ?? (typeof window !== "undefined" && localStorage.getItem(ARABIC_DIACRITICS_STORAGE_KEY) === "false" ? false : true);
+      const next = typeof val === "function" ? val(current) : val;
       try {
         localStorage.setItem(ARABIC_DIACRITICS_STORAGE_KEY, String(next));
       } catch {
@@ -68,8 +100,9 @@ export function AppShell({ children, section }: { children: ReactNode; section: 
   }, []);
 
   const setShowTranslations = useCallback((val: boolean | ((prev: boolean) => boolean)) => {
-    setShowTranslationsState((prev) => {
-      const next = typeof val === "function" ? val(prev) : val;
+    setCustomTranslations((prevCustom) => {
+      const current = prevCustom ?? (typeof window !== "undefined" && localStorage.getItem("evrad_show_translations") === "false" ? false : true);
+      const next = typeof val === "function" ? val(current) : val;
       try {
         localStorage.setItem("evrad_show_translations", String(next));
       } catch {
@@ -80,8 +113,9 @@ export function AppShell({ children, section }: { children: ReactNode; section: 
   }, []);
 
   const setHapticEnabled = useCallback((val: boolean | ((prev: boolean) => boolean)) => {
-    setHapticEnabledState((prev) => {
-      const next = typeof val === "function" ? val(prev) : val;
+    setCustomHaptic((prevCustom) => {
+      const current = prevCustom ?? (typeof window !== "undefined" && localStorage.getItem("evrad_haptic_feedback") === "false" ? false : true);
+      const next = typeof val === "function" ? val(current) : val;
       try {
         localStorage.setItem("evrad_haptic_feedback", String(next));
       } catch {
@@ -92,7 +126,7 @@ export function AppShell({ children, section }: { children: ReactNode; section: 
   }, []);
 
   const setDayResetTime = useCallback((time: string) => {
-    setDayResetTimeState(time);
+    setCustomDayResetTime(time);
     try {
       localStorage.setItem(DAY_RESET_TIME_STORAGE_KEY, time);
     } catch {
@@ -101,24 +135,18 @@ export function AppShell({ children, section }: { children: ReactNode; section: 
   }, []);
 
   const setFontSizeScale = useCallback((scale: number) => {
-    setFontSizeScaleState(scale);
+    setCustomFontSizeScale(scale);
     try {
       localStorage.setItem("evrad_font_size_scale", String(scale));
-      if (typeof document !== "undefined") {
-        document.documentElement.style.setProperty("--text-scale", String(scale / 100));
-      }
     } catch {
       // localStorage kısıtı
     }
   }, []);
 
   const setLineHeight = useCallback((height: number) => {
-    setLineHeightState(height);
+    setCustomLineHeight(height);
     try {
       localStorage.setItem("evrad_line_height_scale", String(height));
-      if (typeof document !== "undefined") {
-        document.documentElement.style.setProperty("--arabic-line-height", String(height));
-      }
     } catch {
       // localStorage kısıtı
     }
@@ -167,7 +195,7 @@ export function AppShell({ children, section }: { children: ReactNode; section: 
 
   const backup = useBackupExport(() => showToast(t("backup.error")));
   usePersistentStorage();
-  useSwipeNavigation(section);
+  useSwipeNavigation(section, !onSelectSection);
 
   useEffect(() => {
     if (!toast) return;
@@ -181,8 +209,19 @@ export function AppShell({ children, section }: { children: ReactNode; section: 
         <div className="ambient ambient-one" />
         <div className="ambient ambient-two" />
         {children}
-        <AppFooter label={t("backup.save")} saving={backup.saving} onBackup={() => void backup.exportBackup()} />
-        <BottomNavigation section={section} />
+        <AppFooter
+          label={t("backup.save")}
+          saving={backup.saving}
+          onBackup={() => void backup.exportBackup()}
+          onSelectSettings={onSelectSection ? () => onSelectSection("settings") : undefined}
+        />
+        <BottomNavigation
+          section={section}
+          onSelectSection={onSelectSection}
+          onOpenQuickAdd={() => setQuickAddOpen(true)}
+          isScrolledHidden={isScrolledDown && !quickAddOpen}
+        />
+        <QuickAddModal open={quickAddOpen} onClose={() => setQuickAddOpen(false)} onOpenDetailed={onOpenDetailed} />
         <AppNotifications message={toast} updateReady={updateReady} onActivateUpdate={activateUpdate} />
       </main>
     </AppRuntimeContext.Provider>

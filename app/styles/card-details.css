@@ -1,0 +1,57 @@
+/* Kart Genişleme & Detay Akordiyonu — Akıcı iOS Easing */
+.card-details-accordion {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 280ms cubic-bezier(0.32, 0.72, 0, 1);
+  overflow: hidden;
+  will-change: grid-template-rows;
+}
+
+.trackable-card.is-expanded .card-details-accordion {
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 340ms cubic-bezier(0.2, 0.9, 0.25, 1);
+}
+
+.card-details-inner {
+  min-height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(-0.35rem) scale(0.995);
+  transition: opacity 200ms ease, transform 280ms cubic-bezier(0.32, 0.72, 0, 1), visibility 280ms ease;
+  will-change: opacity, transform;
+}
+
+.trackable-card.is-expanded .card-details-inner {
+  visibility: visible;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition: opacity 260ms ease 35ms, transform 340ms cubic-bezier(0.2, 0.9, 0.25, 1), visibility 340ms ease;
+}
+
+.card-expanded-content {
+  margin: 0 0.85rem 0.85rem;
+  padding: 0.35rem 0.4rem 0.2rem;
+  border-top: 1px solid var(--line);
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.detail-block { padding: 1.05rem 0.35rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); }
+.detail-label { margin: 0 0 0.55rem; color: var(--muted-deep); font-size: 0.64rem; font-weight: 750; letter-spacing: 0.13em; text-transform: uppercase; }
+.detail-value > p { margin: 0; color: var(--text-soft); font-size: calc(0.94rem * var(--text-scale, 1)); line-height: 1.72; }
+.detail-value > p.expanded-arabic { color: var(--text); font-family: var(--font-arabic); line-height: var(--arabic-line-height, 1.72); text-align: right; white-space: pre-wrap; word-break: normal; overflow-wrap: anywhere; }
+.detail-value > p.expanded-arabic:dir(ltr) { font-family: Iowan Old Style, Baskerville, Georgia, serif; line-height: 1.8; text-align: left; }
+.details-copy { white-space: pre-line; }
+
+.arabic-detail .detail-label { margin-bottom: 0; }
+.font-controls { display: grid; grid-template-columns: 2.75rem 1fr 2.75rem; align-items: center; gap: 0.45rem; margin: 0.5rem 0 0.8rem; }
+.font-controls button { min-height: 2.75rem; border: 1px solid var(--line); border-radius: 0.8rem; background: rgba(255, 255, 255, 0.025); color: var(--text-soft); }
+.font-controls button:disabled { opacity: 0.28; cursor: default; }
+.font-controls span { color: var(--muted); font-size: 0.68rem; text-align: center; }
+
+.card-actions { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 1rem 0.25rem 0.35rem; }
+.edit-button { min-height: 2.75rem; padding: 0 1rem; border: 1px solid var(--line); border-radius: 0.85rem; color: var(--text-soft); }
+.delete-button { display: grid; place-items: center; width: 2.75rem; min-height: 2.75rem; border: 1px solid rgba(255, 140, 136, 0.2); border-radius: 50%; background: var(--danger-surface); color: var(--danger); font-size: 1.25rem; }
+
+.quiet-note { margin: 1.55rem 0 0; color: #6f7279; font-family: Iowan Old Style, Baskerville, Georgia, serif; font-size: 0.82rem; font-style: italic; text-align: center; }

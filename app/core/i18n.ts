@@ -128,6 +128,7 @@ export const tr = {
   "empty.discover": "{item} keşfet",
   "filter.contexts": "Kategoriye göre süz",
   "filter.empty": "Bu kategoriye ait bir kayıt henüz yok.",
+  "context.general": "Genel",
   "context.afterPrayer": "Namaz sonrası",
   "context.beforePrayer": "Namaz öncesi",
   "context.morning": "Sabah",
@@ -207,6 +208,14 @@ export const tr = {
   "settings.resetTimeHint": "Günlük hedefler belirlediğin saatte sıfırlanır.",
   "settings.contactSection": "İletişim & Geri Bildirim",
   "settings.contactLabel": "Görüş, öneri ve geri bildirimlerin için:",
+  "quickAdd.title": "Hızlı Zikir Ekle",
+  "quickAdd.placeholder": "Zikir veya dua adı yazın...",
+  "quickAdd.save": "Hızlı Kaydet",
+  "quickAdd.detail": "Detaylandır",
+  "quickAdd.savedToast": "Virdlerinize eklendi",
+  "discover.searchPlaceholder": "Zikir, anlam veya kaynak ara...",
+  "discover.searchClear": "Aramayı temizle",
+  "discover.searchEmpty": "Aramanızla eşleşen bir zikir bulunamadı.",
 } as const;
 
 export type TranslationKey = keyof typeof tr;

@@ -1,5 +1,5 @@
-import { DiscoveryApp } from "../../features/discovery/DiscoveryApp";
+import { MainSectionsView } from "../../components/MainSectionsView";
 
 export default function DiscoverPage() {
-  return <DiscoveryApp />;
+  return <MainSectionsView initialSection="discover" />;
 }

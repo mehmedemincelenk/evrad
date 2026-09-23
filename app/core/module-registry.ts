@@ -8,7 +8,9 @@ export const appSections = [
 export type AppSection = typeof appSections[number]["id"];
 export const createRecordRoute = "/virdlerim/yeni";
 
-export function getSectionRoute(section: AppSection) {
+export function getSectionRoute(section: AppSection | "settings" | "create") {
+  if (section === "create") return createRecordRoute;
+  if (section === "settings") return "/ayarlar";
   return appSections.find((item) => item.id === section)!.route;
 }
 

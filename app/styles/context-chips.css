@@ -2,40 +2,197 @@
 
 .context-chips {
   display: flex;
-  gap: 0.3rem;
+  align-items: center;
+  gap: 0.35rem;
   max-width: 100%;
   overflow-x: auto;
-  padding: 0.1rem 0 0.2rem;
+  flex-wrap: nowrap;
+  padding: 0.15rem 0.1rem 0.3rem;
   scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
 }
 
 .context-chips::-webkit-scrollbar { display: none; }
 
 .context-chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.42rem;
   flex: 0 0 auto;
-  min-height: 2.75rem;
-  padding: 0 0.65rem;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 0.28rem;
-  background: rgba(255, 255, 255, 0.025);
-  color: var(--text-soft);
+  min-height: 2.35rem;
+  padding: 0 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.45rem;
+  background: rgba(255, 255, 255, 0.03);
+  color: #8e94a3;
   cursor: pointer;
-  font-size: 0.67rem;
-  font-weight: 700;
+  font-size: 0.76rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
   white-space: nowrap;
-  transition: background 160ms ease, border-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.14s ease;
 }
 
-.context-chip.is-selected { background: var(--light); border-color: var(--light); color: #111318; }
+.context-chip:hover {
+  color: #e2e5eb;
+  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.context-chip:active {
+  transform: scale(0.96);
+}
+
+.context-chip.is-selected {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.28);
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+.context-chip.is-selected::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--dot-color, var(--light));
+  box-shadow: 0 0 7px var(--dot-color, var(--light));
+}
+
+/* Category Specific Colored Bullet Dots Only */
+.context-chip.is-general.is-selected { --dot-color: #818cf8; }
+.context-chip.is-morning.is-selected { --dot-color: #fbbf24; }
+.context-chip.is-gratitude.is-selected { --dot-color: #34d399; }
+.context-chip.is-relief.is-selected { --dot-color: #38bdf8; }
+.context-chip.is-protection.is-selected { --dot-color: #60a5fa; }
+.context-chip.is-forgiveness.is-selected { --dot-color: #f472b6; }
+.context-chip.is-beforePrayer.is-selected,
+.context-chip.is-afterPrayer.is-selected { --dot-color: #f59e0b; }
+.context-chip.is-bag-dhikr.is-selected { --dot-color: #fbbf24; }
+.context-chip.is-bag-prayers.is-selected { --dot-color: #38bdf8; }
+.context-chip.is-bag-memorization.is-selected { --dot-color: #a855f7; }
+.context-chip.is-bag-surahs.is-selected { --dot-color: #34d399; }
+.context-chip.is-bag-poetry.is-selected { --dot-color: #f472b6; }
 
 .filter-empty { margin: 1.5rem 0; color: var(--muted); font-family: Iowan Old Style, Baskerville, Georgia, serif; font-size: 0.9rem; font-style: italic; text-align: center; }
 
 .field-group > .context-chips { margin-top: -0.1rem; }
-.editor-category-box { display: flex; gap: 0.3rem; max-width: 100%; overflow-x: auto; border: 1px solid var(--line); border-radius: 0.7rem; padding: 0.2rem; scrollbar-width: none; }
-.editor-category-box > .context-chips { flex: 0 0 auto; overflow: visible; }
-.editor-category-box > .context-chips + .context-chips { border-left: 1px solid var(--line); padding-left: 0.3rem; }
+
+/* Single-line Horizontal Scrolling Layout for Toolbars & Editor */
+.bag-toolbar,
+.editor-category-box {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  flex-wrap: nowrap;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  padding: 0.15rem 0 0.35rem;
+}
+
+.bag-toolbar::-webkit-scrollbar,
+.editor-category-box::-webkit-scrollbar {
+  display: none;
+}
+
+.bag-toolbar > .context-chips,
+.editor-category-box > .context-chips {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+  flex-wrap: nowrap;
+  padding: 0;
+  overflow: visible;
+}
+
+.bag-toolbar > .context-chips + .context-chips,
+.editor-category-box > .context-chips + .context-chips {
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  padding-left: 0.35rem;
+  margin-left: 0.1rem;
+}
+
 .field-group > small { color: var(--muted); font-size: 0.72rem; }
-.bag-toolbar { display: flex; gap: 0.3rem; min-width: 0; overflow-x: auto; scrollbar-width: none; }
-.bag-toolbar > .context-chips { flex: 0 0 auto; overflow: visible; }
-.bag-toolbar > .context-chips + .context-chips { border-left: 1px solid var(--line); padding-left: 0.3rem; }
-.bag-toolbar .context-chips { padding-bottom: 0.15rem; }
+
+.search-bar-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 0.85rem;
+}
+
+.search-bar-icon {
+  position: absolute;
+  left: 0.85rem;
+  width: 1rem;
+  height: 1rem;
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.search-bar-input {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.5rem 2.6rem 0.5rem 2.35rem;
+  border: 1px solid var(--line);
+  border-radius: 0.65rem;
+  background: rgba(255, 255, 255, 0.025);
+  color: var(--text);
+  font-size: 0.85rem;
+  outline: none;
+  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-bar-input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.search-bar-input:focus {
+  border-color: var(--light);
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: 0 0 0 2px rgba(255, 250, 220, 0.08);
+}
+
+.search-bar-input::placeholder {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.search-bar-clear {
+  position: absolute;
+  right: 0.35rem;
+  display: grid;
+  place-items: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  border: 0;
+  border-radius: 0.4rem;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.search-bar-clear:hover {
+  color: var(--text);
+}
+
+.search-bar-clear svg {
+  width: 0.95rem;
+  height: 0.95rem;
+}

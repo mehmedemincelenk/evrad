@@ -7,7 +7,7 @@
   background: linear-gradient(145deg, rgba(24, 26, 32, 0.9), rgba(13, 15, 19, 0.94));
   box-shadow: 0 1.1rem 2.8rem -2rem var(--shadow);
   overflow: visible;
-  transition: border-color 200ms ease, box-shadow 200ms ease, transform 200ms ease;
+  transition: border-color 280ms ease, box-shadow 280ms ease, transform 200ms ease;
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
@@ -30,7 +30,7 @@
 }
 
 .trackable-card.is-complete::before { opacity: 1; }
-.trackable-card.is-expanded { border-color: rgba(255, 255, 255, 0.14); }
+.trackable-card.is-expanded { border-color: rgba(255, 255, 255, 0.16); box-shadow: 0 1.25rem 3.5rem -1.75rem var(--shadow); }
 .trackable-card.is-dragging {
   z-index: 5;
   transform: translateY(var(--drag-offset-y, 0)) scale(1.025);
@@ -82,9 +82,9 @@
   z-index: 3;
   display: inline-flex;
   align-items: center;
-  max-width: calc(100% - 6.5rem);
+  justify-content: center;
   height: 1.15rem;
-  padding: 0 0.32rem;
+  padding: 0 0.35rem;
   border-radius: 0.35rem;
   background: var(--surface, #101216);
   color: var(--muted);
@@ -93,11 +93,32 @@
   user-select: none;
   -webkit-user-select: none;
 }
-.card-module-marker .module-glyph.module-glyph { width: auto; font-size: 0.7rem; line-height: 1; }
+.card-module-marker .module-glyph.module-glyph { width: auto; font-size: 0.72rem; line-height: 1; }
 .card-module-marker .module-glyph.is-poetry,
 .card-module-marker .module-glyph.is-bag { font-size: 0.72rem; }
-.card-status-cluster { display: inline-flex; align-items: center; gap: 0.32rem; min-width: 0; }
-.card-status-cluster .target-preview { color: var(--muted); font-size: 0.6rem; font-weight: 650; letter-spacing: 0.04em; white-space: nowrap; }
+
+.card-target-badge {
+  position: absolute;
+  top: 0;
+  right: 0.85rem;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.15rem;
+  padding: 0 0.45rem;
+  border-radius: 0.35rem;
+  background: var(--surface, #101216);
+  color: var(--muted);
+  font-size: 0.62rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  white-space: nowrap;
+  transform: translateY(-50%);
+  user-select: none;
+  -webkit-user-select: none;
+}
 
 .card-main {
   display: flex;
@@ -109,6 +130,11 @@
   text-align: center;
   user-select: none;
   -webkit-user-select: none;
+  transition: transform 140ms ease, opacity 140ms ease;
+}
+.card-main:active {
+  transform: scale(0.985);
+  opacity: 0.9;
 }
 
 .card-summary-copy {
@@ -128,7 +154,7 @@
 .card-summary-copy > .mini-tags {
   position: absolute;
   top: 0;
-  left: 3.15rem;
+  left: 2.5rem;
   z-index: 2;
   max-width: calc(100% - 6.5rem);
   padding: 0 0.25rem;
@@ -160,19 +186,6 @@
   text-align: center;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.target-preview {
-  color: var(--muted);
-  flex: 0 1 auto;
-  max-width: min(8rem, 34%);
-  overflow: hidden;
-  font-size: 0.68rem;
-  font-weight: 650;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  text-overflow: ellipsis;
 }
 
 .completion-light {
@@ -234,39 +247,6 @@
   45% { opacity: 1; }
   100% { opacity: 0; transform: scale(1.25); }
 }
-
-.card-expanded-content {
-  margin: 0 0.85rem 0.85rem;
-  padding: 0.35rem 0.4rem 0.2rem;
-  border-top: 1px solid var(--line);
-  animation: revealCard 180ms ease-out;
-  user-select: text;
-  -webkit-user-select: text;
-}
-
-@keyframes revealCard {
-  from { opacity: 0; transform: translateY(-0.4rem); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.detail-block { padding: 1.05rem 0.35rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); }
-.detail-label { margin: 0 0 0.55rem; color: var(--muted-deep); font-size: 0.64rem; font-weight: 750; letter-spacing: 0.13em; text-transform: uppercase; }
-.detail-value > p { margin: 0; color: var(--text-soft); font-size: calc(0.94rem * var(--text-scale, 1)); line-height: 1.72; }
-.detail-value > p.expanded-arabic { color: var(--text); font-family: var(--font-arabic); line-height: var(--arabic-line-height, 1.72); text-align: right; white-space: pre-wrap; word-break: normal; overflow-wrap: anywhere; }
-.detail-value > p.expanded-arabic:dir(ltr) { font-family: Iowan Old Style, Baskerville, Georgia, serif; line-height: 1.8; text-align: left; }
-.details-copy { white-space: pre-line; }
-
-.arabic-detail .detail-label { margin-bottom: 0; }
-.font-controls { display: grid; grid-template-columns: 2.75rem 1fr 2.75rem; align-items: center; gap: 0.45rem; margin: 0.5rem 0 0.8rem; }
-.font-controls button { min-height: 2.75rem; border: 1px solid var(--line); border-radius: 0.8rem; background: rgba(255, 255, 255, 0.025); color: var(--text-soft); }
-.font-controls button:disabled { opacity: 0.28; cursor: default; }
-.font-controls span { color: var(--muted); font-size: 0.68rem; text-align: center; }
-
-.card-actions { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 1rem 0.25rem 0.35rem; }
-.edit-button { min-height: 2.75rem; padding: 0 1rem; border: 1px solid var(--line); border-radius: 0.85rem; color: var(--text-soft); }
-.delete-button { display: grid; place-items: center; width: 2.75rem; min-height: 2.75rem; border: 1px solid rgba(255, 140, 136, 0.2); border-radius: 50%; background: var(--danger-surface); color: var(--danger); font-size: 1.25rem; }
-
-.quiet-note { margin: 1.55rem 0 0; color: #6f7279; font-family: Iowan Old Style, Baskerville, Georgia, serif; font-size: 0.82rem; font-style: italic; text-align: center; }
 
 .empty-state {
   display: grid;

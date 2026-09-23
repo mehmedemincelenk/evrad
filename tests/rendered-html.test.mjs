@@ -21,6 +21,7 @@ test("canonical screens render accessible navigation and PWA metadata", async ()
     for (const href of ["/virdlerim", "/canta", "/kesfet/canta", "/virdlerim/yeni"]) {
       assert.ok(html.includes(`href="${href}"`), href);
     }
+    assert.match(html, /الحمد لله/);
     assert.match(html, /name="apple-mobile-web-app-capable" content="yes"/);
     assert.equal((html.match(/name="mobile-web-app-capable"/g) ?? []).length, 1);
   }
@@ -87,4 +88,7 @@ test("source responsibilities stay bounded and core/data never import UI feature
     assert.ok(source.split("\n").length <= 300, `${path} exceeds 300 lines`);
     if (/^(core|data)\//.test(path)) assert.doesNotMatch(source, /from ["'][^"']*(?:features|components|hooks)\//, path);
   }
+  const storageLoadingSource = await readFile(new URL("../app/components/StorageLoading.tsx", import.meta.url), "utf8");
+  assert.match(storageLoadingSource, /بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ/);
+  assert.match(storageLoadingSource, /loading-basmala/);
 });

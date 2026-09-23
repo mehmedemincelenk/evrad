@@ -5,14 +5,6 @@
   padding: max(1.2rem, calc(0.8rem + env(safe-area-inset-top))) 1rem calc(7.25rem + env(safe-area-inset-bottom));
 }
 
-.settings-back-bar { display: flex; align-items: center; margin-bottom: 0.6rem; }
-.settings-back-link {
-  display: inline-flex; align-items: center; gap: 0.35rem; min-height: 2.75rem;
-  padding: 0 0.65rem 0 0.35rem; border-radius: 0.6rem; color: var(--muted);
-  font-size: 0.85rem; text-decoration: none; transition: color 150ms ease, background 150ms ease;
-}
-.settings-back-link:hover, .settings-back-link:focus-visible { color: var(--text); background: rgba(255, 255, 255, 0.04); }
-
 .settings-stack { display: flex; flex-direction: column; gap: 1.4rem; }
 
 /* Flat Ayar Satırları — Doğrudan Arka Plan */
@@ -55,6 +47,7 @@
   background: transparent;
   cursor: pointer;
   outline: none;
+  touch-action: none;
   -webkit-appearance: none;
   appearance: none;
 }

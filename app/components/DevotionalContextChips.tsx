@@ -2,6 +2,7 @@ import { t } from "../core/i18n";
 import type { DevotionalContext } from "../core/types";
 
 export const devotionalContexts: DevotionalContext[] = [
+  "general",
   "afterPrayer",
   "beforePrayer",
   "morning",

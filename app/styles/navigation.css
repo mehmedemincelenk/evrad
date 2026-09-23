@@ -33,6 +33,15 @@
   background: rgba(18, 20, 25, 0.96);
   box-shadow: 0 1rem 3.5rem rgba(0, 0, 0, 0.5);
   transform: translateX(-50%);
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease;
+}
+.bottom-navigation.is-scrolled-hidden {
+  transform: translate(-50%, calc(100% + 2rem));
+  opacity: 0;
+  pointer-events: none;
 }
 .bottom-base-row { display: flex; align-items: center; gap: 0.08rem; }
 .bottom-space-segment { display: flex; padding: 0.1rem; border-radius: 0.58rem; background: rgba(255, 255, 255, 0.045); }
@@ -48,16 +57,71 @@
   color: var(--muted);
   text-decoration: none;
   touch-action: manipulation;
+  cursor: pointer;
 }
 .bottom-space-option.is-selected,
 .bottom-settings.is-selected { background: var(--light); color: #15171c; }
 .bottom-add { color: var(--light); }
 .bottom-settings { color: var(--muted); }
 .bottom-settings:hover { color: var(--text); }
-.navigation-glyph { display: block; width: 1.22rem; height: 1.22rem; }
-.navigation-heart { font-size: 1.22rem; filter: grayscale(1); }
+.navigation-glyph { display: block; width: 1.22rem; height: 1.22rem; pointer-events: none; }
+.navigation-heart { font-size: 1.22rem; filter: grayscale(1); pointer-events: none; }
 .bottom-space-option.is-selected .navigation-heart { filter: none; }
 .bottom-navigation a:focus-visible { outline: 2px solid var(--light); outline-offset: 3px; }
+
+.main-swipe-viewport {
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+.main-swipe-viewport::-webkit-scrollbar { display: none; }
+body.is-sorting .main-swipe-viewport,
+body.editor-open .main-swipe-viewport,
+body.confirmation-open .main-swipe-viewport {
+  overflow-x: hidden !important;
+}
+.main-swipe-page {
+  flex: 0 0 100%;
+  width: 100%;
+  min-width: 100%;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), filter 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@supports (animation-timeline: view(inline)) {
+  .main-swipe-page {
+    view-timeline-name: --swipe-page;
+    view-timeline-axis: inline;
+    animation: iosSwipeEffect linear both;
+    animation-timeline: --swipe-page;
+    animation-range: cover 0% cover 100%;
+  }
+
+  @keyframes iosSwipeEffect {
+    0% {
+      opacity: 0.35;
+      filter: blur(8px);
+      transform: scale(0.965);
+    }
+    50% {
+      opacity: 1;
+      filter: blur(0px);
+      transform: scale(1);
+    }
+    100% {
+      opacity: 0.35;
+      filter: blur(8px);
+      transform: scale(0.965);
+    }
+  }
+}
 
 .plus-minus-icon { position: relative; display: block; width: 1rem; height: 1rem; }
 .plus-minus-icon::before, .plus-minus-icon::after { content: ""; position: absolute; top: 50%; left: 50%; width: 0.9rem; height: 1.5px; border-radius: 999px; background: currentColor; transform: translate(-50%, -50%); }
@@ -75,4 +139,16 @@
 .footer-backup-button:disabled { cursor: wait; opacity: 0.5; }
 .footer-backup-button .save-icon { width: 0.85rem; height: 0.85rem; }
 .footer-backup-button span { font-size: 0.72rem; }
+.footer-kufi-praise {
+  margin: 1.25rem 0 0.35rem;
+  font-family: "Noto Kufi Arabic", "Reem Kufi", sans-serif;
+  font-size: clamp(1.05rem, 3.5vw, 1.28rem);
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  color: var(--muted-deep);
+  opacity: 0.8;
+  transition: opacity 0.2s ease, color 0.2s ease;
+  user-select: none;
+}
+.footer-kufi-praise:hover { color: var(--text-soft); opacity: 1; }
 .beta-note { margin: 0.15rem 0 0; color: var(--muted-deep); font-size: 0.69rem; line-height: 1.4; }

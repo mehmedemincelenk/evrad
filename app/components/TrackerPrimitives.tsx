@@ -1,4 +1,4 @@
-import type { CSSProperties, KeyboardEventHandler, PointerEventHandler, ReactNode } from "react";
+import { useState, type CSSProperties, type KeyboardEventHandler, type PointerEventHandler, type ReactNode } from "react";
 import { t } from "../core/i18n";
 import type { TargetUnit } from "../core/types";
 import { PlusMinusIcon } from "./PlusMinusIcon";
@@ -19,6 +19,7 @@ export function TrackableCardShell({
   summary,
   leading,
   marker,
+  targetBadge,
   trailing,
   children,
 }: {
@@ -30,9 +31,15 @@ export function TrackableCardShell({
   summary: ReactNode;
   leading?: ReactNode;
   marker?: ReactNode;
+  targetBadge?: ReactNode;
   trailing: ReactNode;
   children?: ReactNode;
 }) {
+  const [hasRendered, setHasRendered] = useState(expanded);
+  if (expanded && !hasRendered) {
+    setHasRendered(true);
+  }
+
   return (
     <article
       className={`trackable-card${leading ? "" : " has-no-leading"}${marker ? " has-marker" : ""}${complete ? " is-complete" : ""}${expanded ? " is-expanded" : ""}${dragging ? " is-dragging" : ""}`}
@@ -40,12 +47,17 @@ export function TrackableCardShell({
       style={{ "--drag-offset-y": `${dragOffsetY}px` } as CSSProperties}
     >
       {marker ? <span className="card-module-marker" aria-hidden="true">{marker}</span> : null}
+      {targetBadge}
       <div className="card-collapsed-row">
         {leading ?? <div className="card-leading-spacer" aria-hidden="true" />}
         {summary}
         {trailing}
       </div>
-      {expanded ? children : null}
+      <div className="card-details-accordion" aria-hidden={!expanded}>
+        <div className="card-details-inner">
+          {hasRendered ? children : null}
+        </div>
+      </div>
     </article>
   );
 }
@@ -100,7 +112,7 @@ export function MiniTags({ tags }: { tags: string[] }) {
 export function TargetBadge({ count, unit, unitLabel }: { count?: number | null; unit?: TargetUnit; unitLabel?: string | null }) {
   if (count === null || count === undefined || count <= 0) return null;
   return (
-    <span className="target-preview">
+    <span className="card-target-badge" aria-hidden="true">
       {unit === "custom" && unitLabel ? t("card.customTarget", { count, unit: unitLabel }) : t("card.target", { count })}
     </span>
   );
