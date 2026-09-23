@@ -5,8 +5,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { appSections, type AppSection } from "../core/module-registry";
 
 const MIN_SWIPE_DISTANCE = 50;
-const MAX_VERTICAL_DEVIATION = 45;
-const MAX_SWIPE_TIME_MS = 600;
+const MAX_VERTICAL_DEVIATION = 35;
+const MAX_SWIPE_TIME_MS = 550;
 
 export function useSwipeNavigation(section: AppSection | "settings", enabled = true) {
   const router = useRouter();
@@ -50,7 +50,7 @@ export function useSwipeNavigation(section: AppSection | "settings", enabled = t
       touchStartRef.current = null;
 
       if (duration > MAX_SWIPE_TIME_MS) return;
-      if (Math.abs(deltaY) > Math.abs(deltaX) * 0.8 || Math.abs(deltaY) > MAX_VERTICAL_DEVIATION) return;
+      if (Math.abs(deltaY) > Math.abs(deltaX) * 0.55 || Math.abs(deltaY) > MAX_VERTICAL_DEVIATION) return;
       if (Math.abs(deltaX) < MIN_SWIPE_DISTANCE) return;
 
       const currentIndex = appSections.findIndex((item) => item.id === section);

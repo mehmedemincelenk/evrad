@@ -24,10 +24,19 @@ export function DevotionalDetails({
 }) {
   const { showDiacritics, showTranslations } = useAppRuntime();
 
+  const isNameArabic = Boolean(item.name && /[\u0600-\u06ff]/u.test(item.name));
+  const displayName = isNameArabic && item.name ? formatArabicDiacritics(item.name, showDiacritics) : item.name;
+
   return (
     <ExpandableCardContent>
       <MiniTags tags={tags} />
-      {item.name ? <DetailBlock label={t("detail.name")}><p>{item.name}</p></DetailBlock> : null}
+      {item.name ? (
+        <DetailBlock label={t("detail.name")}>
+          <p className={isNameArabic ? "arabic-text" : undefined} dir="auto" style={isNameArabic ? { fontFamily: "var(--font-arabic)" } : undefined}>
+            {displayName}
+          </p>
+        </DetailBlock>
+      ) : null}
       {item.arabic ? (
         <DetailBlock label={t("detail.arabic")} className="arabic-detail">
           <div className="font-controls">
@@ -35,7 +44,7 @@ export function DevotionalDetails({
             <span>{t("detail.fontLevel", { level: fontLevel + 1 })}</span>
             <button type="button" onClick={() => onChangeFont(1)} aria-label={t("detail.fontLarger")} disabled={fontLevel === 4}>A+</button>
           </div>
-          <p className="expanded-arabic" dir="auto" style={{ fontSize: `calc(${fontSizes[fontLevel]} * var(--text-scale, 1))`, lineHeight: "var(--arabic-line-height, 1.72)" }}>
+          <p className="expanded-arabic" dir="auto" style={{ fontFamily: "var(--font-arabic)", fontSize: `calc(${fontSizes[fontLevel]} * var(--text-scale, 1))`, lineHeight: "var(--arabic-line-height, 1.72)" }}>
             {formatArabicDiacritics(item.arabic, showDiacritics)}
           </p>
         </DetailBlock>

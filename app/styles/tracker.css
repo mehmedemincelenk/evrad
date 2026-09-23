@@ -78,36 +78,37 @@
 .card-module-marker {
   position: absolute;
   top: 0;
-  left: 0.85rem;
-  z-index: 3;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 1.15rem;
-  padding: 0 0.35rem;
-  border-radius: 0.35rem;
-  background: var(--surface, #101216);
-  color: var(--muted);
-  line-height: 1;
-  transform: translateY(-50%);
-  user-select: none;
-  -webkit-user-select: none;
-}
-.card-module-marker .module-glyph.module-glyph { width: auto; font-size: 0.72rem; line-height: 1; }
-.card-module-marker .module-glyph.is-poetry,
-.card-module-marker .module-glyph.is-bag { font-size: 0.72rem; }
-
-.card-target-badge {
-  position: absolute;
-  top: 0;
   right: 0.85rem;
   z-index: 3;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   height: 1.15rem;
-  padding: 0 0.45rem;
-  border-radius: 0.35rem;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--muted);
+  line-height: 1;
+  transform: translateY(-50%);
+  user-select: none;
+  -webkit-user-select: none;
+}
+.card-module-marker .module-glyph.module-glyph { width: auto; font-size: 0.82rem; line-height: 1; }
+.card-module-marker .module-glyph.is-poetry,
+.card-module-marker .module-glyph.is-bag { font-size: 0.82rem; }
+
+.card-target-badge {
+  position: absolute;
+  top: 0;
+  left: 0.85rem;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.2rem;
+  padding: 0 0.55rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 9999px;
   background: var(--surface, #101216);
   color: var(--muted);
   font-size: 0.62rem;
