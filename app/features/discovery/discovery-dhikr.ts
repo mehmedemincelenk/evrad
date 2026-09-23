@@ -16,7 +16,6 @@ export const dhikrTemplates: { moduleId: "dhikr"; item: DevotionalTemplate }[] =
       listDisplay: "arabic",
       expandedArabicSize: 1,
       contexts: ["relief", "morning"],
-      bagCategories: ["dhikr"],
     },
   },
   {
@@ -34,7 +33,6 @@ export const dhikrTemplates: { moduleId: "dhikr"; item: DevotionalTemplate }[] =
       listDisplay: "arabic",
       expandedArabicSize: 1,
       contexts: ["afterPrayer", "gratitude", "morning"],
-      bagCategories: ["dhikr"],
     },
   },
   {
@@ -52,7 +50,6 @@ export const dhikrTemplates: { moduleId: "dhikr"; item: DevotionalTemplate }[] =
       listDisplay: "arabic",
       expandedArabicSize: 1,
       contexts: ["afterPrayer", "gratitude", "morning"],
-      bagCategories: ["dhikr"],
     },
   },
   {
@@ -70,7 +67,6 @@ export const dhikrTemplates: { moduleId: "dhikr"; item: DevotionalTemplate }[] =
       listDisplay: "arabic",
       expandedArabicSize: 1,
       contexts: ["afterPrayer", "gratitude", "morning"],
-      bagCategories: ["dhikr"],
     },
   },
   {
@@ -88,7 +84,6 @@ export const dhikrTemplates: { moduleId: "dhikr"; item: DevotionalTemplate }[] =
       listDisplay: "arabic",
       expandedArabicSize: 1,
       contexts: ["forgiveness", "morning", "relief"],
-      bagCategories: ["dhikr"],
     },
   },
   {
@@ -106,7 +101,6 @@ export const dhikrTemplates: { moduleId: "dhikr"; item: DevotionalTemplate }[] =
       listDisplay: "arabic",
       expandedArabicSize: 1,
       contexts: ["gratitude", "morning", "afterPrayer"],
-      bagCategories: ["dhikr"],
     },
   },
   {
@@ -124,7 +118,6 @@ export const dhikrTemplates: { moduleId: "dhikr"; item: DevotionalTemplate }[] =
       listDisplay: "arabic",
       expandedArabicSize: 1,
       contexts: ["relief", "protection"],
-      bagCategories: ["dhikr"],
     },
   },
   {
@@ -142,7 +135,6 @@ export const dhikrTemplates: { moduleId: "dhikr"; item: DevotionalTemplate }[] =
       listDisplay: "arabic",
       expandedArabicSize: 1,
       contexts: ["protection", "relief"],
-      bagCategories: ["dhikr"],
     },
   },
   {
@@ -157,10 +149,9 @@ export const dhikrTemplates: { moduleId: "dhikr"; item: DevotionalTemplate }[] =
       targetCount: 10,
       targetUnit: "count",
       targetUnitLabel: null,
-      listDisplay: "arabic",
+      listDisplay: "name",
       expandedArabicSize: 1,
       contexts: ["morning", "protection", "relief"],
-      bagCategories: ["dhikr"],
     },
   },
   {
@@ -178,7 +169,6 @@ export const dhikrTemplates: { moduleId: "dhikr"; item: DevotionalTemplate }[] =
       listDisplay: "arabic",
       expandedArabicSize: 1,
       contexts: ["afterPrayer", "gratitude", "morning"],
-      bagCategories: ["dhikr"],
     },
   },
 ];

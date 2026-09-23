@@ -11,8 +11,7 @@ import { SettingsScreen } from "../features/settings/SettingsScreen";
 
 export type MainSectionTarget = "create" | AppSection | "settings";
 
-const navigationTargets: readonly MainSectionTarget[] = [
-  "create",
+const navigationTargets: readonly (AppSection | "settings")[] = [
   "virds",
   "favorites",
   "discover",
@@ -20,22 +19,22 @@ const navigationTargets: readonly MainSectionTarget[] = [
 ];
 
 export function MainSectionsView({ initialSection }: { initialSection: MainSectionTarget }) {
-  const [activeSection, setActiveSection] = useState<MainSectionTarget>(initialSection);
-  const [isCreateMounted, setIsCreateMounted] = useState<boolean>(initialSection === "create");
+  const initialActive = initialSection === "create" ? "virds" : initialSection;
+  const [activeSection, setActiveSection] = useState<AppSection | "settings">(initialActive);
+  const [isCreateOpen, setIsCreateOpen] = useState<boolean>(initialSection === "create");
+  const [isCreateClosing, setIsCreateClosing] = useState(false);
   const [createInitialItem, setCreateInitialItem] = useState<DevotionalItem | null>(null);
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const isProgrammaticScroll = useRef(false);
-  const previousSectionRef = useRef<MainSectionTarget>(
-    initialSection === "create" || initialSection === "settings" ? "virds" : initialSection,
-  );
+  const previousSectionRef = useRef<AppSection | "settings">(initialActive);
 
-  const getSectionIndex = useCallback((sec: MainSectionTarget) => {
+  const getSectionIndex = useCallback((sec: AppSection | "settings") => {
     const idx = navigationTargets.indexOf(sec);
-    return idx >= 0 ? idx : 1;
+    return idx >= 0 ? idx : 0;
   }, []);
 
   const scrollToSection = useCallback(
-    (targetSection: MainSectionTarget, smooth = true) => {
+    (targetSection: AppSection | "settings", smooth = true) => {
       const viewport = viewportRef.current;
       if (!viewport) return;
       const index = getSectionIndex(targetSection);
@@ -46,7 +45,7 @@ export function MainSectionsView({ initialSection }: { initialSection: MainSecti
         behavior: smooth ? "smooth" : "instant",
       });
       setActiveSection((prev) => {
-        if (prev !== targetSection && prev !== "create" && prev !== "settings") {
+        if (prev !== targetSection && prev !== "settings") {
           previousSectionRef.current = prev;
         }
         return targetSection;
@@ -65,7 +64,7 @@ export function MainSectionsView({ initialSection }: { initialSection: MainSecti
   );
 
   useEffect(() => {
-    const initialIndex = getSectionIndex(initialSection);
+    const initialIndex = getSectionIndex(initialActive);
     const viewport = viewportRef.current;
     if (!viewport) return;
 
@@ -83,7 +82,7 @@ export function MainSectionsView({ initialSection }: { initialSection: MainSecti
       cancelAnimationFrame(raf);
       window.clearTimeout(timer);
     };
-  }, [getSectionIndex, initialSection]);
+  }, [getSectionIndex, initialActive]);
 
   const handleScroll = useCallback(() => {
     if (isProgrammaticScroll.current) return;
@@ -93,7 +92,7 @@ export function MainSectionsView({ initialSection }: { initialSection: MainSecti
     const resolvedSection = navigationTargets[currentIndex];
     if (resolvedSection && resolvedSection !== activeSection) {
       setActiveSection((prev) => {
-        if (prev !== resolvedSection && prev !== "create" && prev !== "settings") {
+        if (prev !== resolvedSection && prev !== "settings") {
           previousSectionRef.current = prev;
         }
         return resolvedSection;
@@ -131,29 +130,34 @@ export function MainSectionsView({ initialSection }: { initialSection: MainSecti
   }, [scrollToSection]);
 
   const handleReturnFromCreate = useCallback(() => {
-    const target = previousSectionRef.current || "virds";
-    scrollToSection(target, true);
+    setIsCreateClosing(true);
     window.setTimeout(() => {
-      setIsCreateMounted(false);
+      setIsCreateOpen(false);
+      setIsCreateClosing(false);
       setCreateInitialItem(null);
-    }, 450);
-  }, [scrollToSection]);
+    }, 280);
+  }, []);
 
   const handleOpenDetailed = useCallback(
     (item: DevotionalItem | null) => {
-      setIsCreateMounted(true);
       setCreateInitialItem(item);
-      requestAnimationFrame(() => {
-        scrollToSection("create", true);
-      });
+      setIsCreateOpen(true);
+      setIsCreateClosing(false);
     },
-    [scrollToSection],
+    [],
   );
 
   return (
     <AppShell
-      section={activeSection}
-      onSelectSection={(sec) => scrollToSection(sec, true)}
+      section={isCreateOpen ? "create" : activeSection}
+      onSelectSection={(sec) => {
+        if (isCreateOpen) {
+          handleReturnFromCreate();
+        }
+        if (sec !== "create") {
+          scrollToSection(sec, true);
+        }
+      }}
       onOpenDetailed={handleOpenDetailed}
     >
       <div
@@ -162,15 +166,6 @@ export function MainSectionsView({ initialSection }: { initialSection: MainSecti
         onScroll={handleScroll}
         aria-live="polite"
       >
-        <div className="main-swipe-page" data-section="create" data-active={activeSection === "create"}>
-          {isCreateMounted ? (
-            <RecordCreateScreen
-              initialItem={createInitialItem}
-              onClose={handleReturnFromCreate}
-              onSaved={handleReturnFromCreate}
-            />
-          ) : null}
-        </div>
         <div className="main-swipe-page" data-section="virds" data-active={activeSection === "virds"}>
           <CollectionScreen collection="virds" />
         </div>
@@ -184,6 +179,16 @@ export function MainSectionsView({ initialSection }: { initialSection: MainSecti
           <SettingsScreen />
         </div>
       </div>
+
+      {isCreateOpen ? (
+        <div className={`create-slide-container ${isCreateClosing ? "is-closing" : "is-open"}`}>
+          <RecordCreateScreen
+            initialItem={createInitialItem}
+            onClose={handleReturnFromCreate}
+            onSaved={handleReturnFromCreate}
+          />
+        </div>
+      ) : null}
     </AppShell>
   );
 }

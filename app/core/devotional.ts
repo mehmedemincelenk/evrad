@@ -13,6 +13,9 @@ export function devotionalContentFromDraft(draft: DevotionalDraft) {
 
 export function getDevotionalDisplay(item: Pick<DevotionalItem, "name" | "arabic" | "listDisplay">): { text: string; arabic: boolean } {
   if (item.listDisplay === "name" && item.name) return { text: item.name, arabic: false };
+  if (item.name && item.arabic && item.arabic.length > 50) {
+    return { text: item.name, arabic: false };
+  }
   if (item.arabic) return { text: item.arabic, arabic: /[\u0600-\u06ff]/u.test(item.arabic) };
   return { text: item.name ?? "", arabic: false };
 }

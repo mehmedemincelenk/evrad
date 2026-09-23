@@ -9,6 +9,39 @@
   animation: panelIn 220ms ease-out;
 }
 
+.create-slide-container {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  animation: slideInFromLeft 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.create-slide-container.is-closing {
+  animation: slideOutToLeft 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.create-slide-container .editor-page {
+  animation: none;
+}
+
+@keyframes slideInFromLeft {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOutToLeft {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
 @keyframes panelIn { from { transform: translateY(2rem); opacity: 0; } }
 
 .editor-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; width: min(100%, 38rem); margin: 0 auto 1.45rem; }
