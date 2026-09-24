@@ -8,6 +8,8 @@ import {
   type KeyboardEventHandler,
   type PointerEventHandler,
 } from "react";
+import { useAppRuntime } from "../core/AppRuntimeContext";
+import { triggerHaptic } from "../core/haptics";
 import { moveItem } from "../core/sort";
 
 const HOLD_DELAY_MS = 240;
@@ -32,6 +34,14 @@ interface ActivePress {
   onEnd: (event: PointerEvent) => void;
 }
 
+function releasePress(press: ActivePress) {
+  window.clearTimeout(press.timer);
+  if (press.autoScrollFrame !== null) cancelAnimationFrame(press.autoScrollFrame);
+  window.removeEventListener("pointermove", press.onMove, true);
+  window.removeEventListener("pointerup", press.onEnd, true);
+  window.removeEventListener("pointercancel", press.onEnd, true);
+}
+
 export function useLongPressSort<T extends SortableItem>({
   items,
   onChange,
@@ -45,6 +55,7 @@ export function useLongPressSort<T extends SortableItem>({
   getAnnouncement: (item: T, position: number) => string;
   onError: () => void;
 }) {
+  const { hapticEnabled } = useAppRuntime();
   const itemsRef = useRef(items);
   const pressRef = useRef<ActivePress | null>(null);
   const [draggingId, setDraggingId] = useState<string | null>(null);
@@ -54,11 +65,7 @@ export function useLongPressSort<T extends SortableItem>({
   useEffect(() => { itemsRef.current = items; }, [items]);
 
   const finish = useCallback((press: ActivePress, persist: boolean) => {
-    window.clearTimeout(press.timer);
-    if (press.autoScrollFrame !== null) cancelAnimationFrame(press.autoScrollFrame);
-    window.removeEventListener("pointermove", press.onMove, true);
-    window.removeEventListener("pointerup", press.onEnd, true);
-    window.removeEventListener("pointercancel", press.onEnd, true);
+    releasePress(press);
 
     if (press.active) {
       const item = itemsRef.current.find((candidate) => candidate.id === press.id);
@@ -75,20 +82,14 @@ export function useLongPressSort<T extends SortableItem>({
 
   useEffect(() => () => {
     const press = pressRef.current;
-    if (press) {
-      window.clearTimeout(press.timer);
-      if (press.autoScrollFrame !== null) cancelAnimationFrame(press.autoScrollFrame);
-      window.removeEventListener("pointermove", press.onMove, true);
-      window.removeEventListener("pointerup", press.onEnd, true);
-      window.removeEventListener("pointercancel", press.onEnd, true);
-    }
+    if (press) releasePress(press);
     document.body.classList.remove("is-sorting");
   }, []);
 
   const pointerDown = useCallback<PointerEventHandler<HTMLElement>>((event) => {
     if (event.button !== 0 || pressRef.current) return;
     const target = event.target as HTMLElement | null;
-    if (target?.closest(".completion-light, .discovery-actions, .card-actions, .font-controls, a, input, textarea, select")) {
+    if (target?.closest(".completion-light, .card-actions, .font-controls, a, input, textarea, select")) {
       return;
     }
     const cardEl = event.currentTarget.dataset.sortId ? event.currentTarget : target?.closest<HTMLElement>("[data-sort-id]");
@@ -116,7 +117,7 @@ export function useLongPressSort<T extends SortableItem>({
       onChange(next);
       press.originY = press.currentY;
       setDragOffsetY(0);
-      if ("vibrate" in navigator) navigator.vibrate(5);
+      triggerHaptic(hapticEnabled, 5);
     };
     const autoScroll = () => {
       if (!press.active || pressRef.current !== press) return;
@@ -167,7 +168,7 @@ export function useLongPressSort<T extends SortableItem>({
       press.active = true;
       document.body.classList.add("is-sorting");
       setDraggingId(id);
-      if ("vibrate" in navigator) navigator.vibrate(12);
+      triggerHaptic(hapticEnabled, 12);
       press.autoScrollFrame = requestAnimationFrame(autoScroll);
     }, HOLD_DELAY_MS);
 
@@ -175,7 +176,7 @@ export function useLongPressSort<T extends SortableItem>({
     window.addEventListener("pointermove", press.onMove, { capture: true, passive: false });
     window.addEventListener("pointerup", press.onEnd, true);
     window.addEventListener("pointercancel", press.onEnd, true);
-  }, [finish, onChange]);
+  }, [finish, hapticEnabled, onChange]);
 
   const keyDown = useCallback<KeyboardEventHandler<HTMLElement>>((event) => {
     if (!["ArrowUp", "ArrowDown", "Home", "End"].includes(event.key)) return;

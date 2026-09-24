@@ -34,7 +34,6 @@ function BookScreen({ editorMode }: { editorMode: EntityEditorMode }) {
   const saveEdit = async (draft: BookDraft) => {
     if (!editTarget) return;
     if (!await state.updateItem(bookFromDraft(draft, editTarget, editTarget.sortOrder))) throw new Error("Storage update failed");
-    setEditTarget(null);
   };
 
   return (

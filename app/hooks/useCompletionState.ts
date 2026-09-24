@@ -1,13 +1,21 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { createContext, useContext, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { recordKey } from "../core/collections";
 import type { TrackableModuleId } from "../core/types";
 import { completionRepository } from "../data/completion-repository";
 import { useLocalDay } from "./useLocalDay";
 
-export function useCompletionState(onError: () => void) {
-  const date = useLocalDay();
+export const CompletionContext = createContext<ReturnType<typeof useCompletionStore> | null>(null);
+
+export function useCompletionState() {
+  const value = useContext(CompletionContext);
+  if (!value) throw new Error("RecordLibraryProvider is missing");
+  return value;
+}
+
+export function useCompletionStore(onError: () => void, resetTime: string) {
+  const date = useLocalDay(resetTime);
   const [state, setState] = useState({ date: "", keys: new Set<string>(), failed: false });
   const keysRef = useRef(new Set<string>());
   const pending = useRef(new Set<string>());
@@ -24,7 +32,7 @@ export function useCompletionState(onError: () => void) {
     }).catch(() => {
       if (active) { setState({ date, keys: new Set(), failed: true }); onError(); }
     });
-    return () => { active = false; };
+    return () => { active = false; currentDate.current = ""; };
   }, [date, onError]);
 
   const toggle = useCallback(async (moduleId: TrackableModuleId, itemId: string) => {
@@ -51,5 +59,6 @@ export function useCompletionState(onError: () => void) {
     }
   }, [date, onError, state.date, state.failed]);
 
-  return { ready: state.date === date, failed: state.failed, keys: state.date === date ? state.keys : new Set<string>(), toggle };
+  return useMemo(() => ({ ready: state.date === date, failed: state.failed,
+    keys: state.date === date ? state.keys : new Set<string>(), toggle }), [date, state, toggle]);
 }

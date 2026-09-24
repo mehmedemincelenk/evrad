@@ -12,7 +12,7 @@ export function DeleteConfirmation({
   title: string;
   itemLabel: string;
   onCancel: () => void;
-  onConfirm: () => void;
+  onConfirm: () => Promise<boolean>;
 }) {
   return (
     <ConfirmationModal

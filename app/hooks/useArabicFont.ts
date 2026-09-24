@@ -6,97 +6,11 @@ import {
   ARABIC_FONT_STORAGE_KEY,
   DEFAULT_ARABIC_FONT_ID,
   getArabicFont,
-  buildArabicFontFamilyCss,
-  getGoogleFontsUrl,
   getArabicPreviewFontsUrl,
-  type ArabicFontDefinition,
 } from "../core/arabic-fonts";
+import { readPreference, writePreference } from "../core/preferences";
+import { isFontAvailable, loadGoogleFont, applyArabicFontToDocument } from "../data/arabic-font-loader";
 import { t } from "../core/i18n";
-
-export function isFontAvailable(font: ArabicFontDefinition): boolean {
-  if (font.id === DEFAULT_ARABIC_FONT_ID) return true;
-  if (typeof document === "undefined") return false;
-  const linkId = `gfont-${font.id}`;
-  if (document.getElementById(linkId)) return true;
-  try {
-    if (document.fonts?.check(`16px "${font.fontFamily}"`)) {
-      return true;
-    }
-  } catch {
-    // document.fonts api check fallback
-  }
-  return false;
-}
-
-export async function loadGoogleFont(font: ArabicFontDefinition, timeoutMs = 9000): Promise<void> {
-  if (typeof document === "undefined" || !font.googleFontFamily) return;
-
-  const linkId = `gfont-${font.id}`;
-  let link = document.getElementById(linkId) as HTMLLinkElement | null;
-
-  if (link) {
-    if (document.fonts) {
-      await document.fonts.load(`16px "${font.fontFamily}"`);
-    }
-    return;
-  }
-
-  link = document.createElement("link");
-  link.id = linkId;
-  link.rel = "stylesheet";
-  link.href = getGoogleFontsUrl(font.googleFontFamily);
-
-  return new Promise<void>((resolve, reject) => {
-    let resolved = false;
-    const timer = setTimeout(() => {
-      if (!resolved) {
-        resolved = true;
-        link?.remove();
-        reject(new Error("Font load timeout"));
-      }
-    }, timeoutMs);
-
-    link.onload = () => {
-      if (resolved) return;
-      resolved = true;
-      clearTimeout(timer);
-      if (document.fonts) {
-        document.fonts.load(`16px "${font.fontFamily}"`).then(() => resolve()).catch(() => resolve());
-      } else {
-        resolve();
-      }
-    };
-
-    link.onerror = () => {
-      if (resolved) return;
-      resolved = true;
-      clearTimeout(timer);
-      link?.remove();
-      reject(new Error("Font load failed"));
-    };
-
-    document.head.appendChild(link);
-  });
-}
-
-export function applyArabicFontToDocument(font: ArabicFontDefinition): void {
-  if (typeof document === "undefined") return;
-  document.documentElement.style.setProperty("--font-arabic", buildArabicFontFamilyCss(font.fontFamily));
-}
-
-export function applyStoredArabicFont(): void {
-  if (typeof window === "undefined") return;
-  const storedId = localStorage.getItem(ARABIC_FONT_STORAGE_KEY);
-  if (!storedId || storedId === DEFAULT_ARABIC_FONT_ID) return;
-  const font = getArabicFont(storedId);
-  if (!font.googleFontFamily) return;
-
-  loadGoogleFont(font).then(() => {
-    applyArabicFontToDocument(font);
-  }).catch(() => {
-    // Sessizce varsayılan font korunur
-  });
-}
 
 export function useArabicFont(showToast?: (message: string) => void) {
   const isHydrated = useIsHydrated();
@@ -104,7 +18,7 @@ export function useArabicFont(showToast?: (message: string) => void) {
   const [loadingFontId, setLoadingFontId] = useState<string | null>(null);
 
   const activeFontId = isHydrated
-    ? (selectedFontId ?? (typeof window !== "undefined" ? localStorage.getItem(ARABIC_FONT_STORAGE_KEY) ?? DEFAULT_ARABIC_FONT_ID : DEFAULT_ARABIC_FONT_ID))
+    ? (selectedFontId ?? (readPreference(ARABIC_FONT_STORAGE_KEY) ?? DEFAULT_ARABIC_FONT_ID))
     : DEFAULT_ARABIC_FONT_ID;
 
   useEffect(() => {
@@ -123,49 +37,22 @@ export function useArabicFont(showToast?: (message: string) => void) {
       if (fontId === activeFontId || loadingFontId) return;
       const targetFont = getArabicFont(fontId);
 
-      if (targetFont.id === DEFAULT_ARABIC_FONT_ID) {
-        applyArabicFontToDocument(targetFont);
-        try {
-          localStorage.setItem(ARABIC_FONT_STORAGE_KEY, targetFont.id);
-        } catch {
-          // localStorage kısıtı
-        }
-        setSelectedFontId(targetFont.id);
-        return;
-      }
-
       const available = isFontAvailable(targetFont);
-
-      if (!available && typeof navigator !== "undefined" && !navigator.onLine) {
+      if (!available && !navigator.onLine) {
         showToast?.(t("settings.fontOfflineError"));
         return;
       }
-
-      if (available) {
-        applyArabicFontToDocument(targetFont);
-        try {
-          localStorage.setItem(ARABIC_FONT_STORAGE_KEY, targetFont.id);
-        } catch {
-          // localStorage kısıtı
-        }
-        setSelectedFontId(targetFont.id);
-        return;
-      }
-
       setLoadingFontId(targetFont.id);
       try {
-        await loadGoogleFont(targetFont);
-        applyArabicFontToDocument(targetFont);
-        try {
-          localStorage.setItem(ARABIC_FONT_STORAGE_KEY, targetFont.id);
-        } catch {
-          // localStorage kısıtı
+        if (!available) await loadGoogleFont(targetFont);
+        if (!writePreference(ARABIC_FONT_STORAGE_KEY, targetFont.id)) {
+          showToast?.(t("toast.storageError"));
+          return;
         }
+        applyArabicFontToDocument(targetFont);
         setSelectedFontId(targetFont.id);
       } catch {
         showToast?.(t("settings.fontLoadError"));
-        const current = getArabicFont(activeFontId);
-        applyArabicFontToDocument(current);
       } finally {
         setLoadingFontId(null);
       }
@@ -181,38 +68,34 @@ export function useArabicFont(showToast?: (message: string) => void) {
   };
 }
 
-export function useArabicFontPreviews(): boolean {
-  const [previewsReady, setPreviewsReady] = useState<boolean>(() => {
-    if (typeof document === "undefined") return false;
-    return Boolean(document.getElementById("gfonts-arabic-previews"));
-  });
-
+export function useArabicFontPreviews(enabled = true): boolean {
+  // Server and first client render must agree, even when the stylesheet is cached.
+  const [previewsReady, setPreviewsReady] = useState(false);
   useEffect(() => {
-    if (typeof document === "undefined") return;
+    if (!enabled) return;
+    let active = true;
     const linkId = "gfonts-arabic-previews";
     let link = document.getElementById(linkId) as HTMLLinkElement | null;
-
+    const ready = () => {
+      Promise.resolve(document.fonts?.ready).then(() => { if (active) setPreviewsReady(true); });
+    };
+    const failed = () => { link?.remove(); if (active) setPreviewsReady(false); };
+    const existing = Boolean(link);
     if (!link) {
       link = document.createElement("link");
       link.id = linkId;
       link.rel = "stylesheet";
       link.href = getArabicPreviewFontsUrl();
-      link.onload = () => {
-        if (document.fonts) {
-          document.fonts.ready.then(() => setPreviewsReady(true)).catch(() => setPreviewsReady(true));
-        } else {
-          setPreviewsReady(true);
-        }
-      };
-      link.onerror = () => {
-        setPreviewsReady(false);
-      };
-      document.head.appendChild(link);
-    } else if (document.fonts) {
-      document.fonts.ready.then(() => setPreviewsReady(true)).catch(() => setPreviewsReady(true));
     }
-  }, []);
-
+    link.addEventListener("load", ready);
+    link.addEventListener("error", failed);
+    if (!existing) document.head.appendChild(link);
+    else if (link.sheet) ready();
+    return () => {
+      active = false;
+      link.removeEventListener("load", ready);
+      link.removeEventListener("error", failed);
+    };
+  }, [enabled]);
   return previewsReady;
 }
-

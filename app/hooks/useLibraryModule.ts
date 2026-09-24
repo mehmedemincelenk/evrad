@@ -54,13 +54,11 @@ export function useLibraryModule<T extends TrackableEntity, Draft>({
   });
 
   const updateItem = useCallback(async (item: T) => {
-    const previous = itemsRef.current;
-    replaceItems(previous.map((current) => current.id === item.id ? item : current));
     try {
       await repository.save(item);
+      replaceItems(itemsRef.current.map((current) => current.id === item.id ? item : current));
       return true;
     } catch {
-      replaceItems(previous);
       showStorageError();
       return false;
     }
@@ -79,37 +77,17 @@ export function useLibraryModule<T extends TrackableEntity, Draft>({
       ? itemsRef.current.map((current) => current.id === item.id ? item : current)
       : [...itemsRef.current, item];
     replaceItems(normalizeOrder(next));
-    closeEditor();
-  }, [closeEditor, editor, fromDraft, itemsRef, replaceItems, repository, showStorageError]);
+  }, [editor, fromDraft, itemsRef, replaceItems, repository, showStorageError]);
 
   const confirmDelete = useCallback(async () => {
-    if (!deleteTarget) return;
+    if (!deleteTarget) return false;
     const next = normalizeOrder(itemsRef.current.filter((item) => item.id !== deleteTarget.id));
-    try {
-      await repository.remove(deleteTarget.id, next);
-    } catch {
-      showStorageError();
-      return;
-    }
+    try { await repository.remove(deleteTarget.id, next); }
+    catch { showStorageError(); return false; }
     replaceItems(next);
     forgetItemState(deleteTarget.id);
-    setDeleteTarget(null);
-  }, [deleteTarget, forgetItemState, itemsRef, replaceItems, repository, showStorageError]);
-
-  const removeItem = useCallback(async (id: string) => {
-    const next = normalizeOrder(itemsRef.current.filter((item) => item.id !== id));
-    try {
-      await repository.remove(id, next);
-    } catch {
-      showStorageError();
-      return false;
-    }
-    replaceItems(next);
-    forgetItemState(id);
     return true;
-  }, [forgetItemState, itemsRef, replaceItems, repository, showStorageError]);
-
-  const editItem = useCallback((id: string) => router.push(`${definition.route}/${encodeURIComponent(id)}/duzenle`), [definition.route, router]);
+  }, [deleteTarget, forgetItemState, itemsRef, replaceItems, repository, showStorageError]);
 
   return {
     module: definition,
@@ -121,8 +99,6 @@ export function useLibraryModule<T extends TrackableEntity, Draft>({
     updateItem,
     saveDraft,
     confirmDelete,
-    removeItem,
     closeEditor,
-    editItem,
   };
 }

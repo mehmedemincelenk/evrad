@@ -25,7 +25,7 @@ export function TrackableModuleLayout({
 }: TrackableModuleLayoutProps) {
   return (
     <>
-      <section className="module-screen" aria-labelledby="page-title">
+      <section className="module-screen">
         {header}
         {!loading ? toolbar : null}
         {loading ? loadingState : hasItems ? <div className="trackable-list">{children}</div> : emptyState}

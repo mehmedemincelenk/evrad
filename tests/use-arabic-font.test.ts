@@ -2,18 +2,18 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   ARABIC_FONTS,
-  ARABIC_FONT_STORAGE_KEY,
   DEFAULT_ARABIC_FONT_ID,
   buildArabicFontFamilyCss,
   getArabicFont,
 } from "../app/core/arabic-fonts";
 import {
   isFontAvailable,
+  loadGoogleFont,
   applyArabicFontToDocument,
-} from "../app/hooks/useArabicFont";
+} from "../app/data/arabic-font-loader";
 
 test("arabic fonts all have valid definitions and style categories", () => {
-  assert.equal(ARABIC_FONTS.length, 10);
+  assert.equal(new Set(ARABIC_FONTS.map((font) => font.id)).size, ARABIC_FONTS.length);
   for (const font of ARABIC_FONTS) {
     assert.ok(font.id.length > 0);
     assert.ok(font.name.length > 0);
@@ -22,6 +22,52 @@ test("arabic fonts all have valid definitions and style categories", () => {
     if (font.id !== DEFAULT_ARABIC_FONT_ID) {
       assert.ok(font.googleFontFamily && font.googleFontFamily.length > 0);
     }
+  }
+});
+
+test("font loads share one request, reject missing faces and allow retry after failure", async () => {
+  const elements = new Map<string, FakeLink>();
+  class FakeLink extends EventTarget {
+    id = "";
+    rel = "";
+    href = "";
+    remove() { elements.delete(this.id); }
+  }
+  const documentBefore = Object.getOwnPropertyDescriptor(globalThis, "document");
+  let loadFaces = async (): Promise<unknown[]> => [{}];
+  Object.defineProperty(globalThis, "document", { configurable: true, value: {
+    getElementById: (id: string) => elements.get(id),
+    createElement: () => new FakeLink(),
+    head: { appendChild: (link: FakeLink) => elements.set(link.id, link) },
+    fonts: { [Symbol.iterator]: () => [][Symbol.iterator](), load: () => loadFaces(), check: () => true },
+  } });
+  try {
+    const cairo = getArabicFont("cairo");
+    const first = loadGoogleFont(cairo);
+    assert.equal(loadGoogleFont(cairo), first);
+    assert.equal(elements.size, 1);
+    elements.get("gfont-cairo")!.dispatchEvent(new Event("load"));
+    await first;
+
+    const amiri = getArabicFont("amiri");
+    loadFaces = async () => [];
+    const missing = loadGoogleFont(amiri);
+    elements.get("gfont-amiri")!.dispatchEvent(new Event("load"));
+    await assert.rejects(missing, /Font load failed/);
+    assert.equal(elements.has("gfont-amiri"), false);
+
+    loadFaces = () => new Promise(() => undefined);
+    const stalled = loadGoogleFont(amiri, 10);
+    elements.get("gfont-amiri")!.dispatchEvent(new Event("load"));
+    await assert.rejects(stalled, /Font load timeout/);
+
+    loadFaces = async () => [{}];
+    const retried = loadGoogleFont(amiri);
+    elements.get("gfont-amiri")!.dispatchEvent(new Event("load"));
+    await retried;
+  } finally {
+    if (documentBefore) Object.defineProperty(globalThis, "document", documentBefore);
+    else delete (globalThis as { document?: unknown }).document;
   }
 });
 
@@ -42,7 +88,7 @@ test("isFontAvailable detects cached fonts in DOM and respects offline availabil
   // Mock browser globals
   const elements = new Map<string, unknown>();
   const customProperties = new Map<string, string>();
-  const storage = new Map<string, string>();
+  const faces: { family: string; status: string }[] = [];
 
   const fakeDocument = {
     getElementById(id: string) {
@@ -64,9 +110,8 @@ test("isFontAvailable detects cached fonts in DOM and respects offline availabil
       },
     },
     fonts: {
-      check(fontString: string) {
-        return fontString.includes("Cairo");
-      },
+      check() { return true; }, // Browsers also return true for nonexistent families.
+      [Symbol.iterator]() { return faces[Symbol.iterator](); },
     },
   };
 
@@ -78,63 +123,21 @@ test("isFontAvailable detects cached fonts in DOM and respects offline availabil
   // Amiri is not yet loaded
   assert.equal(isFontAvailable(amiriFont), false);
 
-  // Cairo is checked via document.fonts
+  faces.push({ family: '"Cairo"', status: "loaded" });
   assert.equal(isFontAvailable(cairoFont), true);
 
-  // Once link is added to DOM, amiri is considered available (cached)
+  // An existing stylesheet does not prove its fonts have loaded.
   elements.set(`gfont-${amiriFont.id}`, { id: `gfont-${amiriFont.id}` });
+  assert.equal(isFontAvailable(amiriFont), false);
+  faces.push({ family: "Amiri", status: "loading" });
+  assert.equal(isFontAvailable(amiriFont), false);
+  faces[1].status = "loaded";
   assert.equal(isFontAvailable(amiriFont), true);
 
   // Applying font sets CSS variable correctly
   applyArabicFontToDocument(amiriFont);
   assert.equal(customProperties.get("--font-arabic"), '"Amiri", "Noto Naskh Arabic", Arial, sans-serif');
 
-  // Storing preference
-  storage.set(ARABIC_FONT_STORAGE_KEY, amiriFont.id);
-  assert.equal(storage.get(ARABIC_FONT_STORAGE_KEY), "amiri");
-
   // Cleanup globals
   delete (globalThis as unknown as { document?: unknown }).document;
-});
-
-test("offline font switching blocks un-downloaded fonts and allows cached fonts", () => {
-  const messages: string[] = [];
-  const showToast = (msg: string) => messages.push(msg);
-
-  const originalNavigator = globalThis.navigator;
-  const onLine = false;
-  const fakeNavigator = {
-    get onLine() {
-      return onLine;
-    },
-  };
-  Object.defineProperty(globalThis, "navigator", {
-    value: fakeNavigator,
-    configurable: true,
-    writable: true,
-  });
-
-  const lateefFont = getArabicFont("lateef");
-  const defaultFont = getArabicFont(DEFAULT_ARABIC_FONT_ID);
-
-  // 1. Un-downloaded font while offline should trigger offline warning message
-  const available = isFontAvailable(lateefFont);
-  assert.equal(available, false);
-
-  if (!available && !globalThis.navigator.onLine) {
-    showToast("Yeni yazı tipleri yalnızca internet bağlantısı varken indirilebilir.");
-  }
-  assert.equal(messages.length, 1);
-  assert.equal(messages[0], "Yeni yazı tipleri yalnızca internet bağlantısı varken indirilebilir.");
-
-  // 2. Default font (or cached font) works even while offline
-  const defaultAvailable = isFontAvailable(defaultFont);
-  assert.equal(defaultAvailable, true);
-
-  // Cleanup globals
-  Object.defineProperty(globalThis, "navigator", {
-    value: originalNavigator,
-    configurable: true,
-    writable: true,
-  });
 });

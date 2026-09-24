@@ -8,10 +8,12 @@ import {
   type ArabicFontDefinition,
 } from "../../core/arabic-fonts";
 import { t } from "../../core/i18n";
-import { isFontAvailable, useArabicFont, useArabicFontPreviews } from "../../hooks/useArabicFont";
-import { triggerHaptic } from "../../components/TrackerPrimitives";
+import { useArabicFont, useArabicFontPreviews } from "../../hooks/useArabicFont";
+import { triggerHaptic } from "../../core/haptics";
 
-export function ArabicFontSettings() {
+import { SettingsSlider, SettingsSwitch } from "./SettingsControls";
+
+export function ArabicFontSettings({ active = true }: { active?: boolean }) {
   const {
     showToast,
     showDiacritics,
@@ -29,134 +31,27 @@ export function ArabicFontSettings() {
   } = useAppRuntime();
 
   const { activeFontId, loadingFontId, selectFont } = useArabicFont(showToast);
-  const previewsReady = useArabicFontPreviews();
+  const previewsReady = useArabicFontPreviews(active);
   const sampleText = formatArabicDiacritics(ARABIC_FONT_SAMPLE, showDiacritics);
-
-  const handleToggleHaptic = () => {
-    setHapticEnabled((prev) => {
-      const next = !prev;
-      if (next) triggerHaptic(true, 25);
-      return next;
-    });
-  };
 
   return (
     <div className="settings-stack">
-      {/* Flat ayarlar listesi - doğrudan arka plan (bg) */}
-      <div className="settings-flat-group" role="region" aria-label="Temel Ayarlar">
-        {/* 1. Yazı Boyutu (Sayı Doğrusu) */}
+      <div className="settings-flat-group">
+        <SettingsSlider label={t("settings.fontSizeTitle")} value={fontSizeScale} min={75} max={140} step={1} onChange={setFontSizeScale} />
+        <SettingsSlider label={t("settings.lineHeightTitle")} value={lineHeight} min={1.2} max={2.5} step={0.05} onChange={setLineHeight} />
+        <SettingsSwitch label={t("settings.translationsTitle")} checked={showTranslations}
+          onToggle={() => { triggerHaptic(hapticEnabled); setShowTranslations((value) => !value); }} />
+        <SettingsSwitch label={t("settings.diacriticsSection")} checked={showDiacritics}
+          onToggle={() => { triggerHaptic(hapticEnabled); setShowDiacritics((value) => !value); }} />
+        <SettingsSwitch label={t("settings.hapticSection")} checked={hapticEnabled}
+          onToggle={() => { triggerHaptic(!hapticEnabled, 25); setHapticEnabled((value) => !value); }} />
         <div className="settings-flat-row">
-          <label htmlFor="settings-font-size-slider" className="settings-flat-label">
-            {t("settings.fontSizeTitle")}
-          </label>
-          <div className="settings-slider-wrap">
-            <input
-              id="settings-font-size-slider"
-              type="range"
-              min="80"
-              max="135"
-              step="1"
-              value={fontSizeScale}
-              onChange={(e) => setFontSizeScale(Number(e.target.value))}
-              className="settings-slider"
-              aria-label={t("settings.fontSizeTitle")}
-            />
-          </div>
-        </div>
-
-        {/* 2. Arapça Satır Aralığı (Sayı Doğrusu) */}
-        <div className="settings-flat-row">
-          <label htmlFor="settings-line-height-slider" className="settings-flat-label">
-            {t("settings.lineHeightTitle")}
-          </label>
-          <div className="settings-slider-wrap">
-            <input
-              id="settings-line-height-slider"
-              type="range"
-              min="1.3"
-              max="2.4"
-              step="0.05"
-              value={lineHeight}
-              onChange={(e) => setLineHeight(Number(e.target.value))}
-              className="settings-slider"
-              aria-label={t("settings.lineHeightTitle")}
-            />
-          </div>
-        </div>
-
-        {/* 3. Türkçe Anlamları Göster */}
-        <div className="settings-flat-row">
-          <span className="settings-flat-label">{t("settings.translationsTitle")}</span>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={showTranslations}
-            className={`settings-toggle-switch${showTranslations ? " is-active" : ""}`}
-            onClick={() => {
-              triggerHaptic(hapticEnabled, 15);
-              setShowTranslations((prev) => !prev);
-            }}
-            aria-label={t("settings.translationsTitle")}
-          >
-            <span className="toggle-thumb" aria-hidden="true" />
-          </button>
-        </div>
-
-        {/* 4. Arapça Harekeler */}
-        <div className="settings-flat-row">
-          <span className="settings-flat-label">{t("settings.diacriticsSection")}</span>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={showDiacritics}
-            className={`settings-toggle-switch${showDiacritics ? " is-active" : ""}`}
-            onClick={() => {
-              triggerHaptic(hapticEnabled, 15);
-              setShowDiacritics((prev) => !prev);
-            }}
-            aria-label={t(showDiacritics ? "settings.diacriticsOn" : "settings.diacriticsOff")}
-          >
-            <span className="toggle-thumb" aria-hidden="true" />
-          </button>
-        </div>
-
-        {/* 5. Dokunma & Hissiyat */}
-        <div className="settings-flat-row">
-          <span className="settings-flat-label">{t("settings.hapticSection")}</span>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={hapticEnabled}
-            className={`settings-toggle-switch${hapticEnabled ? " is-active" : ""}`}
-            onClick={handleToggleHaptic}
-            aria-label={t("settings.hapticSection")}
-          >
-            <span className="toggle-thumb" aria-hidden="true" />
-          </button>
-        </div>
-
-        {/* 6. Günlük Tertip (Sıfırlama Saati) */}
-        <div className="settings-flat-row">
-          <label htmlFor="settings-day-reset-time" className="settings-flat-label">
-            {t("settings.routineSection")}
-          </label>
-          <div className="settings-time-wrap">
-            <input
-              id="settings-day-reset-time"
-              type="time"
-              className="settings-time-input"
-              value={dayResetTime}
-              onChange={(e) => {
-                triggerHaptic(hapticEnabled, 15);
-                setDayResetTime(e.target.value || "00:00");
-              }}
-              aria-label={t("settings.routineSection")}
-            />
-          </div>
+          <label htmlFor="settings-day-reset-time" className="settings-flat-label">{t("settings.routineSection")}</label>
+          <input id="settings-day-reset-time" type="time" className="settings-time-input" value={dayResetTime}
+            onChange={(event) => { triggerHaptic(hapticEnabled); setDayResetTime(event.target.value || "00:00"); }} />
         </div>
       </div>
 
-      {/* 7. Arapça Yazı Tipi */}
       <section className="settings-fonts-section" aria-labelledby="arabic-font-title">
         <div className="settings-section-header">
           <h2 id="arabic-font-title" className="settings-section-title">
@@ -172,7 +67,7 @@ export function ArabicFontSettings() {
               sampleText={sampleText}
               isSelected={activeFontId === font.id}
               isLoading={loadingFontId === font.id}
-              isFontPreviewReady={!font.googleFontFamily || previewsReady || isFontAvailable(font)}
+              isFontPreviewReady={!font.googleFontFamily || previewsReady}
               onSelect={() => {
                 triggerHaptic(hapticEnabled, 15);
                 selectFont(font.id);
@@ -182,7 +77,6 @@ export function ArabicFontSettings() {
         </div>
       </section>
 
-      {/* 8. İletişim & Geri Bildirim */}
       <footer className="settings-contact-footer">
         <a href="mailto:mehmedcelenk@gmail.com" className="settings-contact-link">
           mehmedcelenk@gmail.com

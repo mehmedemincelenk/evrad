@@ -2,7 +2,8 @@ export const DAY_RESET_TIME_STORAGE_KEY = "evrad_day_reset_time";
 
 export function getDayResetTime(): string {
   if (typeof window !== "undefined") {
-    return localStorage.getItem(DAY_RESET_TIME_STORAGE_KEY) ?? "00:00";
+    try { return localStorage.getItem(DAY_RESET_TIME_STORAGE_KEY) ?? "00:00"; }
+    catch { return "00:00"; }
   }
   return "00:00";
 }

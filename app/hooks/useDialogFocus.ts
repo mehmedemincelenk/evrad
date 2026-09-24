@@ -1,40 +1,26 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useEffectEvent, useRef } from "react";
 
-// Focus and keyboard lifecycle shared by both confirmation dialogs.
+// Native dialogs handle focus trapping/restoration and inert background. Their
+// top layer also escapes the transformed swipe pages and nested overlays.
 export function useDialogFocus(onCancel: () => void) {
-  const panelRef = useRef<HTMLDivElement>(null);
-  const cancelRef = useRef(onCancel);
-  useEffect(() => { cancelRef.current = onCancel; }, [onCancel]);
-
+  const ref = useRef<HTMLDialogElement>(null);
+  const cancel = useEffectEvent(onCancel);
   useEffect(() => {
-    const previousFocus = document.activeElement as HTMLElement | null;
-    const wasLocked = document.body.classList.contains("confirmation-open");
-    document.body.classList.add("confirmation-open");
-    panelRef.current?.querySelector<HTMLButtonElement>("button:not(:disabled)")?.focus();
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") cancelRef.current();
-      if (event.key !== "Tab" || !panelRef.current) return;
-      const buttons = Array.from(panelRef.current.querySelectorAll<HTMLButtonElement>("button:not(:disabled)"));
-      const first = buttons[0];
-      const last = buttons.at(-1);
-      if (!first) { event.preventDefault(); return; }
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last?.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
-    document.addEventListener("keydown", onKeyDown);
+    const dialog = ref.current;
+    if (!dialog) return;
+    dialog.showModal();
+    dialog.querySelector<HTMLElement>("[data-initial-focus]")?.focus();
+    const onCancel = (event: Event) => { event.preventDefault(); cancel(); };
+    const onBackdrop = (event: MouseEvent) => { if (event.target === dialog) cancel(); };
+    dialog.addEventListener("cancel", onCancel);
+    dialog.addEventListener("click", onBackdrop);
     return () => {
-      if (!wasLocked) document.body.classList.remove("confirmation-open");
-      document.removeEventListener("keydown", onKeyDown);
-      if (previousFocus?.isConnected) previousFocus.focus();
+      dialog.removeEventListener("cancel", onCancel);
+      dialog.removeEventListener("click", onBackdrop);
+      dialog.close();
     };
   }, []);
-
-  return panelRef;
+  return ref;
 }

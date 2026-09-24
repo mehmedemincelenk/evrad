@@ -40,20 +40,31 @@ Kitap kayıtları ayrı alan modeline sahip olduğu için eski kitap ekranları 
 
 - `core/collections.ts`: kimlik, üyelik ve sıralama kuralları.
 - `data/collection-repository.ts`: oluşturma, alan güncelleme, üyelik ve atomik sıralama.
-- `hooks/useRecordLibrary.ts`: yükleme ve seri yazma yaşam döngüsü.
+- `components/RecordLibraryProvider.tsx`: bütün ekranların paylaştığı kayıt ve günlük tamamlanma state’i.
+- `hooks/useRecordLibrary.ts`: tek yükleme ve seri yazma yaşam döngüsü; başarılı kalıcı yazıdan sonra state güncelleme.
 - `hooks/useCompletionState.ts`: ortak günlük tamamlama, hata geri alma ve yerel gün değişimi.
-- `features/collections/CollectionApp.tsx`: iki koleksiyonun ortak ekranı.
+- `features/collections/CollectionScreen.tsx`: iki koleksiyonun ortak ekranı.
 - `components/RecordFilters.tsx`: ekranlar arası ortak çoklu filtreler.
 - `core/record-filters.ts`: saf filtre ve çoklu seçim kuralları; filtre bileşeni hook tipine bağımlı değildir.
-- `hooks/useDialogFocus.ts`: onay dialoglarının ortak odak, Escape ve Tab yaşam döngüsü.
+- `components/Dialog.tsx` ve `hooks/useDialogFocus.ts`: bütün editör/onay/hızlı ekleme pencerelerinde native dialog, odak, Escape ve animasyonlu kapanma.
 - `core/module-registry.ts`: görünen bölümler ve eski depoların tek kayıt kaynağı.
 
 IndexedDB v8 yükseltmesi kayıt silmez. Önceki sürümlerdeki yıkıcı temizlik kaldırılmıştır.
 Yedek dışa aktarımı bütün eski depoları ve tamamlanmaları içerir; içe aktarma/bulut eşitleme yoktur.
 
+### Etkileşim ve hareket
+
+`hooks/useSectionPager.ts` registry'deki ana ekranların native scroll-snap, URL ve aktif yükseklik davranışını yönetir. Ziyaret edilen ekranlar state'ini korur; komşu ekranlar kaydırma için hazır tutulur. Font önizlemeleri ayarlar aktif olduğunda yüklenir.
+
+`styles/motion.css` ortak süre/easing token'larını, keyframe'leri ve hareket azaltma tercihini içerir. Yeni açılır alanlar `Accordion`, pencereler `Dialog` üzerinden ilerler. Yerleşim stilleri ilgili stil dosyasında kalır.
+
+`core/devotional-draft.ts`, `useEditorForm` ve `useCreateRecord` hızlı/detaylı kayıt varsayılanlarını ve gönderim akışını paylaşır. `usePreferences` ayar okuma/yazma ve doğrulamasını, `data/arabic-font-loader.ts` font yüklemesini yönetir.
+
+Dosya/fonksiyon envanteri, kararlar ve önce/sonra ölçümleri [mimari inceleme](docs/architecture-audit.md) belgesindedir.
+
 ### Kontroller
 
 `npm run test:unit`, bellekte IndexedDB ile migration, üyelik bağımsızlığı, atomik geri alma,
 çakışan kimlikler ve sıralama senaryolarını sınar. Kullanıcının tarayıcı verisini değiştirmez.
-`npm test` ayrıca üretim build'i, sunucu çıktısı, eski rotalar ve mimari sınır kontrollerini çalıştırır.
+`npm test` TypeScript kontrolü, tüm birim test dosyaları, üretim build'i, sunucu çıktısı, eski rotalar ve mimari sınır kontrollerini çalıştırır.
 Gerçek iOS PWA, çevrimdışı rota geçişleri ve dokunarak sıralama ayrıca cihazda kontrol edilmelidir.

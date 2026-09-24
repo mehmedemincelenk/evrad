@@ -1,12 +1,22 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { collectionEntry, type CollectionEntry } from "../core/collections";
+import { createContext, useContext, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { belongsToCollection, collectionEntry, recordKey, type CollectionEntry, type CollectionId, type RecordRef } from "../core/collections";
+import { devotionalFromDraft } from "../core/devotional";
+import type { DevotionalDraft, DevotionalItem, EntityTemplate } from "../core/types";
 import { collectionRepository } from "../data/collection-repository";
 
 // Commit writes before publishing state. Serialize local actions so two rapid
 // taps cannot overwrite each other's membership or editor changes.
-export function useRecordLibrary(onError: () => void) {
+export const RecordLibraryContext = createContext<ReturnType<typeof useRecordLibraryState> | null>(null);
+
+export function useRecordLibrary() {
+  const value = useContext(RecordLibraryContext);
+  if (!value) throw new Error("RecordLibraryProvider is missing");
+  return value;
+}
+
+export function useRecordLibraryState(onError: () => void) {
   const [entries, setEntries] = useState<CollectionEntry[]>([]);
   const entriesRef = useRef(entries);
   const [ready, setReady] = useState(false);
@@ -19,23 +29,24 @@ export function useRecordLibrary(onError: () => void) {
     if (mounted.current) setEntries(next);
   }, []);
 
-  const reload = useCallback(async () => {
+  const reload = useCallback(async (isCurrent = () => mounted.current) => {
     const next = await collectionRepository.load();
-    if (!mounted.current) return;
+    if (!isCurrent()) return;
     replaceEntries(next);
     setFailed(false);
     setReady(true);
   }, [replaceEntries]);
 
   useEffect(() => {
+    let active = true;
     mounted.current = true;
-    reload().catch(() => {
-      if (!mounted.current) return;
+    queue.current = reload(() => active).catch(() => {
+      if (!active) return;
       setFailed(true);
       setReady(true);
       onError();
     });
-    return () => { mounted.current = false; };
+    return () => { active = false; mounted.current = false; };
   }, [onError, reload]);
 
   const mutate = useCallback((operation: () => Promise<void>) => {
@@ -60,5 +71,26 @@ export function useRecordLibrary(onError: () => void) {
       : [...current, next]);
   }, [replaceEntries]);
 
-  return { entries, entriesRef, ready, failed, reload, mutate, publish, replaceEntries };
+  return useMemo(() => {
+    const update = (ref: RecordRef, changes: Partial<DevotionalItem>) => mutate(async () => {
+      publish(collectionEntry(ref.moduleId, await collectionRepository.patch(ref, changes), "favorites"));
+    });
+    const toggleMembership = (ref: RecordRef, collection: CollectionId, template?: EntityTemplate<DevotionalItem>) => mutate(async () => {
+      const current = entriesRef.current.find((entry) => entry.id === recordKey(ref.moduleId, ref.itemId));
+      const included = current ? belongsToCollection(current.item, collection) : false;
+      const item = await collectionRepository.setMembership(ref, collection, !included, template);
+      publish(collectionEntry(ref.moduleId, item, collection));
+    });
+    const create = (draft: DevotionalDraft) => mutate(async () => {
+      const item = { ...devotionalFromDraft("dhikr", draft, null, Date.now()), inVirds: true, liked: false };
+      await collectionRepository.create(item);
+      publish(collectionEntry("dhikr", item, "virds"));
+    });
+    const saveOrder = (next: CollectionEntry[], collection: CollectionId) => mutate(async () => {
+      await collectionRepository.saveOrder(next, collection);
+      await reload();
+    });
+
+    return { entries, ready, failed, update, toggleMembership, create, saveOrder };
+  }, [entries, ready, failed, mutate, publish, reload]);
 }

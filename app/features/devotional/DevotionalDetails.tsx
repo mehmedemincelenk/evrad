@@ -1,7 +1,8 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { DetailBlock, ExpandableCardContent, MiniTags } from "../../components/TrackerPrimitives";
+import { DetailBlock, ExpandableCardContent } from "../../components/TrackerPrimitives";
+import { containsArabic } from "../../core/devotional-draft";
 import { t } from "../../core/i18n";
 import type { DevotionalItem } from "../../core/types";
 import { useAppRuntime } from "../../core/AppRuntimeContext";
@@ -14,22 +15,19 @@ export function DevotionalDetails({
   fontLevel,
   onChangeFont,
   actions,
-  tags = [],
 }: {
   item: Pick<DevotionalItem, "name" | "arabic" | "translation" | "details" | "source">;
   fontLevel: 0 | 1 | 2 | 3 | 4;
   onChangeFont: (direction: -1 | 1) => void;
   actions?: ReactNode;
-  tags?: string[];
 }) {
   const { showDiacritics, showTranslations } = useAppRuntime();
 
-  const isNameArabic = Boolean(item.name && /[\u0600-\u06ff]/u.test(item.name));
+  const isNameArabic = Boolean(item.name && containsArabic(item.name));
   const displayName = isNameArabic && item.name ? formatArabicDiacritics(item.name, showDiacritics) : item.name;
 
   return (
     <ExpandableCardContent>
-      <MiniTags tags={tags} />
       {item.name ? (
         <DetailBlock label={t("detail.name")}>
           <p className={isNameArabic ? "arabic-text" : undefined} dir="auto" style={isNameArabic ? { fontFamily: "var(--font-arabic)" } : undefined}>

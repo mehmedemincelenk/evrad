@@ -36,7 +36,7 @@ export function BookCard({
       dragging={dragging}
       dragOffsetY={dragOffsetY}
       leading={<SortHandle sortId={item.id} label={t("card.reorderGeneric", { position })} {...sortHandleProps} />}
-      summary={<CollapsedCardSummary title={item.title} arabic={false} targetCount={item.targetCount} targetUnit={item.targetUnit} targetUnitLabel={item.targetUnitLabel} expanded={expanded} onToggle={onToggleExpanded} />}
+      summary={<CollapsedCardSummary title={item.title} arabic={false} expanded={expanded} onToggle={onToggleExpanded} />}
       trailing={<CompletionLight complete={complete} onToggle={onToggleComplete} label={t(complete ? "card.undoCompleteGeneric" : "card.completeGeneric", { title: item.title })} />}
     >
       <BookDetails item={item} actions={<CardActions title={item.title} onEdit={onEdit} onDelete={onDelete} />} />

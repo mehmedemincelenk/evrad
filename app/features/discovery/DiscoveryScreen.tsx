@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { AppShell } from "../../AppShell";
 import { ModuleScreenHeader } from "../../components/ModuleScreenHeader";
 import { RecordFilters } from "../../components/RecordFilters";
 import { SearchBar } from "../../components/SearchBar";
@@ -15,10 +14,6 @@ import { discoveryCatalog } from "./discovery-catalog";
 import { DiscoveryDevotionalCard } from "./DiscoveryDevotionalCard";
 import { useDiscovery } from "./useDiscovery";
 
-export function DiscoveryApp() {
-  return <AppShell section="discover"><DiscoveryScreen /></AppShell>;
-}
-
 export function DiscoveryScreen() {
   const library = useDiscovery();
   const filters = useRecordFilters();
@@ -31,13 +26,8 @@ export function DiscoveryScreen() {
     if (!filters.matches(item, moduleId)) return false;
     if (!normalizedQuery) return true;
 
-    const inName = item.name?.toLocaleLowerCase("tr").includes(normalizedQuery);
-    const inArabic = item.arabic?.includes(normalizedQuery);
-    const inTranslation = item.translation?.toLocaleLowerCase("tr").includes(normalizedQuery);
-    const inDetails = item.details?.toLocaleLowerCase("tr").includes(normalizedQuery);
-    const inSource = item.source?.toLocaleLowerCase("tr").includes(normalizedQuery);
-
-    return Boolean(inName || inArabic || inTranslation || inDetails || inSource);
+    return [item.name, item.arabic, item.translation, item.details, item.source]
+      .some((text) => text?.toLocaleLowerCase("tr").includes(normalizedQuery));
   });
 
   return (

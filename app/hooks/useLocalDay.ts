@@ -3,13 +3,13 @@
 import { useEffect, useState } from "react";
 import { getDayResetTime, getLocalDateKey } from "../core/date";
 
-export function useLocalDay() {
-  const [dateKey, setDateKey] = useState(() => getLocalDateKey(new Date(), getDayResetTime()));
+export function useLocalDay(resetTime = getDayResetTime()) {
+  const [dateKey, setDateKey] = useState(() => getLocalDateKey(new Date(), resetTime));
 
   useEffect(() => {
     const checkDate = () => {
       const nextDate = new Date();
-      setDateKey(getLocalDateKey(nextDate, getDayResetTime()));
+      setDateKey(getLocalDateKey(nextDate, resetTime));
     };
     checkDate();
     const interval = window.setInterval(checkDate, 60_000);
@@ -21,7 +21,7 @@ export function useLocalDay() {
       window.removeEventListener("focus", checkDate);
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, []);
+  }, [resetTime]);
 
   return dateKey;
 }

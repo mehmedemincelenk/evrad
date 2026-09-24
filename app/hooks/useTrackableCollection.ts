@@ -18,7 +18,7 @@ export function useTrackableCollection<T extends TrackableEntity>({
   const [itemsReady, setItemsReady] = useState(false);
   const itemsRef = useRef(items);
   const committed = useRef(items);
-  const completions = useCompletionState(onStorageError);
+  const completions = useCompletionState();
   const { expandedIds, toggleExpanded, forgetExpanded } = useExpandableItems();
   const replaceItems = useCallback((next: T[]) => {
     itemsRef.current = next;

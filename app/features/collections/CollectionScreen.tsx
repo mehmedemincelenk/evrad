@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { AppShell } from "../../AppShell";
 import { CollectionChoiceModal, type CollectionChoice } from "../../components/CollectionChoiceModal";
 import { ModuleScreenHeader } from "../../components/ModuleScreenHeader";
 import { RecordFilters } from "../../components/RecordFilters";
@@ -25,10 +24,6 @@ const copy = {
   favorites: { title: "module.bag.title", eyebrow: "module.bag.eyebrow", tagline: "module.bag.tagline", empty: "empty.libraryTitle", body: "favorites.emptyBody" },
 } as const;
 
-export function CollectionApp({ collection }: { collection: CollectionId }) {
-  return <AppShell section={collection}><CollectionScreen collection={collection} /></AppShell>;
-}
-
 export function CollectionScreen({ collection }: { collection: CollectionId }) {
   const state = useCollection(collection);
   const filters = useRecordFilters();
@@ -41,13 +36,12 @@ export function CollectionScreen({ collection }: { collection: CollectionId }) {
     if (!editTarget) return;
     const saved = await state.update(editTarget, devotionalContentFromDraft(draft));
     if (!saved) throw new Error("Record could not be saved");
-    setEditTarget(null);
   };
 
   const remove = async (choice: CollectionChoice) => {
     if (!removeTarget) return;
     const patch = choice === "virds" ? { inVirds: false } : choice === "bag" ? { liked: false } : { inVirds: false, liked: false };
-    if (await state.update(removeTarget, patch)) setRemoveTarget(null);
+    return state.update(removeTarget, patch);
   };
 
   return <>
@@ -65,7 +59,6 @@ export function CollectionScreen({ collection }: { collection: CollectionId }) {
           moduleId={entry.moduleId} item={entry.item} complete={state.completeKeys.has(entry.id)}
           expanded={state.expansion.expandedIds.has(entry.id)} dragging={state.sorting.draggingId === entry.id}
           dragOffsetY={state.sorting.draggingId === entry.id ? state.sorting.dragOffsetY : 0}
-          position={state.entries.findIndex((item) => item.id === entry.id) + 1}
           onToggleExpanded={() => state.expansion.toggleExpanded(entry.id)} onToggleComplete={() => state.toggleComplete(entry)}
           onChangeFont={(direction) => void state.update(entry, { expandedArabicSize: Math.max(0, Math.min(4, entry.item.expandedArabicSize + direction)) as ArabicFontLevel })}
           onEdit={() => setEditTarget(entry)}

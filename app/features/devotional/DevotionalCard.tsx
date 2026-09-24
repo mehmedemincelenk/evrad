@@ -25,7 +25,6 @@ interface DevotionalCardProps {
   expanded: boolean;
   dragging: boolean;
   dragOffsetY: number;
-  position?: number;
   onToggleExpanded: () => void;
   onToggleComplete: () => void;
   onChangeFont: (direction: -1 | 1) => void;
@@ -43,9 +42,10 @@ export function DevotionalCard(props: DevotionalCardProps) {
   return (
     <TrackableCardShell
       id={props.cardId ?? item.id}
-      complete={props.complete}
+      complete={props.collection === "virds" && props.complete}
       expanded={props.expanded}
       dragging={props.dragging}
+      dragOffsetY={props.dragOffsetY}
       leading={(
         props.collection === "favorites" ? (
           <LikeButton title={display.text} liked onToggle={props.onRemoveFromCollections} />
@@ -68,7 +68,7 @@ export function DevotionalCard(props: DevotionalCardProps) {
           <AddToLibraryButton title={display.text} added={Boolean(props.inVirds)} onAdd={props.onToggleVird} />
         ) : (
           <CompletionLight
-            complete={props.complete}
+            complete={props.collection === "virds" && props.complete}
             onToggle={props.onToggleComplete}
             label={t(props.complete ? "card.undoCompleteGeneric" : "card.completeGeneric", { title: display.text })}
           />

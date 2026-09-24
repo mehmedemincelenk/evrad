@@ -1,48 +1,8 @@
 .editor-page {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  overflow-y: auto;
-  overscroll-behavior: contain;
+  min-height: 100%;
   padding: max(1.35rem, env(safe-area-inset-top)) 1rem calc(1rem + env(safe-area-inset-bottom));
   background: linear-gradient(145deg, #15171d, #0c0e12);
-  animation: panelIn 220ms ease-out;
 }
-
-.create-slide-container {
-  position: fixed;
-  inset: 0;
-  z-index: 120;
-  animation: slideInFromLeft 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.create-slide-container.is-closing {
-  animation: slideOutToLeft 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.create-slide-container .editor-page {
-  animation: none;
-}
-
-@keyframes slideInFromLeft {
-  from {
-    transform: translateX(-100%);
-  }
-  to {
-    transform: translateX(0);
-  }
-}
-
-@keyframes slideOutToLeft {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-100%);
-  }
-}
-
-@keyframes panelIn { from { transform: translateY(2rem); opacity: 0; } }
 
 .editor-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; width: min(100%, 38rem); margin: 0 auto 1.45rem; }
 .editor-heading h2 { margin: 0.35rem 0 0; color: var(--text); font-family: Iowan Old Style, Baskerville, Georgia, serif; font-size: 1.6rem; font-weight: 450; letter-spacing: -0.02em; }
@@ -52,7 +12,7 @@
 .entity-form { display: grid; gap: 1rem; width: min(100%, 38rem); margin: 0 auto; }
 .field-group { display: grid; gap: 0.5rem; }
 .field-group > span { color: var(--text-soft); font-size: 0.76rem; font-weight: 650; }
-.field-group input, .field-group textarea { width: 100%; border: 1px solid var(--line); border-radius: 0.95rem; outline: 0; background: rgba(255, 255, 255, 0.025); color: var(--text); transition: border-color 160ms ease, box-shadow 160ms ease; }
+.field-group input, .field-group textarea { width: 100%; border: 1px solid var(--line); border-radius: 0.95rem; outline: 0; background: rgba(255, 255, 255, 0.025); color: var(--text); transition: border-color var(--motion-fast) var(--ease-standard), box-shadow var(--motion-fast) var(--ease-standard); }
 .field-group input { min-height: 3.25rem; padding: 0 0.9rem; }
 .field-group textarea { min-height: 6.5rem; padding: 0.85rem 0.9rem; line-height: 1.55; resize: vertical; }
 .field-group input::placeholder, .field-group textarea::placeholder { color: #60636b; }

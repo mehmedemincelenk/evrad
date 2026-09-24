@@ -39,14 +39,14 @@
 * { box-sizing: border-box; }
 
 html {
-  min-width: 320px;
+  min-width: 0;
   background: var(--background);
   scroll-behavior: smooth;
 }
 
 body {
   margin: 0;
-  min-width: 320px;
+  min-width: 0;
   min-height: 100vh;
   background:
     radial-gradient(circle at 50% -8%, rgba(255, 248, 219, 0.075), transparent 28rem),
@@ -57,8 +57,7 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
-body.editor-open,
-body.confirmation-open,
+body:has(dialog[open]),
 body.is-sorting { overflow: hidden; }
 button, input, textarea { color: inherit; font: inherit; }
 button { border: 0; }
@@ -131,48 +130,19 @@ button, label, input, textarea { -webkit-tap-highlight-color: transparent; }
   color: var(--text-soft);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  transition: background 160ms ease, border-color 160ms ease, transform 120ms ease;
+  transition: background var(--motion-fast) var(--ease-standard), border-color var(--motion-fast) var(--ease-standard), transform var(--motion-press) var(--ease-standard);
 }
 .filter-toggle:active { transform: scale(0.94); }
 .filter-toggle svg {
   width: 1.2rem;
   height: 1.2rem;
   pointer-events: none;
-  transition: transform 260ms cubic-bezier(0.2, 0.9, 0.25, 1);
+  transition: transform var(--motion-normal) var(--ease-out);
 }
 .filter-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
 
-.header-filters-accordion {
-  grid-column: 1 / -1;
-  display: grid;
-  grid-template-rows: 0fr;
-  min-width: 0;
-  opacity: 0;
-  overflow: hidden;
-  pointer-events: none;
-  transition: grid-template-rows 280ms cubic-bezier(0.32, 0.72, 0, 1),
-              opacity 220ms ease;
-  will-change: grid-template-rows, opacity;
-}
-
-.header-filters-accordion.is-open {
-  grid-template-rows: 1fr;
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.header-filters-inner {
-  min-height: 0;
-  overflow: hidden;
-  padding-top: 0.35rem;
-  transform: translateY(-0.5rem);
-  transition: transform 280ms cubic-bezier(0.32, 0.72, 0, 1);
-  will-change: transform;
-}
-
-.header-filters-accordion.is-open .header-filters-inner {
-  transform: translateY(0);
-}
+.header-filters-accordion { grid-column: 1 / -1; }
+.header-filters-accordion .accordion-inner { padding-top: 0.35rem; }
 
 h1, h2, p { overflow-wrap: anywhere; }
 

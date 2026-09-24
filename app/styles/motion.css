@@ -1,0 +1,60 @@
+/* Shared motion language. Layout and color remain with their components. */
+:root {
+  --motion-press: 120ms;
+  --motion-fast: 180ms;
+  --motion-normal: 280ms;
+  --motion-slow: 360ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+}
+
+.accordion {
+  display: grid;
+  grid-template-rows: 0fr;
+  min-width: 0;
+  overflow: hidden;
+  transition: grid-template-rows var(--motion-normal) var(--ease-out);
+}
+.accordion[data-open="true"] { grid-template-rows: 1fr; }
+.accordion-inner {
+  min-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-0.35rem);
+  transition: opacity var(--motion-fast) var(--ease-standard), transform var(--motion-normal) var(--ease-out);
+}
+.accordion[data-open="true"] > .accordion-inner { opacity: 1; transform: none; }
+
+.dialog-layer[open] { animation: fadeIn var(--motion-fast) var(--ease-standard); }
+.dialog-layer[open] .dialog-surface { animation: surfaceIn var(--motion-normal) var(--ease-out); }
+.dialog-layer[open]::backdrop { animation: fadeIn var(--motion-fast) var(--ease-standard); }
+.dialog-layer[data-closing="true"] { animation: fadeOut var(--motion-fast) var(--ease-in) forwards; }
+.dialog-layer[data-closing="true"] .dialog-surface { animation: surfaceIn var(--motion-fast) var(--ease-in) reverse forwards; }
+.dialog-layer[data-closing="true"]::backdrop { animation: fadeOut var(--motion-fast) var(--ease-in) forwards; }
+.editor-layer { --surface-x: -1.5rem; --surface-y: 0; --surface-scale: 1; }
+
+@keyframes fadeIn { from { opacity: 0; } }
+@keyframes fadeOut { to { opacity: 0; } }
+@keyframes surfaceIn {
+  from { opacity: 0; transform: translate(var(--surface-x, 0), var(--surface-y, 0.75rem)) scale(var(--surface-scale, 0.98)); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes toastIn { from { opacity: 0; transform: translateY(-0.45rem); } }
+@keyframes basmalaBreath { 0%, 100% { opacity: 0.82; transform: scale(0.99); } 50% { opacity: 1; transform: scale(1.01); } }
+@keyframes storageBreath { 50% { opacity: 0.48; transform: scale(0.78); } }
+@keyframes fontSpin { to { transform: rotate(360deg); } }
+@keyframes coreBloom { 0% { transform: scale(0.82); } 70% { transform: scale(1.08); } 100% { transform: scale(1); } }
+@keyframes haloBloom { 0% { opacity: 0; transform: scale(0.55); } 45% { opacity: 1; } 100% { opacity: 0; transform: scale(1.25); } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+  }
+  .main-swipe-page { opacity: 1 !important; transform: none !important; }
+}

@@ -1,8 +1,10 @@
-import { useState, type CSSProperties, type KeyboardEventHandler, type PointerEventHandler, type ReactNode } from "react";
+import { type CSSProperties, type KeyboardEventHandler, type PointerEventHandler, type ReactNode } from "react";
+import { Accordion } from "./Accordion";
 import { t } from "../core/i18n";
 import type { TargetUnit } from "../core/types";
 import { PlusMinusIcon } from "./PlusMinusIcon";
 import { useAppRuntime } from "../core/AppRuntimeContext";
+import { triggerHaptic } from "../core/haptics";
 import { formatArabicDiacritics } from "../core/arabic-fonts";
 
 export interface SortHandleHandlers {
@@ -35,29 +37,24 @@ export function TrackableCardShell({
   trailing: ReactNode;
   children?: ReactNode;
 }) {
-  const [hasRendered, setHasRendered] = useState(expanded);
-  if (expanded && !hasRendered) {
-    setHasRendered(true);
-  }
-
   return (
     <article
-      className={`trackable-card${leading ? "" : " has-no-leading"}${marker ? " has-marker" : ""}${complete ? " is-complete" : ""}${expanded ? " is-expanded" : ""}${dragging ? " is-dragging" : ""}`}
+      className={`trackable-card${complete ? " is-complete" : ""}${expanded ? " is-expanded" : ""}${dragging ? " is-dragging" : ""}`}
       data-card-id={id}
       style={{ "--drag-offset-y": `${dragOffsetY}px` } as CSSProperties}
     >
-      {marker ? <span className="card-module-marker" aria-hidden="true">{marker}</span> : null}
-      {targetBadge}
+      {(marker || targetBadge) ? (
+        <div className="card-top-badges">
+          {marker ? <span className="card-module-marker" aria-hidden="true">{marker}</span> : null}
+          {targetBadge}
+        </div>
+      ) : null}
       <div className="card-collapsed-row">
         {leading ?? <div className="card-leading-spacer" aria-hidden="true" />}
         {summary}
         {trailing}
       </div>
-      <div className="card-details-accordion" aria-hidden={!expanded}>
-        <div className="card-details-inner">
-          {hasRendered ? children : null}
-        </div>
-      </div>
+      <Accordion open={expanded} className="card-details-accordion">{children}</Accordion>
     </article>
   );
 }
@@ -69,18 +66,13 @@ export function CollapsedCardSummary({
   arabic,
   expanded,
   onToggle,
-  tags = [],
 }: {
   sortId?: string;
   sortProps?: SortHandleHandlers;
   title: string;
   arabic: boolean;
-  targetCount?: number | null;
-  targetUnit?: TargetUnit;
-  targetUnitLabel?: string | null;
   expanded: boolean;
   onToggle: () => void;
-  tags?: string[];
 }) {
   const { showDiacritics } = useAppRuntime();
   const displayTitle = arabic ? formatArabicDiacritics(title, showDiacritics) : title;
@@ -98,15 +90,9 @@ export function CollapsedCardSummary({
     >
       <span className="card-summary-copy">
         <span className={arabic ? "arabic-preview" : "name-preview"} dir="auto">{displayTitle}</span>
-        <MiniTags tags={tags} />
       </span>
     </button>
   );
-}
-
-export function MiniTags({ tags }: { tags: string[] }) {
-  if (!tags.length) return null;
-  return <span className="mini-tags" aria-label={tags.join(", ")}>{tags.map((tag) => <span key={tag}>{tag}</span>)}</span>;
 }
 
 export function TargetBadge({ count, unit, unitLabel }: { count?: number | null; unit?: TargetUnit; unitLabel?: string | null }) {
@@ -116,15 +102,6 @@ export function TargetBadge({ count, unit, unitLabel }: { count?: number | null;
       {unit === "custom" && unitLabel ? t("card.customTarget", { count, unit: unitLabel }) : t("card.target", { count })}
     </span>
   );
-}
-
-export function triggerHaptic(enabled = true, durationMs = 15): void {
-  if (!enabled || typeof navigator === "undefined" || !("vibrate" in navigator)) return;
-  try {
-    navigator.vibrate(durationMs);
-  } catch {
-    // vibrate kısıtı
-  }
 }
 
 export function CompletionLight({

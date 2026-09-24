@@ -1,206 +1,45 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { AppShell } from "../AppShell";
-import { getSectionRoute, type AppSection } from "../core/module-registry";
-import type { DevotionalItem } from "../core/types";
-import { CollectionScreen } from "../features/collections/CollectionApp";
-import { RecordCreateScreen } from "../features/collections/RecordCreateApp";
-import { DiscoveryScreen } from "../features/discovery/DiscoveryApp";
+import { mainSections, type MainSection, type NavigationTarget } from "../core/module-registry";
+import type { DevotionalDraft } from "../core/types";
+import { CollectionScreen } from "../features/collections/CollectionScreen";
+import { RecordCreateScreen } from "../features/collections/RecordCreateScreen";
+import { DiscoveryScreen } from "../features/discovery/DiscoveryScreen";
 import { SettingsScreen } from "../features/settings/SettingsScreen";
+import { useSectionPager } from "../hooks/useSectionPager";
 
-export type MainSectionTarget = "create" | AppSection | "settings";
+export function MainSectionsView({ initialSection }: { initialSection: NavigationTarget }) {
+  const { viewportRef, activeSection, selectSection } = useSectionPager(initialSection === "create" ? "virds" : initialSection);
+  const [createDraft, setCreateDraft] = useState<DevotionalDraft | null | undefined>(initialSection === "create" ? null : undefined);
+  const [previousInitial, setPreviousInitial] = useState(initialSection);
+  if (previousInitial !== initialSection) {
+    setPreviousInitial(initialSection);
+    setCreateDraft(initialSection === "create" ? null : undefined);
+  }
+  const index = mainSections.findIndex((section) => section.id === activeSection);
+  const neighbors = mainSections.filter((_, position) => Math.abs(position - index) <= 1).map((section) => section.id);
+  const [mounted, setMounted] = useState<MainSection[]>(neighbors);
+  // Keep visited screen state; prepare immediate neighbors for native swipes.
+  if (neighbors.some((section) => !mounted.includes(section))) setMounted([...new Set([...mounted, ...neighbors])]);
+  const closeCreate = () => {
+    setCreateDraft(undefined);
+    selectSection(activeSection, false);
+  };
 
-const navigationTargets: readonly (AppSection | "settings")[] = [
-  "virds",
-  "favorites",
-  "discover",
-  "settings",
-];
-
-export function MainSectionsView({ initialSection }: { initialSection: MainSectionTarget }) {
-  const initialActive = initialSection === "create" ? "virds" : initialSection;
-  const [activeSection, setActiveSection] = useState<AppSection | "settings">(initialActive);
-  const [isCreateOpen, setIsCreateOpen] = useState<boolean>(initialSection === "create");
-  const [isCreateClosing, setIsCreateClosing] = useState(false);
-  const [createInitialItem, setCreateInitialItem] = useState<DevotionalItem | null>(null);
-  const viewportRef = useRef<HTMLDivElement | null>(null);
-  const isProgrammaticScroll = useRef(false);
-  const previousSectionRef = useRef<AppSection | "settings">(initialActive);
-
-  const getSectionIndex = useCallback((sec: AppSection | "settings") => {
-    const idx = navigationTargets.indexOf(sec);
-    return idx >= 0 ? idx : 0;
-  }, []);
-
-  const scrollDebounceTimer = useRef<number | null>(null);
-
-  const scrollToSection = useCallback(
-    (targetSection: AppSection | "settings", smooth = true) => {
-      const viewport = viewportRef.current;
-      if (!viewport) return;
-      const index = getSectionIndex(targetSection);
-      const targetLeft = index * viewport.clientWidth;
-      isProgrammaticScroll.current = true;
-      if (typeof window !== "undefined") {
-        window.scrollTo({ top: 0, behavior: "instant" });
-      }
-      viewport.scrollTo({
-        left: targetLeft,
-        behavior: smooth ? "smooth" : "instant",
-      });
-      setActiveSection((prev) => {
-        if (prev !== targetSection && prev !== "settings") {
-          previousSectionRef.current = prev;
-        }
-        return targetSection;
-      });
-      if (typeof window !== "undefined") {
-        const route = getSectionRoute(targetSection);
-        if (window.location.pathname !== route) {
-          window.history.replaceState(null, "", route);
-        }
-      }
-      window.setTimeout(() => {
-        isProgrammaticScroll.current = false;
-      }, smooth ? 400 : 50);
-    },
-    [getSectionIndex],
-  );
-
-  useEffect(() => {
-    const initialIndex = getSectionIndex(initialActive);
-    const viewport = viewportRef.current;
-    if (!viewport) return;
-
-    const setPosition = () => {
-      const width = viewport.clientWidth;
-      if (width > 0) {
-        viewport.scrollLeft = initialIndex * width;
-      }
-    };
-
-    setPosition();
-    const raf = requestAnimationFrame(setPosition);
-    const timer = window.setTimeout(setPosition, 60);
-    return () => {
-      cancelAnimationFrame(raf);
-      window.clearTimeout(timer);
-    };
-  }, [getSectionIndex, initialActive]);
-
-  const handleScroll = useCallback(() => {
-    if (isProgrammaticScroll.current) return;
-    const viewport = viewportRef.current;
-    if (!viewport || viewport.clientWidth === 0) return;
-    const currentIndex = Math.round(viewport.scrollLeft / viewport.clientWidth);
-    const resolvedSection = navigationTargets[currentIndex];
-    if (resolvedSection && resolvedSection !== activeSection) {
-      setActiveSection((prev) => {
-        if (prev !== resolvedSection && prev !== "settings") {
-          previousSectionRef.current = prev;
-        }
-        return resolvedSection;
-      });
-      if (typeof window !== "undefined") {
-        window.scrollTo({ top: 0, behavior: "instant" });
-        if (scrollDebounceTimer.current !== null) {
-          window.clearTimeout(scrollDebounceTimer.current);
-        }
-        scrollDebounceTimer.current = window.setTimeout(() => {
-          const route = getSectionRoute(resolvedSection);
-          if (window.location.pathname !== route) {
-            window.history.replaceState(null, "", route);
-          }
-          scrollDebounceTimer.current = null;
-        }, 120);
-      }
-    }
-  }, [activeSection]);
-
-  useEffect(() => {
-    const onResize = () => {
-      const viewport = viewportRef.current;
-      if (!viewport) return;
-      const index = getSectionIndex(activeSection);
-      viewport.scrollLeft = index * viewport.clientWidth;
-    };
-    window.addEventListener("resize", onResize, { passive: true });
-    return () => window.removeEventListener("resize", onResize);
-  }, [activeSection, getSectionIndex]);
-
-  useEffect(() => {
-    const onPopState = () => {
-      const path = window.location.pathname;
-      const target = navigationTargets.find((t) => getSectionRoute(t) === path);
-      if (target) {
-        scrollToSection(target, true);
-      }
-    };
-    window.addEventListener("popstate", onPopState);
-    return () => window.removeEventListener("popstate", onPopState);
-  }, [scrollToSection]);
-
-  const handleReturnFromCreate = useCallback(() => {
-    setIsCreateClosing(true);
-    window.setTimeout(() => {
-      setIsCreateOpen(false);
-      setIsCreateClosing(false);
-      setCreateInitialItem(null);
-    }, 280);
-  }, []);
-
-  const handleOpenDetailed = useCallback(
-    (item: DevotionalItem | null) => {
-      setCreateInitialItem(item);
-      setIsCreateOpen(true);
-      setIsCreateClosing(false);
-    },
-    [],
-  );
-
-  return (
-    <AppShell
-      section={isCreateOpen ? "create" : activeSection}
-      onSelectSection={(sec) => {
-        if (isCreateOpen) {
-          handleReturnFromCreate();
-        }
-        if (sec !== "create") {
-          scrollToSection(sec, true);
-        }
-      }}
-      onOpenDetailed={handleOpenDetailed}
-    >
-      <div
-        ref={viewportRef}
-        className="main-swipe-viewport"
-        onScroll={handleScroll}
-        aria-live="polite"
-      >
-        <div className="main-swipe-page" data-section="virds" data-active={activeSection === "virds"}>
-          <CollectionScreen collection="virds" />
-        </div>
-        <div className="main-swipe-page" data-section="favorites" data-active={activeSection === "favorites"}>
-          <CollectionScreen collection="favorites" />
-        </div>
-        <div className="main-swipe-page" data-section="discover" data-active={activeSection === "discover"}>
-          <DiscoveryScreen />
-        </div>
-        <div className="main-swipe-page" data-section="settings" data-active={activeSection === "settings"}>
-          <SettingsScreen />
-        </div>
-      </div>
-
-      {isCreateOpen ? (
-        <div className={`create-slide-container ${isCreateClosing ? "is-closing" : "is-open"}`}>
-          <RecordCreateScreen
-            initialItem={createInitialItem}
-            onClose={handleReturnFromCreate}
-            onSaved={handleReturnFromCreate}
-          />
-        </div>
-      ) : null}
-    </AppShell>
-  );
+  return <AppShell section={createDraft !== undefined ? "create" : activeSection}
+    onSelectSection={(section) => { if (section !== "create") selectSection(section); }}
+    onOpenDetailed={setCreateDraft}>
+    <div ref={viewportRef} className="main-swipe-viewport">
+      {mainSections.map(({ id }) => <div key={id} className="main-swipe-page" data-section={id}
+        data-active={activeSection === id} inert={activeSection !== id}>
+        {mounted.includes(id) ? (
+          id === "settings" ? <SettingsScreen active={activeSection === id} /> :
+          id === "discover" ? <DiscoveryScreen /> : <CollectionScreen collection={id} />
+        ) : null}
+      </div>)}
+    </div>
+    {createDraft !== undefined ? <RecordCreateScreen initialDraft={createDraft ?? undefined} onClose={closeCreate} /> : null}
+  </AppShell>;
 }

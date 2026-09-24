@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
+import { Accordion } from "./Accordion";
 import { ChevronDown } from "lucide-react";
 import { t } from "../core/i18n";
 
@@ -21,7 +22,7 @@ export function ModuleScreenHeader({
     <header className="screen-heading">
       <p className="eyebrow">{eyebrow}</p>
       <div className="screen-heading-main">
-        <h1 id="page-title">{title}</h1>
+        <h1>{title}</h1>
         <p className="dayline">{tagline}</p>
       </div>
       {filters ? (
@@ -36,11 +37,7 @@ export function ModuleScreenHeader({
         </button>
       ) : null}
       {filters ? (
-        <div className={`header-filters-accordion${filtersOpen ? " is-open" : ""}`} aria-hidden={!filtersOpen}>
-          <div className="header-filters-inner">
-            {filters}
-          </div>
-        </div>
+        <Accordion open={filtersOpen} className="header-filters-accordion">{filters}</Accordion>
       ) : null}
     </header>
   );

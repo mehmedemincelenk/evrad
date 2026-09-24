@@ -6,12 +6,14 @@ export const appSections = [
   { id: "discover", route: "/kesfet/canta", label: "menu.discover", icon: "discover" },
 ] as const;
 export type AppSection = typeof appSections[number]["id"];
+export const mainSections = [...appSections, { id: "settings", route: "/ayarlar", label: "menu.settings", icon: "settings" }] as const;
+export type MainSection = typeof mainSections[number]["id"];
+export type NavigationTarget = MainSection | "create";
 export const createRecordRoute = "/virdlerim/yeni";
 
-export function getSectionRoute(section: AppSection | "settings" | "create") {
+export function getSectionRoute(section: NavigationTarget) {
   if (section === "create") return createRecordRoute;
-  if (section === "settings") return "/ayarlar";
-  return appSections.find((item) => item.id === section)!.route;
+  return mainSections.find((item) => item.id === section)!.route;
 }
 
 export const modules = [
